@@ -1,9 +1,9 @@
 
 
-let flowEventRunner = require("./FlowEventRunner");
+let flowEventRunner = require("./FlowEventRunner.js");
 let flowTaskPackageType = require("./FlowTaskPackageType.js");
-let humanFlowToMachineFlow = require('./HumanFlowToMachineFlow');
-let flowTask = require('./flowTask');
+let humanFlowToMachineFlow = require('./HumanFlowToMachineFlow.js');
+let flowTask = require('./FlowTask.js');
 
 function createFlowRunner() {
 	return {

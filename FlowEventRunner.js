@@ -1,4 +1,4 @@
-let FlowTaskPackageType = require("./FlowTaskPackageType.js");
+let FlowTaskPackageType = require("./FlowTaskPackageType");
 let EventEmitter = require('events').EventEmitter;
 let Promise = require('promise');
 const uuidV4 = require('uuid/v4');
