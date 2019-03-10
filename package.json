@@ -1,0 +1,19 @@
+{
+  "name": "flowrunner",
+  "version": "0.0.1",
+  "description": "libraries which runs flows",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository":"https://www.github.com/devhelpr/flowrunner",
+  "author": "Maikel van de Lisdonk",
+  "license": "ISC",
+  "dependencies": {
+    "@reactivex/rxjs": "^6.4.0",
+    "promise": "^8.0.2",
+    "rxjs": "^6.4.0",
+    "rxjs-compat": "^6.4.0",
+    "uuid": "^3.3.2"
+  }
+}
