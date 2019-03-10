@@ -8,7 +8,7 @@
   },
   "repository":"https://www.github.com/devhelpr/flowrunner",
   "author": "Maikel van de Lisdonk",
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@reactivex/rxjs": "^6.4.0",
     "promise": "^8.0.2",
