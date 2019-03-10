@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository":"https://www.github.com/devhelpr/flowrunner",
+  "repository": "https://www.github.com/devhelpr/flowrunner",
   "author": "Maikel van de Lisdonk",
   "license": "GPL-3.0-or-later",
   "dependencies": {
