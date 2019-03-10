@@ -1,5 +1,5 @@
 {
-  "name": "flowrunner",
+  "name": "@devhelpr/flowrunner",
   "version": "0.0.1",
   "description": "libraries which runs flows",
   "main": "index.js",
