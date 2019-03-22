@@ -132,10 +132,8 @@ function createNodes(nodeList) {
 		
 		if (_services.pluginClasses.hasOwnProperty(pluginClassName)) {
 			
-			console.log(_services.pluginClasses[pluginClassName]);
 			let pluginClass = _services.pluginClasses[pluginClassName];
 			let pluginInstance = new pluginClass();
-			console.log(pluginClass, pluginInstance.getName());
 			
 			nodeTypes[pluginInstance.getName()] = {
 				name: pluginInstance.getName(),
