@@ -2,7 +2,8 @@
   "name": "@devhelpr/flowrunner",
   "version": "0.0.5",
   "description": "Library which runs flows",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest --config jestconfig.json",
     "build": "tsc",
