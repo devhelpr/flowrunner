@@ -4,6 +4,11 @@ let Promise = require('promise');
 const uuidV4 = require('uuid/v4');
 let Rx = require('@reactivex/rxjs');
 
+import { TraceConsoleTask } from "./plugins/TraceConsoleTask";
+import { FunctionCallTask } from "./plugins/FunctionCallTask";
+import { FunctionInputTask } from "./plugins/FunctionInputTask";
+import { FunctionOutputTask } from "./plugins/FunctionOutputTask";
+import { IfConditionTask } from "./plugins/IfConditionTask";
 
 let _services;
 let _nodes;
@@ -595,8 +600,24 @@ module.exports = {
 		})
 	},
 
-	start:function (services,flowPackage) {
-		_services = services;
+	start:function (flowPackage, services, mergeWithDefaultPlugins) {
+		if (services !== undefined) {
+			_services = services;
+		} else {
+			_services = {
+				registerModel : () => {}, 				
+				logMessage : () => {},
+				pluginClasses : {}
+			}
+		}
+
+		if (mergeWithDefaultPlugins === undefined || mergeWithDefaultPlugins === true) {
+			_services.pluginClasses["TraceConsoleTask"] = TraceConsoleTask;
+			_services.pluginClasses["IfConditionTask"] = IfConditionTask;
+			_services.pluginClasses["FunctionCallTask"] = FunctionCallTask;
+			_services.pluginClasses["FunctionInputTask"] = FunctionInputTask;
+			_services.pluginClasses["FunctionOutputTask"] = FunctionOutputTask;
+		}
 		
 		return new Promise(function(resolve, reject) {
 				try {
