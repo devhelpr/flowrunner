@@ -3,11 +3,11 @@ let FlowTaskPackageType = require("@devhelpr/flowrunner").FlowTaskPackageType;
 let Promise = require('promise');
 
 export class FunctionCallTask extends FlowTask {
-	execute(node) {
+	execute(node : any) {
 		
 		console.log("RUNNING FunctionCallTask: "+node.id+" - "+node.title);
 
-		return new Promise((resolve,reject) => {
+		return new Promise((resolve : any ,reject : any) => {
 			resolve(node.payload);
 		});
 	}

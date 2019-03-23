@@ -1,11 +1,11 @@
 let FlowTaskPackageType = require("./FlowTaskPackageType.js");
 
 class FlowTask {
-	execute(node, services) {
+	execute(node : any, services : any) {
 		return true;
 	}
 
-	executeAsHTTPEndpoint(node, request, response) {
+	executeAsHTTPEndpoint(node : any, request : any, response : any) {
 		// only called when PackageType is FlowTaskPackageType.HTTP_ENDPOINT_NODE 
 	}
 

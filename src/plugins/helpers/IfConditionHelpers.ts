@@ -1,4 +1,9 @@
-export function conditionCheck(field1,field2,condition,dataType) {
+let moment = require('moment');
+
+export function conditionCheck(field1 : any,
+	field2 : any,
+	condition : any,
+	dataType : any) {
 
 	if (dataType == "date") {
 

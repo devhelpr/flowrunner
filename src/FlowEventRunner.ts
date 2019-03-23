@@ -10,36 +10,36 @@ import { FunctionInputTask } from "./plugins/FunctionInputTask";
 import { FunctionOutputTask } from "./plugins/FunctionOutputTask";
 import { IfConditionTask } from "./plugins/IfConditionTask";
 
-let _services;
-let _nodes;
-let _middleware = [];
-let functionNodes = [];
-let flowEventEmitter;
-let _flowNodeTriggers = [];
+let _services : any;
+let _nodes : any;
+let _middleware : any = [];
+let functionNodes : any = [];
+let flowEventEmitter : any;
+let _flowNodeTriggers : any = [];
 
-function callMiddleware(result, id, title, nodeType, payload) {
+function callMiddleware(result : any, id : any, title : any, nodeType : any, payload : any) {
 
 	let cleanPayload = Object.assign({}, payload);
 
 	cleanPayload.request = undefined;
 	cleanPayload.response = undefined;
 
-	_middleware.map((middleware) => {
+	_middleware.map((middleware : any) => {
 		middleware(result, id, title, nodeType, cleanPayload);
 	})
 }
 
 
-function getNodeInjections(injections, nodeList) {
-	let nodes = [];
+function getNodeInjections(injections : any, nodeList : any) {
+	let nodes : any = [];
 	if (injections.length > 0) {
 		console.log("INJECTIONS getNodeInjections",injections);
 	}
-	injections.map((nodeRelation) => {
+	injections.map((nodeRelation : any) => {
 
 		console.log("nodeRelation injection", nodeRelation.startshapeid);
 
-		nodeList.map((node) => {
+		nodeList.map((node : any) => {
 			if (node.id == nodeRelation.startshapeid) {
 				nodes.push(node)
 				
@@ -51,23 +51,23 @@ function getNodeInjections(injections, nodeList) {
 	return nodes;
 }
 
-function getManuallyToFollowNodes(manuallyToFollowNodes, nodeList) {
-	return nodeList.filter((node) => {
-		return (typeof manuallyToFollowNodes.find((o) => o.endshapeid == node.id.toString()) != "undefined")
+function getManuallyToFollowNodes(manuallyToFollowNodes : any, nodeList : any) {
+	return nodeList.filter((node : any) => {
+		return (typeof manuallyToFollowNodes.find((o : any) => o.endshapeid == node.id.toString()) != "undefined")
 	})
 }
 
-function getInjections(injectIntoNodeId,nodeList,nodeTypes) {
-	let injections = [];
+function getInjections(injectIntoNodeId : any, nodeList : any, nodeTypes : any) {
+	let injections : any= [];
 
-	let nodeInjections = nodeList.filter((o) =>
+	let nodeInjections = nodeList.filter((o : any) =>
 		o.endshapeid == injectIntoNodeId && o.shapeType == 'line' &&
 		o.followflow == "injectConfigIntoPayload"
 	)
 
-	nodeInjections.map((nodeRelation) => {
+	nodeInjections.map((nodeRelation : any) => {
 		
-		nodeList.map((node) => {
+		nodeList.map((node : any) => {
 			if (node.id == nodeRelation.startshapeid) {
 
 				let nodeType = nodeTypes[node.shapeType];
@@ -119,19 +119,19 @@ function getInjections(injectIntoNodeId,nodeList,nodeTypes) {
 //
 // split in multiple methods / classes
 
-function createNodes(nodeList) {
+function createNodes(nodeList : any) {
 
 	let nodeEmitter = Object.assign( {}, EventEmitter.prototype, { 
 	});
 	flowEventEmitter = nodeEmitter;
 
-	nodeEmitter.on('error', (err) => {
+	nodeEmitter.on('error', (err : any) => {
 		console.error('error in FlowEventRunner EventEmitter');
 		console.log(err);
 	});
 
-	let nodeTypes = {};
-	let autostarters = [];
+	let nodeTypes : any = {};
+	let autostarters : any = [];
 
 	for (var pluginClassName in _services.pluginClasses) {
 		
@@ -152,8 +152,8 @@ function createNodes(nodeList) {
 	}
 
 	_nodes = nodeList
-	.filter((o) => o.shapeType != "line")
-	.map((node) => {
+	.filter((o : any) => o.shapeType != "line")
+	.map((node : any) => {
 		let baseFlowRoute = "/flowrunner/";
 		let thisNode = node;
 		thisNode.payload = {}
@@ -166,7 +166,7 @@ function createNodes(nodeList) {
 
 			if (typeof nodeType != "undefined") {
 				let result = nodeType.pluginInstance.execute(nodeInstance, _services, {});
-				result.then(function(payload) {
+				result.then(function(payload : any) {
 					_services.registerModel(node.modelname, payload.modelDefinition)
 				})
 			}
@@ -177,22 +177,22 @@ function createNodes(nodeList) {
 		let nodeEvent = Object.assign( {}, { 
 			nodeId:node.id,
 			title:node.title,
-			inputs:nodeList.filter((o) => 
+			inputs:nodeList.filter((o : any) => 
 				o.endshapeid == node.id.toString() && o.shapeType == 'line' &&
 				o.followflow != "followManually" &&
 				o.followflow != "injectConfigIntoPayload"
 			),
-			outputs:nodeList.filter((o) =>
+			outputs:nodeList.filter((o : any) =>
 				o.startshapeid == node.id.toString() && o.shapeType == 'line' &&
 				o.followflow != "onfailure" && 
 				o.followflow != "followManually" &&
 				o.followflow != "injectConfigIntoPayload"
 			),
-			error:nodeList.filter((o) =>
+			error:nodeList.filter((o : any) =>
 				o.startshapeid == node.id.toString() && o.shapeType == 'line' &&
 				o.followflow == "onfailure"
 			),
-			manuallyToFollowNodes:getManuallyToFollowNodes(nodeList.filter((o) =>
+			manuallyToFollowNodes:getManuallyToFollowNodes(nodeList.filter((o : any) =>
 				o.startshapeid == node.id.toString() && o.shapeType == 'line' &&
 				o.followflow == "followManually"
 			), nodeList),
@@ -225,10 +225,10 @@ function createNodes(nodeList) {
 		let nodeType = nodeTypes[node.shapeType];
 		if ((typeof nodeType != "undefined") &&
 		    (typeof nodeType.pluginInstance != "undefined")) {
-				_flowNodeTriggers.map((flowNodeTrigger) => {
+				_flowNodeTriggers.map((flowNodeTrigger : any) => {
 					flowNodeTrigger(nodeType.pluginInstance.getPackageType(),
 						thisNode, 
-						function (payload, callStack) {
+						function (payload : any, callStack : any) {
 							nodeEmitter.emit(thisNode.id.toString(), payload, callStack);
 
 						}
@@ -247,17 +247,17 @@ function createNodes(nodeList) {
 				functionNodes[node.title] = node.id.toString();
 			}
 
-			nodeEmitter.on(node.id.toString(), (payload, callStack) => {
+			nodeEmitter.on(node.id.toString(), (payload : any, callStack : any) => {
 
-				let injectionValues = {};
-				let injectionPromises = [];
-				nodeEvent.injections.map((nodeInjection) => {
+				let injectionValues : any = {};
+				let injectionPromises : any = [];
+				nodeEvent.injections.map((nodeInjection : any) => {
 					let nodeInstance =  Object.assign({}, nodeInjection.node);
 					nodeInstance.payload = Object.assign({}, payload);
 					let result = nodeInjection.pluginInstance.execute(nodeInstance,_services, callStack);
 
 					if (typeof result == "object" && typeof result.then == "function") {
-						result.then((_payload) => {
+						result.then((_payload : any) => {
 
 							_payload.response = null;
 							_payload.request = null;
@@ -275,7 +275,7 @@ function createNodes(nodeList) {
 								injectionValues[key] = _payload[key];
 							}	
 						})
-						.catch((err) => {
+						.catch((err : any) => {
 							console.log("injection promise failed",err)
 						})
 					} else if (typeof result == "object") {
@@ -305,7 +305,7 @@ function createNodes(nodeList) {
 
 					console.log("EVENT Received for node: ",nodeEvent.title,node.id.toString())
 					
-					function emitToOutputs(nodeInstance, callStack) {
+					function emitToOutputs(nodeInstance : any, callStack : any) {
 						let followFlow = "";
 
 						if (typeof nodeInstance.payload.followFlow != "undefined" && 
@@ -325,7 +325,7 @@ function createNodes(nodeList) {
 								followFlow = nodeInstance.payload.followFlow;
 
 								if (followFlow == "isError") {
-									nodeInstance.payload._functionErrorOutputs.map((node) => {
+									nodeInstance.payload._functionErrorOutputs.map((node : any) => {
 										nodeEmitter.emit(node.endshapeid.toString(), _payload, callStack)
 									})
 									return;
@@ -340,7 +340,7 @@ function createNodes(nodeList) {
 								})
 								*/
 								let upperCallStack = callStack.callStack;
-								callStack.outputs.map((node) => {
+								callStack.outputs.map((node : any) => {
 									nodeEmitter.emit(node.endshapeid.toString(), _payload, upperCallStack);		
 								});
 							}
@@ -372,7 +372,7 @@ function createNodes(nodeList) {
 										nodeInstance.payload.followFlow = undefined;
 									}
 
-									emitToError(nodeInstance)
+									emitToError(nodeInstance, callStack)
 									return;
 								}
 							}
@@ -383,7 +383,7 @@ function createNodes(nodeList) {
 
 							delete nodeInstance.payload.errors;
 
-							nodeEvent.outputs.map((node) => {
+							nodeEvent.outputs.map((node : any) => {
 								if ((followFlow == "") || 
 									((followFlow != "" && node.title == followFlow))) {
 									nodeEmitter.emit(node.endshapeid.toString(), nodeInstance.payload, callStack)		
@@ -392,7 +392,7 @@ function createNodes(nodeList) {
 						}
 					}
 
-					function emitToError(nodeInstance, callStack) {
+					function emitToError(nodeInstance : any, callStack : any) {
 						if (nodeType.pluginInstance.getPackageType() == FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
 
 							let _payload = Object.assign({}, nodeInstance.payload);	
@@ -412,7 +412,7 @@ function createNodes(nodeList) {
 							*/
 
 							let upperCallStack = callStack.callStack;
-							callStack.error.map((node) => {
+							callStack.error.map((node : any) => {
 								nodeEmitter.emit(node.endshapeid.toString(), _payload, upperCallStack);		
 							});
 
@@ -423,7 +423,7 @@ function createNodes(nodeList) {
 								nodeInstance.payload._forwardFollowFlow = nodeInstance.payload.followFlow;	
 							}	
 								
-							nodeEvent.error.map((node) => {
+							nodeEvent.error.map((node : any) => {
 								nodeEmitter.emit(node.endshapeid.toString(), nodeInstance.payload, callStack)
 							}) 
 						}
@@ -458,14 +458,14 @@ function createNodes(nodeList) {
 						let result = nodeType.pluginInstance.execute(nodeInstance, _services, _callStack);
 						if (result instanceof Rx.Observable) {
 							var observer = {
-								next: (payload) => {
+								next: (payload : any) => {
 									callMiddleware("ok", nodeInstance.id, nodeInstance.title, 
 											node.shapeType, payload);
 
 									nodeInstance.payload = payload;
 									emitToOutputs(nodeInstance, _callStack)
 								},
-								error: (err) => {
+								error: (err : any) => {
 
 									callMiddleware("error", nodeInstance.id, nodeInstance.title, 
 											node.shapeType, payload);
@@ -482,7 +482,7 @@ function createNodes(nodeList) {
 						} else
 						if (typeof result == "object" && typeof result.then == "function") {
 							// Promise
-							result.then((payload) => {
+							result.then((payload : any) => {
 
 								callMiddleware("ok", nodeInstance.id, nodeInstance.title, 
 											node.shapeType, payload);
@@ -490,7 +490,7 @@ function createNodes(nodeList) {
 								nodeInstance.payload = payload;
 								emitToOutputs(nodeInstance, _callStack)
 							})
-							.catch((err) => {
+							.catch((err : any) => {
 								console.log(err);
 
 								callMiddleware("error", nodeInstance.id, nodeInstance.title, 
@@ -522,16 +522,7 @@ function createNodes(nodeList) {
 					} catch(err) {
 						let payloadForNotification = Object.assign({},nodeInstance.payload);
 						payloadForNotification.response = undefined;
-						payloadForNotification.request = undefined;
-
-						sendNotification('FlowEventRunner.debug',{
-							id:nodeInstance.id.toString(),
-							error:true,
-							errorMessage:err,
-							title:nodeInstance.title,
-							dateTime:new Date().toISOString(),
-							payload:payloadForNotification
-						});
+						payloadForNotification.request = undefined;			
 					}
 				})
 			})
@@ -540,7 +531,7 @@ function createNodes(nodeList) {
 		}
 	})
 
-	autostarters.map(function (nodeId) {
+	autostarters.map(function (nodeId : any) {
 		nodeEmitter.emit(nodeId.toString(), {}, {});
 	})
 }
@@ -548,14 +539,14 @@ function createNodes(nodeList) {
 
 module.exports = {
 
-	getFunctionNodeId:function(title) {
+	getFunctionNodeId:function(title: any) {
 		if (typeof functionNodes[title] != "undefined" && functionNodes[title] != "") {
 			return functionNodes[title];
 		}
 		return false;
 	},
 
-	callNode:function(nodeId, payload) {
+	callNode:function(nodeId : any, payload : any) {
 		flowEventEmitter.emit(nodeId.toString(), payload);	
 	},
 
@@ -563,22 +554,24 @@ module.exports = {
 		return flowEventEmitter;
 	},
 
-	useFlowNodeTrigger: function(effect) {
+	useFlowNodeTrigger: function(effect : any) {
 		_flowNodeTriggers.push(effect);
 	},
 
-	executeFlowFunction:function(flowFunctionName) {
+	executeFlowFunction:function(flowFunctionName : any) {
 
-		return new Promise(function(resolve, reject) {
+		return new Promise(function(resolve : any, reject : any) {
+			let tempNodeId : any;
+			function onFunctionResult(payload : any) {
+				flowEventEmitter.removeListener(tempNodeId, onFunctionResult);
+				resolve(payload);
+			}
+
 			try {
 				if (typeof functionNodes[flowFunctionName] != "undefined" && functionNodes[flowFunctionName] != "") {
-					let tempNodeId = uuidV4().toString();
-					let nodeId = functionNodes[flowFunctionName];
-		
-					function onFunctionResult(payload) {
-						flowEventEmitter.removeListener(tempNodeId, onFunctionResult);
-						resolve(payload);
-					}
+					
+					tempNodeId = uuidV4().toString();
+					let nodeId = functionNodes[flowFunctionName];						
 
 					flowEventEmitter.on(tempNodeId, onFunctionResult);
 					let payload = {}
@@ -600,7 +593,7 @@ module.exports = {
 		})
 	},
 
-	start:function (flowPackage, services, mergeWithDefaultPlugins) {
+	start:function (flowPackage : any, services : any, mergeWithDefaultPlugins : any) {
 		if (services !== undefined) {
 			_services = services;
 		} else {
@@ -619,20 +612,17 @@ module.exports = {
 			_services.pluginClasses["FunctionOutputTask"] = FunctionOutputTask;
 		}
 		
-		return new Promise(function(resolve, reject) {
+		return new Promise(function(resolve : any, reject : any) {
 				try {
 					
 					createNodes(flowPackage.flow)
 
 					resolve();
 				} catch (err) {
-					console.log("error",err)
+					console.log("setup failed! error",err)
 					reject();
 				}
 			}
-		).catch(() => {
-			console.log("setup failed");
-			resolve();
-		});
+		)
 	}
 }

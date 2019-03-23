@@ -1,7 +1,7 @@
 let FlowTask = require("@devhelpr/flowrunner").FlowTask;
 let Promise = require('promise');
 export class TraceConsoleTask extends FlowTask {
-	execute(node, services, callStack) {
+	execute(node : any, services : any, callStack : any) {
 		console.log("RUNNING: "+node.id+" - "+node.title);		
 
 		if (node.message !== undefined && node.message != "") {
@@ -10,7 +10,7 @@ export class TraceConsoleTask extends FlowTask {
 			console.log(node.payload);
 		}
 		
-		return new Promise((resolve,reject) => {
+		return new Promise((resolve : any, reject : any) => {
 			resolve(node.payload);
 		});
 	}

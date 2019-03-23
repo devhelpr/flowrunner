@@ -6,8 +6,8 @@ let moment = require('moment');
 import { conditionCheck } from "./helpers/IfConditionHelpers";
 
 export class IfConditionTask extends FlowTask {
-	execute(node) {
-		return new Promise((resolve,reject) => {
+	execute(node : any) {
+		return new Promise((resolve : any, reject : any) => {
 
 			let splitField1 = node.compareProperty.split(".");
 			let splitField2 = node.withProperty.split(".");
@@ -43,8 +43,8 @@ export class IfConditionTask extends FlowTask {
 					field2 = node.payload[node.withProperty];
 				} 
 			} else {
-				let objectToCheck = null;
-				splitField2.map((fieldName) => {
+				let objectToCheck : any = null;
+				splitField2.map((fieldName : any) => {
 					if (objectToCheck) {
 						objectToCheck = objectToCheck[fieldName]
 					} else {

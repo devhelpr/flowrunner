@@ -2,38 +2,34 @@ let FlowTask = require("@devhelpr/flowrunner").FlowTask;
 let FlowTaskPackageType = require("@devhelpr/flowrunner").FlowTaskPackageType;
 let Promise = require('promise');
 
-export class FunctionOutputTask extends FlowTask {
-	execute(node) {
+export class FunctionInputTask extends FlowTask {
+	execute(node : any) {
 		
-		console.log("RUNNING FunctionOutputTask: "+node.id+" - "+node.title);
+		console.log("RUNNING FunctionInputTask: "+node.id+" - "+node.title);
 
-		return new Promise((resolve,reject) => {
+		return new Promise((resolve : any, reject : any) => {
 			resolve(node.payload);
 		});
 	}
 
 	getName() {
-		return "FunctionOutputTask"
+		return "FunctionInputTask"
 	}
 
 	getFullName() {
-		return "FunctionOutput"
+		return "FunctionInput"
 	}
 
 	getDescription() {
-		return "Node that is the end for this function";
+		return "Node that's the startpoint for this function";
 	}
 
 	getIcon() {
-		return "FunctionOutput"
+		return "FunctionInput"
 	}
 
 	getShape() {
-		return "smallcircle"
-	}
-
-	getDefaultColor() {
-		return "#3d93dd";//"#d43f3af0";
+		return "circle"
 	}
 
 	getTaskType() {
@@ -41,7 +37,7 @@ export class FunctionOutputTask extends FlowTask {
 	}
 
 	getPackageType() {
-		return FlowTaskPackageType.FUNCTION_OUTPUT_NODE
+		return FlowTaskPackageType.FUNCTION_INPUT_NODE
 	}
 
 	getCategory() {
