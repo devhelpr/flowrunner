@@ -1,5 +1,5 @@
-let FlowTask = require("@devhelpr/flowrunner").FlowTask;
-let FlowTaskPackageType = require("@devhelpr/flowrunner").FlowTaskPackageType;
+let FlowTask = require('../FlowTask');
+let FlowTaskPackageType = require("../FlowTaskPackageType");
 let Promise = require('promise');
 
 export class FunctionCallTask extends FlowTask {
