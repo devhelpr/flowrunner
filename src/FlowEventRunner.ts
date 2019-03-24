@@ -143,7 +143,6 @@ function createNodes(nodeList: any) {
   _nodes = nodeList
     .filter((o: any) => o.shapeType != 'line')
     .map((node: any) => {
-      let baseFlowRoute = '/flowrunner/';
       let thisNode = node;
       thisNode.payload = {};
 
@@ -239,7 +238,7 @@ function createNodes(nodeList: any) {
         }
 
         nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
-          let injectionValues: any = {};
+					let injectionValues: any = {};
           let injectionPromises: any = [];
           nodeEvent.injections.map((nodeInjection: any) => {
             let nodeInstance = Object.assign({}, nodeInjection.node);
@@ -282,12 +281,13 @@ function createNodes(nodeList: any) {
           });
 
           Promise.all(injectionPromises).then(() => {
+						
             let nodeInstance = Object.assign({}, thisNode, { followNodes: nodeEvent.manuallyToFollowNodes });
 
             nodeInstance.payload = Object.assign({}, payload, injectionValues);
 
             if (thisNode.subtype == 'start') {
-              callStack.sessionId = uuidV4();
+								callStack.sessionId = uuidV4();
             }
 
             console.log('EVENT Received for node: ', nodeEvent.title, node.id.toString());
@@ -506,7 +506,7 @@ module.exports = {
   },
 
   callNode: function(nodeId: any, payload: any) {
-    flowEventEmitter.emit(nodeId.toString(), payload);
+    flowEventEmitter.emit(nodeId.toString(), payload, {});
   },
 
   getFlowEventEmitter: function() {
