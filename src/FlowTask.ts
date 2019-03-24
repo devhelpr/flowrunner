@@ -1,105 +1,103 @@
-let FlowTaskPackageType = require("./FlowTaskPackageType.js");
+let FlowTaskPackageType = require('./FlowTaskPackageType.js');
 
 class FlowTask {
-	execute(node : any, services : any) {
-		return true;
-	}
+  execute(node: any, services: any) {
+    return true;
+  }
 
-	executeAsHTTPEndpoint(node : any, request : any, response : any) {
-		// only called when PackageType is FlowTaskPackageType.HTTP_ENDPOINT_NODE 
-	}
+  executeAsHTTPEndpoint(node: any, request: any, response: any) {
+    // only called when PackageType is FlowTaskPackageType.HTTP_ENDPOINT_NODE
+  }
 
-	getName() {
-		return "FlowTask"
-	}
+  getName() {
+    return 'FlowTask';
+  }
 
-	getFullName() {
-		return "FlowTask"
-	}
+  getFullName() {
+    return 'FlowTask';
+  }
 
-	getIcon() {
-		return ""
-	}
+  getIcon() {
+    return '';
+  }
 
-	getShape() {
-		return "circle"
-	}
+  getShape() {
+    return 'circle';
+  }
 
-	// used for filtering
-	getTaskType() {
-		// both/frontend/backend/abstract .. #thought: replace "both" by something else
-		return ""
-	}
+  // used for filtering
+  getTaskType() {
+    // both/frontend/backend/abstract .. #thought: replace "both" by something else
+    return '';
+  }
 
-	// needed? used for filtering
-	getCategory() {
-		return ""
-	}
+  // needed? used for filtering
+  getCategory() {
+    return '';
+  }
 
-	// needed? used for filtering
-	getController() {
-		return "CanvasController"
-	}
+  // needed? used for filtering
+  getController() {
+    return 'CanvasController';
+  }
 
-	// metadata for configurating stuff like url's etc
-	// stored on flowgroup level specific for a controller inheriting from canvascontroller
-	// - specific model is probably needed for this
-	getConfigMetaData() {
-		return []
-	}
+  // metadata for configurating stuff like url's etc
+  // stored on flowgroup level specific for a controller inheriting from canvascontroller
+  // - specific model is probably needed for this
+  getConfigMetaData() {
+    return [];
+  }
 
-	// ??? needed ?? metadata used when executing a step
-	// it's unique for each step (stored together with the Node's data in database)
-	getStepParametersMetaData() {
-		return []
-	}
+  // ??? needed ?? metadata used when executing a step
+  // it's unique for each step (stored together with the Node's data in database)
+  getStepParametersMetaData() {
+    return [];
+  }
 
-	// Wordt deze al gebruikt??? wellicht tbv "Register plugin on init flow" 
-	//  - Registreren is nodig in frontendflowrunner voor reducers te registreren
-	//      en in backend voor model definitions tbv database
-	//     .. wordt voor HTTP_ENDPOINT_NODE in (Backend)FlowEventRunner wel gebruikt..
-	getPackageType() {
-		return FlowTaskPackageType.DEFAULT_NODE
-	}
+  // Wordt deze al gebruikt??? wellicht tbv "Register plugin on init flow"
+  //  - Registreren is nodig in frontendflowrunner voor reducers te registreren
+  //      en in backend voor model definitions tbv database
+  //     .. wordt voor HTTP_ENDPOINT_NODE in (Backend)FlowEventRunner wel gebruikt..
+  getPackageType() {
+    return FlowTaskPackageType.DEFAULT_NODE;
+  }
 
-	getInfo() {
-		return ""
-	}
+  getInfo() {
+    return '';
+  }
 
-	getDefaultFollowFlow() {
-		return ""
-	}
+  getDefaultFollowFlow() {
+    return '';
+  }
 
-	getDefaultRelationName() {
-		return ""
-	}
+  getDefaultRelationName() {
+    return '';
+  }
 
-	getPayloadContract() {
-		return []
-	}
+  getPayloadContract() {
+    return [];
+  }
 
-	// "minimal" , "strict"
-	getPayloadContractMode() {
-		return "minimal"
-	}
+  // "minimal" , "strict"
+  getPayloadContractMode() {
+    return 'minimal';
+  }
 
-	getDefaultColor() {
-		return "#000000";
-	}
+  getDefaultColor() {
+    return '#000000';
+  }
 
-	isAttachedToExternalObservable() {
-		return false;
-	}
+  isAttachedToExternalObservable() {
+    return false;
+  }
 
-	isAttachedToStoreChanges() {
-		return false;
-	}
+  isAttachedToStoreChanges() {
+    return false;
+  }
 
-	getDescription() {
-		return "{{{title}}}";
-	}
-
-
+  getDescription() {
+    return '{{{title}}}';
+  }
 }
 
 module.exports = FlowTask;

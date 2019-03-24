@@ -1,56 +1,55 @@
 let FlowTask = require('../FlowTask');
-let FlowTaskPackageType = require("../FlowTaskPackageType");
+let FlowTaskPackageType = require('../FlowTaskPackageType');
 let Promise = require('promise');
 
 export class FunctionCallTask extends FlowTask {
-	execute(node : any) {
-		
-		console.log("RUNNING FunctionCallTask: "+node.id+" - "+node.title);
+  execute(node: any) {
+    console.log('RUNNING FunctionCallTask: ' + node.id + ' - ' + node.title);
 
-		return new Promise((resolve : any ,reject : any) => {
-			resolve(node.payload);
-		});
-	}
+    return new Promise((resolve: any, reject: any) => {
+      resolve(node.payload);
+    });
+  }
 
-	getName() {
-		return "FunctionCallTask"
-	}
+  getName() {
+    return 'FunctionCallTask';
+  }
 
-	getFullName() {
-		return "FunctionCall"
-	}
+  getFullName() {
+    return 'FunctionCall';
+  }
 
-	getDescription() {
-		return "Node that calls a function node";
-	}
+  getDescription() {
+    return 'Node that calls a function node';
+  }
 
-	getIcon() {
-		return "functioncall"
-	}
+  getIcon() {
+    return 'functioncall';
+  }
 
-	getShape() {
-		return "circle"
-	}
+  getShape() {
+    return 'circle';
+  }
 
-	getTaskType() {
-		return "both"
-	}
+  getTaskType() {
+    return 'both';
+  }
 
-	getPackageType() {
-		return FlowTaskPackageType.FUNCTION_NODE
-	}
+  getPackageType() {
+    return FlowTaskPackageType.FUNCTION_NODE;
+  }
 
-	getCategory() {
-		return "FlowCanvas"
-	}
+  getCategory() {
+    return 'FlowCanvas';
+  }
 
-	getController() {
-		return "FlowCanvasController"
-	}
+  getController() {
+    return 'FlowCanvasController';
+  }
 
-	getConfigMetaData() {
-		return [
-			{name:"functionnodeid", defaultValue:"", valueType:"enum", required: true, optionsViaController:true}					
-		]
-	}
+  getConfigMetaData() {
+    return [
+      { name: 'functionnodeid', defaultValue: '', valueType: 'enum', required: true, optionsViaController: true },
+    ];
+  }
 }
