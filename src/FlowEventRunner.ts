@@ -1,16 +1,14 @@
-import * as Rx from "@reactivex/rxjs";
-import { EventEmitter } from "events";
-import * as Promise from "promise";
-import * as uuid from "uuid";
-import * as FlowTaskPackageType from "./FlowTaskPackageType";
+import * as Rx from '@reactivex/rxjs';
+import { EventEmitter } from 'events';
+import * as Promise from 'promise';
+import * as uuid from 'uuid';
+import * as FlowTaskPackageType from './FlowTaskPackageType';
 import { FunctionCallTask } from './plugins/FunctionCallTask';
 import { FunctionInputTask } from './plugins/FunctionInputTask';
 import { FunctionOutputTask } from './plugins/FunctionOutputTask';
 import { IfConditionTask } from './plugins/IfConditionTask';
 import { TraceConsoleTask } from './plugins/TraceConsoleTask';
 const uuidV4 = uuid.v4;
-
-
 
 let services: any;
 let nodes: any;
@@ -61,7 +59,8 @@ function getInjections(injectIntoNodeId: any, nodeList: any, nodeTypes: any) {
   const injections: any = [];
 
   const nodeInjections = nodeList.filter(
-    (o: any) => o.endshapeid === injectIntoNodeId && o.shapeType === 'line' && o.followflow === 'injectConfigIntoPayload',
+    (o: any) =>
+      o.endshapeid === injectIntoNodeId && o.shapeType === 'line' && o.followflow === 'injectConfigIntoPayload',
   );
 
   nodeInjections.map((nodeRelation: any) => {
@@ -171,7 +170,7 @@ function createNodes(nodeList: any) {
           error: nodeList.filter(
             (o: any) => o.startshapeid === node.id.toString() && o.shapeType === 'line' && o.followflow === 'onfailure',
           ),
-					// TODO : hier direct de nodes uitlezen en de variabelen die geinjecteerd moeten
+          // TODO : hier direct de nodes uitlezen en de variabelen die geinjecteerd moeten
           // worden toevoegen
           injections: getInjections(node.id.toString(), nodeList, nodeTypes),
           inputs: nodeList.filter(
@@ -188,7 +187,7 @@ function createNodes(nodeList: any) {
             ),
             nodeList,
           ),
-					nodeId: node.id,
+          nodeId: node.id,
           outputs: nodeList.filter(
             (o: any) =>
               o.startshapeid === node.id.toString() &&
@@ -197,7 +196,7 @@ function createNodes(nodeList: any) {
               o.followflow !== 'followManually' &&
               o.followflow !== 'injectConfigIntoPayload',
           ),
-          title: node.title
+          title: node.title,
         },
       );
 
@@ -294,8 +293,8 @@ function createNodes(nodeList: any) {
                     });
                     return;
                   }
-								}
-								// END CHECK TODO: Is this needed?
+                }
+                // END CHECK TODO: Is this needed?
 
                 if (typeof callStack.outputs !== 'undefined') {
                   const upperCallStack = callStack.callStack;
@@ -304,7 +303,6 @@ function createNodes(nodeList: any) {
                   });
                 }
               } else if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
-
                 const newCallStack = {
                   callStack,
                   callStackType: 'FUNCTION',
@@ -521,7 +519,7 @@ module.exports = {
     });
   },
 
-	start: (flowPackage: any, customServices: any, mergeWithDefaultPlugins: any) => {
+  start: (flowPackage: any, customServices: any, mergeWithDefaultPlugins: any) => {
     if (customServices !== undefined) {
       services = customServices;
     } else {
@@ -533,7 +531,7 @@ module.exports = {
     }
 
     if (mergeWithDefaultPlugins === undefined || mergeWithDefaultPlugins === true) {
-    	services.pluginClasses['TraceConsoleTask'] = TraceConsoleTask;
+      services.pluginClasses['TraceConsoleTask'] = TraceConsoleTask;
       services.pluginClasses['IfConditionTask'] = IfConditionTask;
       services.pluginClasses['FunctionCallTask'] = FunctionCallTask;
       services.pluginClasses['FunctionInputTask'] = FunctionInputTask;
