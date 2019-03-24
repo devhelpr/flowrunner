@@ -238,7 +238,7 @@ function createNodes(nodeList: any) {
         }
 
         nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
-					let injectionValues: any = {};
+          let injectionValues: any = {};
           let injectionPromises: any = [];
           nodeEvent.injections.map((nodeInjection: any) => {
             let nodeInstance = Object.assign({}, nodeInjection.node);
@@ -281,13 +281,12 @@ function createNodes(nodeList: any) {
           });
 
           Promise.all(injectionPromises).then(() => {
-						
             let nodeInstance = Object.assign({}, thisNode, { followNodes: nodeEvent.manuallyToFollowNodes });
 
             nodeInstance.payload = Object.assign({}, payload, injectionValues);
 
             if (thisNode.subtype == 'start') {
-								callStack.sessionId = uuidV4();
+              callStack.sessionId = uuidV4();
             }
 
             console.log('EVENT Received for node: ', nodeEvent.title, node.id.toString());
