@@ -1,14 +1,14 @@
 const uuidV4 = require('uuid/v4');
 
 module.exports = {
-  convert: function(humanFlowPackege: any) {
-    let flowPackage = Object.assign({}, humanFlowPackege);
+  convert: (humanFlowPackege: any) => {
+    const flowPackage = Object.assign({}, humanFlowPackege);
 
-    flowPackage.flow.map(function(flowNode: any) {
+    flowPackage.flow.map((flowNode: any) => {
       flowNode._id = flowNode.id;
       if (typeof flowNode._outputs !== 'undefined') {
-        flowNode._outputs.map(function(outputNode: any) {
-          let connection: any = {};
+        flowNode._outputs.map((outputNode: any) => {
+          const connection: any = {};
           connection.id = uuidV4();
           connection._id = connection.id;
           connection.shapeType = 'line';
@@ -19,8 +19,8 @@ module.exports = {
         });
       }
       if (typeof flowNode._errors !== 'undefined') {
-        flowNode._errors.map(function(outputNode: any) {
-          let connection: any = {};
+        flowNode._errors.map((outputNode: any) => {
+          const connection: any = {};
           connection.id = uuidV4();
           connection._id = connection.id;
           connection.shapeType = 'line';

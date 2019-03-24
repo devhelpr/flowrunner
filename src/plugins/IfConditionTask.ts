@@ -1,7 +1,7 @@
-let FlowTask = require('../FlowTask');
-let FlowTaskPackageType = require('../FlowTaskPackageType');
-let Promise = require('promise');
-let moment = require('moment');
+const FlowTask = require('../FlowTask');
+const FlowTaskPackageType = require('../FlowTaskPackageType');
+const Promise = require('promise');
+const moment = require('moment');
 
 import { conditionCheck } from './helpers/IfConditionHelpers';
 

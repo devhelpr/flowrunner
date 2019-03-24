@@ -281,10 +281,8 @@ function createNodes(nodeList: any) {
               }
 
               if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
-                let _payload = Object.assign({}, nodeInstance.payload);
-                // delete _payload._functionOutputs;
-                // delete _payload._functionErrorOutputs;
-                delete _payload.followFlow;
+                const newPayload = Object.assign({}, nodeInstance.payload);
+                delete newPayload.followFlow;
 
                 // TODO: Is this needed?
                 if (typeof nodeInstance.payload.followFlow !== 'undefined' && nodeInstance.payload.followFlow) {
@@ -292,40 +290,33 @@ function createNodes(nodeList: any) {
 
                   if (followFlow === 'isError') {
                     nodeInstance.payload._functionErrorOutputs.map((node: any) => {
-                      nodeEmitter.emit(node.endshapeid.toString(), _payload, callStack);
+                      nodeEmitter.emit(node.endshapeid.toString(), newPayload, callStack);
                     });
                     return;
                   }
-                }
+								}
+								// END CHECK TODO: Is this needed?
 
-                // if (typeof nodeInstance.payload._functionOutputs != "undefined") {
                 if (typeof callStack.outputs !== 'undefined') {
-                  /* nodeInstance.payload._functionOutputs.map((node) => {
-									nodeEmitter.emit(node.endshapeid.toString(), _payload, callStack);		
-								})
-								*/
                   const upperCallStack = callStack.callStack;
                   callStack.outputs.map((node: any) => {
-                    nodeEmitter.emit(node.endshapeid.toString(), _payload, upperCallStack);
+                    nodeEmitter.emit(node.endshapeid.toString(), newPayload, upperCallStack);
                   });
                 }
               } else if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
-                // nodeInstance.payload._functionOutputs = nodeEvent.outputs;
-                // nodeInstance.payload._functionErrorOutputs = nodeEvent.error;
 
-                let _callStack = {
-                  callStack: callStack,
+                const newCallStack = {
+                  callStack,
                   callStackType: 'FUNCTION',
                   error: nodeEvent.error,
                   outputs: nodeEvent.outputs,
                   returnNodeId: nodeInstance.id,
                 };
 
-                nodeEmitter.emit(nodeInstance.functionnodeid.toString(), nodeInstance.payload, _callStack);
+                nodeEmitter.emit(nodeInstance.functionnodeid.toString(), nodeInstance.payload, newCallStack);
               } else {
                 if (typeof nodeInstance.payload.followFlow !== 'undefined' && nodeInstance.payload.followFlow) {
                   followFlow = nodeInstance.payload.followFlow;
-                  // nodeInstance.payload.followFlow = undefined;
 
                   if (followFlow === 'isError') {
                     if (nodeType.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE) {
@@ -353,15 +344,15 @@ function createNodes(nodeList: any) {
 
             function emitToError(nodeInstance: any, callStack: any) {
               if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
-                let _payload = Object.assign({}, nodeInstance.payload);
+                const newPayload = Object.assign({}, nodeInstance.payload);
 
-                if (typeof _payload.followFlow !== 'undefined' && _payload.followFlow) {
-                  _payload._forwardFollowFlow = _payload.followFlow;
+                if (typeof newPayload.followFlow !== 'undefined' && newPayload.followFlow) {
+                  newPayload._forwardFollowFlow = newPayload.followFlow;
                 }
 
                 // delete _payload._functionOutputs;
                 // delete _payload._functionErrorOutputs;
-                delete _payload.followFlow;
+                delete newPayload.followFlow;
 
                 /* nodeInstance.payload._functionErrorOutputs.map((node) => {
 								nodeEmitter.emit(node.endshapeid.toString(), _payload, callStack)
@@ -370,7 +361,7 @@ function createNodes(nodeList: any) {
 
                 const upperCallStack = callStack.callStack;
                 callStack.error.map((node: any) => {
-                  nodeEmitter.emit(node.endshapeid.toString(), _payload, upperCallStack);
+                  nodeEmitter.emit(node.endshapeid.toString(), newPayload, upperCallStack);
                 });
               } else {
                 if (typeof nodeInstance.payload.followFlow !== 'undefined' && nodeInstance.payload.followFlow) {
@@ -384,12 +375,12 @@ function createNodes(nodeList: any) {
             }
 
             try {
-              let _callStack = callStack;
+              const newCallStack = callStack;
 
               if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
                 if (typeof nodeInstance.payload.followFlow !== 'undefined') {
                   if (nodeInstance.payload.followFlow === 'isError') {
-                    emitToOutputs(nodeInstance, _callStack);
+                    emitToOutputs(nodeInstance, newCallStack);
                     return;
                   }
                 }
@@ -399,7 +390,7 @@ function createNodes(nodeList: any) {
                 nodeType.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE &&
                 nodeType.pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_OUTPUT_NODE
               ) {
-                if (typeof nodeInstance.payload.followFlow != 'undefined') {
+                if (typeof nodeInstance.payload.followFlow !== 'undefined') {
                   delete nodeInstance.payload.followFlow;
                 }
               } else {
@@ -409,20 +400,20 @@ function createNodes(nodeList: any) {
               }
               nodeInstance.payload._forwardFollowFlow = undefined;
 
-              let result = nodeType.pluginInstance.execute(nodeInstance, services, _callStack);
+              const result = nodeType.pluginInstance.execute(nodeInstance, services, newCallStack);
               if (result instanceof Rx.Observable) {
                 const observer = {
                   next: (payload: any) => {
                     callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
 
                     nodeInstance.payload = payload;
-                    emitToOutputs(nodeInstance, _callStack);
+                    emitToOutputs(nodeInstance, newCallStack);
                   },
                   error: (err: any) => {
                     callMiddleware('error', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
 
                     nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
-                    emitToError(nodeInstance, _callStack);
+                    emitToError(nodeInstance, newCallStack);
                   },
                   complete: () => {
                     console.log('Completed observable for ', nodeInstance.title);
@@ -437,7 +428,7 @@ function createNodes(nodeList: any) {
                     callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
 
                     nodeInstance.payload = payload;
-                    emitToOutputs(nodeInstance, _callStack);
+                    emitToOutputs(nodeInstance, newCallStack);
                   })
                   .catch((err: any) => {
                     console.log(err);
@@ -445,21 +436,21 @@ function createNodes(nodeList: any) {
                     callMiddleware('error', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
 
                     nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
-                    emitToError(nodeInstance, _callStack);
+                    emitToError(nodeInstance, newCallStack);
                   });
               } else if (typeof result === 'object') {
                 callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, result);
 
                 nodeInstance.payload = result;
-                emitToOutputs(nodeInstance, _callStack);
+                emitToOutputs(nodeInstance, newCallStack);
               } else if (typeof result === 'boolean' && result === true) {
                 callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
 
-                emitToOutputs(nodeInstance, _callStack);
+                emitToOutputs(nodeInstance, newCallStack);
               } else if (typeof result === 'boolean' && result === false) {
                 callMiddleware('error', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
 
-                emitToError(nodeInstance, _callStack);
+                emitToError(nodeInstance, newCallStack);
               }
             } catch (err) {
               let payloadForNotification = Object.assign({}, nodeInstance.payload);
@@ -499,7 +490,7 @@ module.exports = {
   },
 
   executeFlowFunction: (flowFunctionName: any) => {
-    return new Promise(function(resolve: any, reject: any) {
+    return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
       function onFunctionResult(payload: any) {
         flowEventEmitter.removeListener(tempNodeId, onFunctionResult);
@@ -516,8 +507,8 @@ module.exports = {
           // payload._functionOutputs = [{endshapeid:tempNodeId}];
           // payload._functionErrorOutputs = [];
           let callStack = {
-            outputs: [{ endshapeid: tempNodeId }],
             error: [],
+            outputs: [{ endshapeid: tempNodeId }],
           };
           flowEventEmitter.emit(nodeId.toString(), payload, callStack);
         } else {
