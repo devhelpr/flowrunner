@@ -1,13 +1,13 @@
-let FlowTask = require('../FlowTask');
-let Promise = require('promise');
+const FlowTask = require('../FlowTask');
+const Promise = require('promise');
 
 console.log(FlowTask);
 
 export class TraceConsoleTask extends FlowTask {
-  execute(node: any, services: any, callStack: any) {
+  public execute(node: any, services: any, callStack: any) {
     console.log('RUNNING: ' + node.id + ' - ' + node.title);
 
-    if (node.message !== undefined && node.message != '') {
+    if (node.message !== undefined && node.message !== '') {
       console.log('LOGMESSAGE:', node.message);
     } else {
       console.log(node.payload);
@@ -18,36 +18,36 @@ export class TraceConsoleTask extends FlowTask {
     });
   }
 
-  getName() {
+  public getName() {
     return 'TraceConsoleTask';
   }
 
-  getFullName() {
+  public getFullName() {
     return 'Log to console';
   }
 
-  getIcon() {
+  public getIcon() {
     return 'console';
   }
 
-  getShape() {
+  public getShape() {
     return 'rect';
   }
 
-  getTaskType() {
+  public getTaskType() {
     // both/frontend/backend/mobileapp
     return 'both';
   }
 
-  getCategory() {
+  public getCategory() {
     return 'FlowCanvas';
   }
 
-  getController() {
+  public getController() {
     return 'FlowCanvasController';
   }
 
-  getConfigMetaData() {
+  public getConfigMetaData() {
     return [{ name: 'message', defaultValue: '', valueType: 'string' }];
   }
 }

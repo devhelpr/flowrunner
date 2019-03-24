@@ -1,12 +1,11 @@
-module.exports = {
-  DEFAULT_NODE: 0,
-  HTTP_ENDPOINT_NODE: 1,
-  HTTP_OUTPUT_NODE: 2,
-  HTTP_REDIRECT_NODE: 3,
-  DEPENDENCY: 4,
-  FUNCTION_NODE: 5,
-  FUNCTION_INPUT_NODE: 6,
-  FUNCTION_OUTPUT_NODE: 7,
-  MODEL_NODE: 8,
-  FORWARD_NODE: 9,
-};
+export const DEFAULT_NODE = 0;
+
+export const HTTP_ENDPOINT_NODE = 1;
+export const HTTP_OUTPUT_NODE = 2;
+export const HTTP_REDIRECT_NODE = 3;
+export const DEPENDENCY = 4;
+export const FUNCTION_NODE = 5;
+export const FUNCTION_INPUT_NODE = 6;
+export const FUNCTION_OUTPUT_NODE = 7;
+export const MODEL_NODE = 8;
+export const FORWARD_NODE = 9;

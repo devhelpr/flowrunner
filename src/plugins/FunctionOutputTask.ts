@@ -3,7 +3,7 @@ let FlowTaskPackageType = require('../FlowTaskPackageType');
 let Promise = require('promise');
 
 export class FunctionOutputTask extends FlowTask {
-  execute(node: any) {
+  public execute(node: any) {
     console.log('RUNNING FunctionOutputTask: ' + node.id + ' - ' + node.title);
 
     return new Promise((resolve: any, reject: any) => {
@@ -11,43 +11,43 @@ export class FunctionOutputTask extends FlowTask {
     });
   }
 
-  getName() {
+  public getName() {
     return 'FunctionOutputTask';
   }
 
-  getFullName() {
+  public getFullName() {
     return 'FunctionOutput';
   }
 
-  getDescription() {
+  public getDescription() {
     return 'Node that is the end for this function';
   }
 
-  getIcon() {
+  public getIcon() {
     return 'FunctionOutput';
   }
 
-  getShape() {
+  public getShape() {
     return 'smallcircle';
   }
 
-  getDefaultColor() {
+  public getDefaultColor() {
     return '#3d93dd'; //"#d43f3af0";
   }
 
-  getTaskType() {
+  public getTaskType() {
     return 'both';
   }
 
-  getPackageType() {
+  public getPackageType() {
     return FlowTaskPackageType.FUNCTION_OUTPUT_NODE;
   }
 
-  getCategory() {
+  public getCategory() {
     return 'FlowCanvas';
   }
 
-  getController() {
+  public getController() {
     return 'FlowCanvasController';
   }
 }

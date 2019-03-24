@@ -3,7 +3,7 @@ let FlowTaskPackageType = require('../FlowTaskPackageType');
 let Promise = require('promise');
 
 export class FunctionInputTask extends FlowTask {
-  execute(node: any) {
+  public execute(node: any) {
     console.log('RUNNING FunctionInputTask: ' + node.id + ' - ' + node.title);
 
     return new Promise((resolve: any, reject: any) => {
@@ -11,39 +11,39 @@ export class FunctionInputTask extends FlowTask {
     });
   }
 
-  getName() {
+  public getName() {
     return 'FunctionInputTask';
   }
 
-  getFullName() {
+  public getFullName() {
     return 'FunctionInput';
   }
 
-  getDescription() {
+  public getDescription() {
     return "Node that's the startpoint for this function";
   }
 
-  getIcon() {
+  public getIcon() {
     return 'FunctionInput';
   }
 
-  getShape() {
+  public getShape() {
     return 'circle';
   }
 
-  getTaskType() {
+  public getTaskType() {
     return 'both';
   }
 
-  getPackageType() {
+  public getPackageType() {
     return FlowTaskPackageType.FUNCTION_INPUT_NODE;
   }
 
-  getCategory() {
+  public getCategory() {
     return 'FlowCanvas';
   }
 
-  getController() {
+  public getController() {
     return 'FlowCanvasController';
   }
 }

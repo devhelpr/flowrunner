@@ -1,56 +1,56 @@
 let FlowTaskPackageType = require('./FlowTaskPackageType.js');
 
 class FlowTask {
-  execute(node: any, services: any) {
+  public execute(node: any, services: any) {
     return true;
   }
 
-  executeAsHTTPEndpoint(node: any, request: any, response: any) {
+  public executeAsHTTPEndpoint(node: any, request: any, response: any) {
     // only called when PackageType is FlowTaskPackageType.HTTP_ENDPOINT_NODE
   }
 
-  getName() {
+  public getName() {
     return 'FlowTask';
   }
 
-  getFullName() {
+  public getFullName() {
     return 'FlowTask';
   }
 
-  getIcon() {
+  public getIcon() {
     return '';
   }
 
-  getShape() {
+  public getShape() {
     return 'circle';
   }
 
   // used for filtering
-  getTaskType() {
+  public getTaskType() {
     // both/frontend/backend/abstract .. #thought: replace "both" by something else
     return '';
   }
 
   // needed? used for filtering
-  getCategory() {
+  public getCategory() {
     return '';
   }
 
   // needed? used for filtering
-  getController() {
+  public getController() {
     return 'CanvasController';
   }
 
   // metadata for configurating stuff like url's etc
   // stored on flowgroup level specific for a controller inheriting from canvascontroller
   // - specific model is probably needed for this
-  getConfigMetaData() {
+  public getConfigMetaData() {
     return [];
   }
 
   // ??? needed ?? metadata used when executing a step
   // it's unique for each step (stored together with the Node's data in database)
-  getStepParametersMetaData() {
+  public getStepParametersMetaData() {
     return [];
   }
 
@@ -58,44 +58,44 @@ class FlowTask {
   //  - Registreren is nodig in frontendflowrunner voor reducers te registreren
   //      en in backend voor model definitions tbv database
   //     .. wordt voor HTTP_ENDPOINT_NODE in (Backend)FlowEventRunner wel gebruikt..
-  getPackageType() {
+  public getPackageType() {
     return FlowTaskPackageType.DEFAULT_NODE;
   }
 
-  getInfo() {
+  public getInfo() {
     return '';
   }
 
-  getDefaultFollowFlow() {
+  public getDefaultFollowFlow() {
     return '';
   }
 
-  getDefaultRelationName() {
+  public getDefaultRelationName() {
     return '';
   }
 
-  getPayloadContract() {
+  public getPayloadContract() {
     return [];
   }
 
   // "minimal" , "strict"
-  getPayloadContractMode() {
+  public getPayloadContractMode() {
     return 'minimal';
   }
 
-  getDefaultColor() {
+  public getDefaultColor() {
     return '#000000';
   }
 
-  isAttachedToExternalObservable() {
+  public isAttachedToExternalObservable() {
     return false;
   }
 
-  isAttachedToStoreChanges() {
+  public isAttachedToStoreChanges() {
     return false;
   }
 
-  getDescription() {
+  public getDescription() {
     return '{{{title}}}';
   }
 }

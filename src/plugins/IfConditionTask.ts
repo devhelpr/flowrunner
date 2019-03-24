@@ -6,33 +6,33 @@ let moment = require('moment');
 import { conditionCheck } from './helpers/IfConditionHelpers';
 
 export class IfConditionTask extends FlowTask {
-  execute(node: any) {
+  public execute(node: any) {
     return new Promise((resolve: any, reject: any) => {
-      let splitField1 = node.compareProperty.split('.');
-      let splitField2 = node.withProperty.split('.');
-      let errors = [];
+      const splitField1 = node.compareProperty.split('.');
+      const splitField2 = node.withProperty.split('.');
+      const errors = [];
 
-      //console.log("splitField1", splitField1);
-      //console.log("splitField2", splitField2);
+      // console.log("splitField1", splitField1);
+      // console.log("splitField2", splitField2);
 
       let field1 = node.payload[node.compareProperty];
 
-      if (field1 == '[NOW]') {
+      if (field1 === '[NOW]') {
         field1 = moment().toISOString();
       }
 
       let field2;
 
       if (splitField2.length <= 1) {
-        if (node.withValue !== undefined && node.withValue != '') {
+        if (node.withValue !== undefined && node.withValue !== '') {
           field2 = node.withValue;
-        } else if (node.withProperty == '__TRUE__') {
+        } else if (node.withProperty === '__TRUE__') {
           field2 = true;
-        } else if (node.withProperty == '__EMPTY__') {
+        } else if (node.withProperty === '__EMPTY__') {
           field2 = '';
-        } else if (node.withProperty == '[NOW]') {
+        } else if (node.withProperty === '[NOW]') {
           field2 = moment().toISOString();
-        } else if (node.withProperty == '__ISISODATE__') {
+        } else if (node.withProperty === '__ISISODATE__') {
           field2 = '__ISISODATE__';
         } else {
           field2 = node.payload[node.withProperty];
@@ -50,62 +50,62 @@ export class IfConditionTask extends FlowTask {
       }
 
       if (conditionCheck(field1, field2, node.usingCondition, node.dataType)) {
-        //console.log("conditionCheck: true", field1,field2,node.compareProperty,node.withProperty);
+        // console.log("conditionCheck: true", field1,field2,node.compareProperty,node.withProperty);
         resolve(node.payload);
       } else {
-        //console.log("conditionCheck: false", field1,field2,node.compareProperty,node.withProperty);
+        // console.log("conditionCheck: false", field1,field2,node.compareProperty,node.withProperty);
 
         errors.push({
-          name: node.compareProperty,
           error: node.compareProperty + ' is not correct',
+          name: node.compareProperty,
         });
 
         node.payload = Object.assign({}, node.payload, {
+          errors,
           followFlow: 'isError',
-          errors: errors,
         });
         resolve(node.payload);
       }
     });
   }
 
-  getName() {
+  public getName() {
     return 'IfConditionTask';
   }
 
-  getFullName() {
+  public getFullName() {
     return 'IfCondition';
   }
 
-  getDescription() {
+  public getDescription() {
     return 'Node that succeeds depending on the condition';
   }
 
-  getIcon() {
+  public getIcon() {
     return 'ifthen';
   }
 
-  getShape() {
+  public getShape() {
     return 'diamond';
   }
 
-  getTaskType() {
+  public getTaskType() {
     return 'both';
   }
 
-  getPackageType() {
+  public getPackageType() {
     return FlowTaskPackageType.DEFAULT_NODE;
   }
 
-  getCategory() {
+  public getCategory() {
     return 'FlowCanvas';
   }
 
-  getController() {
+  public getController() {
     return 'FlowCanvasController';
   }
 
-  getConfigMetaData() {
+  public getConfigMetaData() {
     return [
       { name: 'compareProperty', defaultValue: '', valueType: 'string', required: true },
       { name: 'withProperty', defaultValue: '', valueType: 'string', required: false },
