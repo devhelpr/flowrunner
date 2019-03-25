@@ -1,9 +1,10 @@
-const FlowTask = require('../FlowTask');
-const FlowTaskPackageType = require('../FlowTaskPackageType');
-const Promise = require('promise');
-const moment = require('moment');
-
+import * as moment from 'moment';
+import * as Promise from 'promise';
+import { FlowTask } from '../FlowTask';
+import * as FlowTaskPackageType from '../FlowTaskPackageType';
 import { conditionCheck } from './helpers/IfConditionHelpers';
+
+
 
 export class IfConditionTask extends FlowTask {
   public execute(node: any) {

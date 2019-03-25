@@ -467,7 +467,7 @@ function createNodes(nodeList: any) {
   });
 }
 
-module.exports = {
+export const FlowEventRunner = {
   getFunctionNodeId: (title: any) => {
     if (typeof functionNodes[title] !== 'undefined' && functionNodes[title] !== '') {
       return functionNodes[title];

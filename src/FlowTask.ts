@@ -1,7 +1,7 @@
-let FlowTaskPackageType = require('./FlowTaskPackageType.js');
+import * as FlowTaskPackageType from './FlowTaskPackageType';
 
-class FlowTask {
-  public execute(node: any, services: any) {
+export class FlowTask {
+  public execute(node: any, services?: any, callStack?: any) : any {
     return true;
   }
 
@@ -44,7 +44,7 @@ class FlowTask {
   // metadata for configurating stuff like url's etc
   // stored on flowgroup level specific for a controller inheriting from canvascontroller
   // - specific model is probably needed for this
-  public getConfigMetaData() {
+  public getConfigMetaData() : any {
     return [];
   }
 
@@ -99,5 +99,3 @@ class FlowTask {
     return '{{{title}}}';
   }
 }
-
-module.exports = FlowTask;

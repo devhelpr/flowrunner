@@ -1,6 +1,6 @@
-const FlowTask = require('../FlowTask');
-const FlowTaskPackageType = require('../FlowTaskPackageType');
-const Promise = require('promise');
+import * as Promise from 'promise';
+import { FlowTask } from '../FlowTask';
+import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class FunctionInputTask extends FlowTask {
   public execute(node: any) {

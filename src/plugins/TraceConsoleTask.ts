@@ -1,7 +1,5 @@
-const FlowTask = require('../FlowTask');
-const Promise = require('promise');
-
-console.log(FlowTask);
+import * as Promise from 'promise';
+import { FlowTask } from '../FlowTask';
 
 export class TraceConsoleTask extends FlowTask {
   public execute(node: any, services: any, callStack: any) {

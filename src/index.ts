@@ -1,11 +1,11 @@
-let flowEventRunner = require('./FlowEventRunner');
-let flowTaskPackageType = require('./FlowTaskPackageType');
-let humanFlowToMachineFlow = require('./HumanFlowToMachineFlow');
-let flowTask = require('./FlowTask');
+import { FlowEventRunner } from './FlowEventRunner';
+import { FlowTask } from './FlowTask';
+import * as FlowTaskPackageType from './FlowTaskPackageType';
+import { HumanFlowToMachineFlow } from './HumanFlowToMachineFlow';
 
 module.exports = {
-  FlowEventRunner: flowEventRunner,
-  FlowTaskPackageType: flowTaskPackageType,
-  HumanFlowToMachineFlow: humanFlowToMachineFlow,
-  FlowTask: flowTask,
+  FlowEventRunner,
+  FlowTask,
+  FlowTaskPackageType,
+  HumanFlowToMachineFlow
 };

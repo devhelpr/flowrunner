@@ -1,6 +1,6 @@
-const FlowTask = require('../FlowTask');
-const FlowTaskPackageType = require('../FlowTaskPackageType');
-const Promise = require('promise');
+import * as Promise from 'promise';
+import { FlowTask } from '../FlowTask';
+import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class FunctionOutputTask extends FlowTask {
   public execute(node: any) {
@@ -32,7 +32,7 @@ export class FunctionOutputTask extends FlowTask {
   }
 
   public getDefaultColor() {
-    return '#3d93dd'; //"#d43f3af0";
+    return '#3d93dd';
   }
 
   public getTaskType() {

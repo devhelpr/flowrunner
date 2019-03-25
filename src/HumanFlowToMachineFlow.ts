@@ -1,6 +1,7 @@
-const uuidV4 = require('uuid/v4');
+import * as uuid from 'uuid';
+const uuidV4 = uuid.v4;
 
-module.exports = {
+export const HumanFlowToMachineFlow = {
   convert: (humanFlowPackege: any) => {
     const flowPackage = Object.assign({}, humanFlowPackege);
 
@@ -35,4 +36,4 @@ module.exports = {
 
     return flowPackage;
   },
-};
+}
