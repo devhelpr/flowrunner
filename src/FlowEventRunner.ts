@@ -272,77 +272,77 @@ function createNodes(nodeList: any) {
 
             console.log('EVENT Received for node: ', nodeEvent.title, node.id.toString());
 
-            function emitToOutputs(nodeInstance: any, callStack: any) {
+            function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
               let followFlow = '';
 
-              if (typeof nodeInstance.payload.followFlow !== 'undefined' && nodeInstance.payload.followFlow) {
-                nodeInstance.payload._forwardFollowFlow = nodeInstance.payload.followFlow;
+              if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+                currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
               }
 
               if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
-                const newPayload = Object.assign({}, nodeInstance.payload);
+                const newPayload = Object.assign({}, currentNodeInstance.payload);
                 delete newPayload.followFlow;
 
                 // TODO: Is this needed?
-                if (typeof nodeInstance.payload.followFlow !== 'undefined' && nodeInstance.payload.followFlow) {
-                  followFlow = nodeInstance.payload.followFlow;
+                if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+                  followFlow = currentNodeInstance.payload.followFlow;
 
                   if (followFlow === 'isError') {
-                    nodeInstance.payload._functionErrorOutputs.map((node: any) => {
-                      nodeEmitter.emit(node.endshapeid.toString(), newPayload, callStack);
+                    currentNodeInstance.payload._functionErrorOutputs.map((errorNode: any) => {
+                      nodeEmitter.emit(errorNode.endshapeid.toString(), newPayload, currentCallStack);
                     });
                     return;
                   }
                 }
                 // END CHECK TODO: Is this needed?
 
-                if (typeof callStack.outputs !== 'undefined') {
-                  const upperCallStack = callStack.callStack;
-                  callStack.outputs.map((node: any) => {
-                    nodeEmitter.emit(node.endshapeid.toString(), newPayload, upperCallStack);
+                if (typeof currentCallStack.outputs !== 'undefined') {
+                  const upperCallStack = currentCallStack.callStack;
+                  currentCallStack.outputs.map((outputNode: any) => {
+                    nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
                   });
                 }
               } else if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
                 const newCallStack = {
-                  callStack,
+                  callStack: currentCallStack,
                   callStackType: 'FUNCTION',
                   error: nodeEvent.error,
                   outputs: nodeEvent.outputs,
-                  returnNodeId: nodeInstance.id,
+                  returnNodeId: currentNodeInstance.id,
                 };
 
-                nodeEmitter.emit(nodeInstance.functionnodeid.toString(), nodeInstance.payload, newCallStack);
+                nodeEmitter.emit(currentNodeInstance.functionnodeid.toString(), currentNodeInstance.payload, newCallStack);
               } else {
-                if (typeof nodeInstance.payload.followFlow !== 'undefined' && nodeInstance.payload.followFlow) {
-                  followFlow = nodeInstance.payload.followFlow;
+                if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+                  followFlow = currentNodeInstance.payload.followFlow;
 
                   if (followFlow === 'isError') {
                     if (nodeType.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE) {
-                      nodeInstance.payload.followFlow = undefined;
+                      currentNodeInstance.payload.followFlow = undefined;
                     }
 
-                    emitToError(nodeInstance, callStack);
+                    emitToError(currentNodeInstance, currentCallStack);
                     return;
                   }
                 }
 
                 if (nodeType.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE) {
-                  nodeInstance.payload.followFlow = undefined;
+                  currentNodeInstance.payload.followFlow = undefined;
                 }
 
-                delete nodeInstance.payload.errors;
+                delete currentNodeInstance.payload.errors;
 
-                nodeEvent.outputs.map((node: any) => {
-                  if (followFlow === '' || (followFlow !== '' && node.title === followFlow)) {
-                    nodeEmitter.emit(node.endshapeid.toString(), nodeInstance.payload, callStack);
+                nodeEvent.outputs.map((nodeOutput: any) => {
+                  if (followFlow === '' || (followFlow !== '' && nodeOutput.title === followFlow)) {
+                    nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
                   }
                 });
               }
             }
 
-            function emitToError(nodeInstance: any, callStack: any) {
+            function emitToError(currentNodeInstance: any, currentCallStack: any) {
               if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
-                const newPayload = Object.assign({}, nodeInstance.payload);
+                const newPayload = Object.assign({}, currentNodeInstance.payload);
 
                 if (typeof newPayload.followFlow !== 'undefined' && newPayload.followFlow) {
                   newPayload._forwardFollowFlow = newPayload.followFlow;
@@ -357,17 +357,17 @@ function createNodes(nodeList: any) {
 							})
 							*/
 
-                const upperCallStack = callStack.callStack;
-                callStack.error.map((node: any) => {
-                  nodeEmitter.emit(node.endshapeid.toString(), newPayload, upperCallStack);
+                const upperCallStack = currentCallStack.callStack;
+                currentCallStack.error.map((currentNode: any) => {
+                  nodeEmitter.emit(currentNode.endshapeid.toString(), newPayload, upperCallStack);
                 });
               } else {
-                if (typeof nodeInstance.payload.followFlow !== 'undefined' && nodeInstance.payload.followFlow) {
-                  nodeInstance.payload._forwardFollowFlow = nodeInstance.payload.followFlow;
+                if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+                  currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
                 }
 
-                nodeEvent.error.map((node: any) => {
-                  nodeEmitter.emit(node.endshapeid.toString(), nodeInstance.payload, callStack);
+                nodeEvent.error.map((currentNode: any) => {
+                  nodeEmitter.emit(currentNode.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
                 });
               }
             }
@@ -401,11 +401,8 @@ function createNodes(nodeList: any) {
               const result = nodeType.pluginInstance.execute(nodeInstance, services, newCallStack);
               if (result instanceof Rx.Observable) {
                 const observer = {
-                  next: (payload: any) => {
-                    callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
-
-                    nodeInstance.payload = payload;
-                    emitToOutputs(nodeInstance, newCallStack);
+                  complete: () => {
+                    console.log('Completed observable for ', nodeInstance.title);
                   },
                   error: (err: any) => {
                     callMiddleware('error', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
@@ -413,19 +410,22 @@ function createNodes(nodeList: any) {
                     nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
                     emitToError(nodeInstance, newCallStack);
                   },
-                  complete: () => {
-                    console.log('Completed observable for ', nodeInstance.title);
-                  },
+                  next: (incomingPayload: any) => {
+                    callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, incomingPayload);
+
+                    nodeInstance.payload = incomingPayload;
+                    emitToOutputs(nodeInstance, newCallStack);
+                  }
                 };
 
                 result.subscribe(observer);
               } else if (typeof result === 'object' && typeof result.then === 'function') {
                 // Promise
                 result
-                  .then((payload: any) => {
-                    callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
+                  .then((incomingPayload: any) => {
+                    callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, incomingPayload);
 
-                    nodeInstance.payload = payload;
+                    nodeInstance.payload = incomingPayload;
                     emitToOutputs(nodeInstance, newCallStack);
                   })
                   .catch((err: any) => {
@@ -451,7 +451,7 @@ function createNodes(nodeList: any) {
                 emitToError(nodeInstance, newCallStack);
               }
             } catch (err) {
-              let payloadForNotification = Object.assign({}, nodeInstance.payload);
+              const payloadForNotification = Object.assign({}, nodeInstance.payload);
               payloadForNotification.response = undefined;
               payloadForNotification.request = undefined;
             }
@@ -498,13 +498,13 @@ export const FlowEventRunner = {
       try {
         if (typeof functionNodes[flowFunctionName] !== 'undefined' && functionNodes[flowFunctionName] !== '') {
           tempNodeId = uuidV4().toString();
-          let nodeId = functionNodes[flowFunctionName];
+          const nodeId = functionNodes[flowFunctionName];
 
           flowEventEmitter.on(tempNodeId, onFunctionResult);
-          let payload = {};
+          const payload = {};
           // payload._functionOutputs = [{endshapeid:tempNodeId}];
           // payload._functionErrorOutputs = [];
-          let callStack = {
+          const callStack = {
             error: [],
             outputs: [{ endshapeid: tempNodeId }],
           };

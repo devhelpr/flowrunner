@@ -4,8 +4,6 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 import { conditionCheck } from './helpers/IfConditionHelpers';
 
-
-
 export class IfConditionTask extends FlowTask {
   public execute(node: any) {
     return new Promise((resolve: any, reject: any) => {
@@ -112,18 +110,18 @@ export class IfConditionTask extends FlowTask {
       { name: 'withProperty', defaultValue: '', valueType: 'string', required: false },
       { name: 'withValue', defaultValue: '', valueType: 'string', required: false },
       {
-        name: 'usingCondition',
         defaultValue: '',
-        valueType: 'enum',
-        enumValues: ['equals', 'not-equals', 'smaller', 'bigger', 'smaller-or-equal', 'bigger-or-equal'],
         enumText: ['equals', 'not-equals', 'smaller', 'bigger', 'smaller-or-equal', 'bigger-or-equal'],
+        enumValues: ['equals', 'not-equals', 'smaller', 'bigger', 'smaller-or-equal', 'bigger-or-equal'],
+        name: 'usingCondition',
+        valueType: 'enum'
       },
       {
-        name: 'dataType',
         defaultValue: '',
-        valueType: 'enum',
-        enumValues: ['string', 'number', 'date'],
         enumText: ['string', 'number', 'date'],
+        enumValues: ['string', 'number', 'date'],
+        name: 'dataType',
+        valueType: 'enum'
       },
       /*,
 			{name:"thenFollowRelation", defaultValue:"", valueType:"string"},
