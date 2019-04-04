@@ -3,71 +3,73 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ClearTask extends FlowTask {
-	public execute(node : any) {
-		console.log("RUNNING ClearTask: "+node.id+" - "+node.title);				
-		
-		const properties : any = {};
+  public execute(node: any) {
+    console.log('RUNNING ClearTask: ' + node.id + ' - ' + node.title);
 
-		if (node.keepProperties !== undefined && node.keepProperties !== "") {
-			node.keepProperties.split(",").map((propertyItem : any) => {
-				const propertyName = propertyItem.trim();
-				if (propertyName !== "") {
-					if (node.payload[propertyName] !== undefined) {
-						properties[propertyName] = node.payload[propertyName];
-					}
-				}
-			})
-		}
+    const properties: any = {};
 
-		if (node.payload.response !== undefined) {		
-			return Object.assign({}, {
-				request: node.payload.request,
-				response: node.payload.response
-			}, properties);
-		} else {
-			return Object.assign({}, properties);
-		}
-	}
+    if (node.keepProperties !== undefined && node.keepProperties !== '') {
+      node.keepProperties.split(',').map((propertyItem: any) => {
+        const propertyName = propertyItem.trim();
+        if (propertyName !== '') {
+          if (node.payload[propertyName] !== undefined) {
+            properties[propertyName] = node.payload[propertyName];
+          }
+        }
+      });
+    }
 
-	public getName() {
-		return "ClearTask"
-	}
+    if (node.payload.response !== undefined) {
+      return Object.assign(
+        {},
+        {
+          request: node.payload.request,
+          response: node.payload.response,
+        },
+        properties,
+      );
+    } else {
+      return Object.assign({}, properties);
+    }
+  }
 
-	public getFullName() {
-		return "Clear"
-	}
+  public getName() {
+    return 'ClearTask';
+  }
 
-	public getDescription() {
-		return "Node that clears the payload";
-	}
+  public getFullName() {
+    return 'Clear';
+  }
 
-	public getIcon() {
-		return "clear"
-	}
+  public getDescription() {
+    return 'Node that clears the payload';
+  }
 
-	public getShape() {
-		return "rect"
-	}
+  public getIcon() {
+    return 'clear';
+  }
 
-	public getTaskType() {
-		return "both"
-	}
+  public getShape() {
+    return 'rect';
+  }
 
-	public getPackageType() {
-		return FlowTaskPackageType.DEFAULT_NODE
-	}
+  public getTaskType() {
+    return 'both';
+  }
 
-	public getCategory() {
-		return "FlowCanvas"
-	}
+  public getPackageType() {
+    return FlowTaskPackageType.DEFAULT_NODE;
+  }
 
-	public getController() {
-		return "FlowCanvasController"
-	}
+  public getCategory() {
+    return 'FlowCanvas';
+  }
 
-	public getConfigMetaData() {
-		return [
-			{name:"keepProperties", defaultValue:"", valueType:"string"}
-		]
-	}
+  public getController() {
+    return 'FlowCanvasController';
+  }
+
+  public getConfigMetaData() {
+    return [{ name: 'keepProperties', defaultValue: '', valueType: 'string' }];
+  }
 }

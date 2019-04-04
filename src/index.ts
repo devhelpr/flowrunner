@@ -3,9 +3,4 @@ import { FlowTask } from './FlowTask';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
 import { HumanFlowToMachineFlow } from './HumanFlowToMachineFlow';
 
-export {
-  FlowEventRunner,
-  FlowTask,
-  FlowTaskPackageType,
-  HumanFlowToMachineFlow
-};
+export { FlowEventRunner, FlowTask, FlowTaskPackageType, HumanFlowToMachineFlow };

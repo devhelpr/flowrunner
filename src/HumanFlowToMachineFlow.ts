@@ -36,4 +36,4 @@ export const HumanFlowToMachineFlow = {
 
     return flowPackage;
   },
-}
+};

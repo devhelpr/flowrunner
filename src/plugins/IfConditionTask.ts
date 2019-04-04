@@ -114,14 +114,14 @@ export class IfConditionTask extends FlowTask {
         enumText: ['equals', 'not-equals', 'smaller', 'bigger', 'smaller-or-equal', 'bigger-or-equal'],
         enumValues: ['equals', 'not-equals', 'smaller', 'bigger', 'smaller-or-equal', 'bigger-or-equal'],
         name: 'usingCondition',
-        valueType: 'enum'
+        valueType: 'enum',
       },
       {
         defaultValue: '',
         enumText: ['string', 'number', 'date'],
         enumValues: ['string', 'number', 'date'],
         name: 'dataType',
-        valueType: 'enum'
+        valueType: 'enum',
       },
       /*,
 			{name:"thenFollowRelation", defaultValue:"", valueType:"string"},

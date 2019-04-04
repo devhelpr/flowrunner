@@ -279,7 +279,10 @@ function createNodes(nodeList: any) {
             function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
               let followFlow = '';
 
-              if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+              if (
+                typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
+                currentNodeInstance.payload.followFlow
+              ) {
                 currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
               }
 
@@ -288,7 +291,10 @@ function createNodes(nodeList: any) {
                 delete newPayload.followFlow;
 
                 // TODO: Is this needed?
-                if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+                if (
+                  typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
+                  currentNodeInstance.payload.followFlow
+                ) {
                   followFlow = currentNodeInstance.payload.followFlow;
 
                   if (followFlow === 'isError') {
@@ -315,9 +321,16 @@ function createNodes(nodeList: any) {
                   returnNodeId: currentNodeInstance.id,
                 };
 
-                nodeEmitter.emit(currentNodeInstance.functionnodeid.toString(), currentNodeInstance.payload, newCallStack);
+                nodeEmitter.emit(
+                  currentNodeInstance.functionnodeid.toString(),
+                  currentNodeInstance.payload,
+                  newCallStack,
+                );
               } else {
-                if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+                if (
+                  typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
+                  currentNodeInstance.payload.followFlow
+                ) {
                   followFlow = currentNodeInstance.payload.followFlow;
 
                   if (followFlow === 'isError') {
@@ -366,7 +379,10 @@ function createNodes(nodeList: any) {
                   nodeEmitter.emit(currentNode.endshapeid.toString(), newPayload, upperCallStack);
                 });
               } else {
-                if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+                if (
+                  typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
+                  currentNodeInstance.payload.followFlow
+                ) {
                   currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
                 }
 
@@ -419,7 +435,7 @@ function createNodes(nodeList: any) {
 
                     nodeInstance.payload = incomingPayload;
                     emitToOutputs(nodeInstance, newCallStack);
-                  }
+                  },
                 };
 
                 result.subscribe(observer);

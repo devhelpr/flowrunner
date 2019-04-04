@@ -1,7 +1,7 @@
 import * as FlowTaskPackageType from './FlowTaskPackageType';
 
 export class FlowTask {
-  public execute(node: any, services?: any, callStack?: any) : any {
+  public execute(node: any, services?: any, callStack?: any): any {
     return true;
   }
 
@@ -44,7 +44,7 @@ export class FlowTask {
   // metadata for configurating stuff like url's etc
   // stored on flowgroup level specific for a controller inheriting from canvascontroller
   // - specific model is probably needed for this
-  public getConfigMetaData() : any {
+  public getConfigMetaData(): any {
     return [];
   }
 

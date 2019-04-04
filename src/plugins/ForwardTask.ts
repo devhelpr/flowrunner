@@ -3,50 +3,49 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ForwardTask extends FlowTask {
-	public execute(node : any) {
-		
-		console.log("RUNNING ForwardTask: "+node.id+" - "+node.title);
-		
-		return true;
-	}
+  public execute(node: any) {
+    console.log('RUNNING ForwardTask: ' + node.id + ' - ' + node.title);
 
-	public getName() {
-		return "ForwardTask"
-	}
+    return true;
+  }
 
-	public getFullName() {
-		return "Forward"
-	}
+  public getName() {
+    return 'ForwardTask';
+  }
 
-	public getDescription() {
-		return "Node that forwards the event to the attached nodes";
-	}
+  public getFullName() {
+    return 'Forward';
+  }
 
-	public getIcon() {
-		return "forward"
-	}
+  public getDescription() {
+    return 'Node that forwards the event to the attached nodes';
+  }
 
-	public getShape() {
-		return "smallcircle"
-	}
+  public getIcon() {
+    return 'forward';
+  }
 
-	public getDefaultColor() {
-		return "#eeeeee80";
-	}
+  public getShape() {
+    return 'smallcircle';
+  }
 
-	public getTaskType() {
-		return "both"
-	}
+  public getDefaultColor() {
+    return '#eeeeee80';
+  }
 
-	public getPackageType() {
-		return FlowTaskPackageType.FORWARD_NODE
-	}
+  public getTaskType() {
+    return 'both';
+  }
 
-	public getCategory() {
-		return "FlowCanvas"
-	}
+  public getPackageType() {
+    return FlowTaskPackageType.FORWARD_NODE;
+  }
 
-	public getController() {
-		return "FlowCanvasController"
-	}
+  public getCategory() {
+    return 'FlowCanvas';
+  }
+
+  public getController() {
+    return 'FlowCanvasController';
+  }
 }
