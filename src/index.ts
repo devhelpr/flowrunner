@@ -3,7 +3,7 @@ import { FlowTask } from './FlowTask';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
 import { HumanFlowToMachineFlow } from './HumanFlowToMachineFlow';
 
-module.exports = {
+export {
   FlowEventRunner,
   FlowTask,
   FlowTaskPackageType,

@@ -3,10 +3,14 @@ import { EventEmitter } from 'events';
 import * as Promise from 'promise';
 import * as uuid from 'uuid';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
+import { AssignTask } from './plugins/AssignTask';
+import { ClearTask } from './plugins/ClearTask';
+import { ForwardTask } from './plugins/ForwardTask';
 import { FunctionCallTask } from './plugins/FunctionCallTask';
 import { FunctionInputTask } from './plugins/FunctionInputTask';
 import { FunctionOutputTask } from './plugins/FunctionOutputTask';
 import { IfConditionTask } from './plugins/IfConditionTask';
+import { ObserverTask } from './plugins/ObserverTask';
 import { TraceConsoleTask } from './plugins/TraceConsoleTask';
 const uuidV4 = uuid.v4;
 
@@ -531,6 +535,10 @@ export const FlowEventRunner = {
     }
 
     if (mergeWithDefaultPlugins === undefined || mergeWithDefaultPlugins === true) {
+      services.pluginClasses['AssignTask'] = AssignTask;
+      services.pluginClasses['ClearTask'] = ClearTask;
+      services.pluginClasses['ForwardTask'] = ForwardTask;
+      services.pluginClasses['ObserverTask'] = ObserverTask;
       services.pluginClasses['TraceConsoleTask'] = TraceConsoleTask;
       services.pluginClasses['IfConditionTask'] = IfConditionTask;
       services.pluginClasses['FunctionCallTask'] = FunctionCallTask;
