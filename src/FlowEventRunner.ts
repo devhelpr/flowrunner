@@ -21,8 +21,8 @@ let flowEventEmitter: any;
 const middleware: any = [];
 const functionNodes: any = [];
 const flowNodeTriggers: any = [];
-const flowNodeRegisterHooks : any = [];
-const flowNodeOverrideAttachHooks : any = [];
+const flowNodeRegisterHooks: any = [];
+const flowNodeOverrideAttachHooks: any = [];
 
 function callMiddleware(result: any, id: any, title: any, nodeType: any, payload: any) {
   const cleanPayload = Object.assign({}, payload);
@@ -161,13 +161,12 @@ function createNodes(nodeList: any) {
         const nodeInstance = Object.assign({}, thisNode);
 
         if (typeof nodeTaskForCurrentNode !== 'undefined') {
-
-          flowNodeRegisterHooks.map((hook : any) => {
+          flowNodeRegisterHooks.map((hook: any) => {
             if (hook(node, nodeTaskForCurrentNode.pluginInstance)) {
               return;
             }
           });
-  
+
           const result = nodeTaskForCurrentNode.pluginInstance.execute(nodeInstance, services, {});
           result.then((payload: any) => {
             services.registerModel(node.modelname, payload.modelDefinition);
@@ -223,8 +222,7 @@ function createNodes(nodeList: any) {
       }
 
       if (typeof nodeType !== 'undefined') {
-
-        flowNodeOverrideAttachHooks.map((hook : any) => {
+        flowNodeOverrideAttachHooks.map((hook: any) => {
           if (hook(thisNode, nodeType.pluginInstance, flowEventEmitter, nodeEvent)) {
             return;
           }
@@ -523,11 +521,11 @@ export const FlowEventRunner = {
     flowNodeTriggers.push(effect);
   },
 
-  useFlowNodeRegisterHook : (hook : any) => {
+  useFlowNodeRegisterHook: (hook: any) => {
     flowNodeRegisterHooks.push(hook);
   },
 
-  useFlowNodeOverrideAttachHook : (hook : any) => {
+  useFlowNodeOverrideAttachHook: (hook: any) => {
     flowNodeOverrideAttachHooks.push(hook);
   },
 
