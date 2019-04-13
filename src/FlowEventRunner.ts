@@ -21,6 +21,8 @@ let flowEventEmitter: any;
 const middleware: any = [];
 const functionNodes: any = [];
 const flowNodeTriggers: any = [];
+const flowNodeRegisterHooks : any = [];
+const flowNodeOverrideAttachHooks : any = [];
 
 function callMiddleware(result: any, id: any, title: any, nodeType: any, payload: any) {
   const cleanPayload = Object.assign({}, payload);
@@ -155,11 +157,18 @@ function createNodes(nodeList: any) {
       if (node.subtype === 'registrate') {
         services.logMessage('REGISTRATE ' + node.title);
 
-        const nodeTypeForCurrentNode = nodeTypes[node.shapeType];
+        const nodeTaskForCurrentNode = nodeTypes[node.shapeType];
         const nodeInstance = Object.assign({}, thisNode);
 
-        if (typeof nodeTypeForCurrentNode !== 'undefined') {
-          const result = nodeTypeForCurrentNode.pluginInstance.execute(nodeInstance, services, {});
+        if (typeof nodeTaskForCurrentNode !== 'undefined') {
+
+          flowNodeRegisterHooks.map((hook : any) => {
+            if (hook(node, nodeTaskForCurrentNode.pluginInstance)) {
+              return;
+            }
+          });
+  
+          const result = nodeTaskForCurrentNode.pluginInstance.execute(nodeInstance, services, {});
           result.then((payload: any) => {
             services.registerModel(node.modelname, payload.modelDefinition);
           });
@@ -213,7 +222,14 @@ function createNodes(nodeList: any) {
         });
       }
 
-      if (typeof nodeType !== 'undefined' && nodeType.pluginInstance.getTaskType() !== 'frontend') {
+      if (typeof nodeType !== 'undefined') {
+
+        flowNodeOverrideAttachHooks.map((hook : any) => {
+          if (hook(thisNode, nodeType.pluginInstance, flowEventEmitter, nodeEvent)) {
+            return;
+          }
+        });
+
         if (thisNode.subtype === 'autostart') {
           autostarters.push(node.id.toString());
         }
@@ -505,6 +521,14 @@ export const FlowEventRunner = {
 
   useFlowNodeTrigger: (effect: any) => {
     flowNodeTriggers.push(effect);
+  },
+
+  useFlowNodeRegisterHook : (hook : any) => {
+    flowNodeRegisterHooks.push(hook);
+  },
+
+  useFlowNodeOverrideAttachHook : (hook : any) => {
+    flowNodeOverrideAttachHooks.push(hook);
   },
 
   executeFlowFunction: (flowFunctionName: any) => {
