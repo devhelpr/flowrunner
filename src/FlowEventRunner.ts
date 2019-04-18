@@ -168,9 +168,11 @@ function createNodes(nodeList: any) {
           });
 
           const result = nodeTaskForCurrentNode.pluginInstance.execute(nodeInstance, services, {});
-          result.then((payload: any) => {
-            services.registerModel(node.modelname, payload.modelDefinition);
-          });
+          if (typeof result === 'object' && typeof result.then === 'function') {
+            result.then((payload: any) => {
+              services.registerModel(node.modelname, payload.modelDefinition);
+            });
+          }
         }
         return;
       }
