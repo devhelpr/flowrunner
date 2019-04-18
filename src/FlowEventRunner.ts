@@ -590,7 +590,7 @@ export const FlowEventRunner = {
       try {
         createNodes(flowPackage.flow);
 
-        resolve();
+        resolve(services);
       } catch (err) {
         console.log('setup failed! error', err);
         reject();
