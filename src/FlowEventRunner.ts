@@ -121,8 +121,8 @@ function getInjections(injectIntoNodeId: any, nodeList: any, nodeTypes: any) {
 // split in multiple methods / classes
 
 function createNodes(nodeList: any) {
-  const nodeEmitter : any = EventEmitterHelper.getEventEmitter();
-   
+  const nodeEmitter: any = EventEmitterHelper.getEventEmitter();
+
   flowEventEmitter = nodeEmitter;
 
   nodeEmitter.on('error', (err: any) => {
@@ -366,10 +366,10 @@ function createNodes(nodeList: any) {
 
                 delete currentNodeInstance.payload.errors;
 
-                console.log("nodeEvent.outputs",nodeEvent.outputs.length);
+                console.log('nodeEvent.outputs', nodeEvent.outputs.length);
                 nodeEvent.outputs.map((nodeOutput: any) => {
                   if (followFlow === '' || (followFlow !== '' && nodeOutput.title === followFlow)) {
-                    console.log("before emit", nodeOutput.endshapeid.toString());
+                    console.log('before emit', nodeOutput.endshapeid.toString());
                     nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
                   }
                 });
