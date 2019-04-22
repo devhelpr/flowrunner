@@ -1,61 +1,61 @@
 export class FlowEventRunnerHelper {
-	public static callMiddleware = (middleware: any, result: any, id: any, title: any, nodeType: any, payload: any) => {
-		const cleanPayload = Object.assign({}, payload);
-	  
-		cleanPayload.request = undefined;
-		cleanPayload.response = undefined;
-	  
-		middleware.map((middlewareFunction: any) => {
-		  middlewareFunction(result, id, title, nodeType, cleanPayload);
-		});
+  public static callMiddleware = (middleware: any, result: any, id: any, title: any, nodeType: any, payload: any) => {
+    const cleanPayload = Object.assign({}, payload);
 
-		return;
-	}
+    cleanPayload.request = undefined;
+    cleanPayload.response = undefined;
 
-	public static getNodeInjections = (injections: any, nodeList: any) => {
-		const nodeInjections: any = [];
-		if (injections.length > 0) {
-		  console.log('INJECTIONS getNodeInjections', injections);
-		}
-		injections.map((nodeRelation: any) => {
-		  console.log('nodeRelation injection', nodeRelation.startshapeid);
-	  
-		  nodeList.map((node: any) => {
-			if (node.id === nodeRelation.startshapeid) {
-			  nodeInjections.push(node);
-	  
-			  console.log('getNodeInjections', node);
-			}
-		  });
-		});
-	  
-		return nodeInjections;
-	}
+    middleware.map((middlewareFunction: any) => {
+      middlewareFunction(result, id, title, nodeType, cleanPayload);
+    });
 
-	public static getManuallyToFollowNodes = (manuallyToFollowNodes: any, nodeList: any) => {
-		return nodeList.filter((node: any) => {
-			return typeof manuallyToFollowNodes.find((o: any) => o.endshapeid === node.id.toString()) !== 'undefined';
-		});
-	}
+    return;
+  };
 
-	public static getInjections = (injectIntoNodeId: any, nodeList: any, nodeTypes: any) => {
-		const injections: any = [];
-	  
-		const nodeInjections = nodeList.filter(
-		  (o: any) =>
-			o.endshapeid === injectIntoNodeId && o.shapeType === 'line' && o.followflow === 'injectConfigIntoPayload',
-		);
-	  
-		nodeInjections.map((nodeRelation: any) => {
-		  nodeList.map((node: any) => {
-			if (node.id === nodeRelation.startshapeid) {
-			  const nodeType = nodeTypes[node.shapeType];
-			  if (typeof nodeType !== 'undefined') {
-				const nodeInstance = Object.assign({}, node);
-				nodeInstance.payload = {};
-	  
-				injections.push({ pluginInstance: nodeType.pluginInstance, node });
-				/*
+  public static getNodeInjections = (injections: any, nodeList: any) => {
+    const nodeInjections: any = [];
+    if (injections.length > 0) {
+      console.log('INJECTIONS getNodeInjections', injections);
+    }
+    injections.map((nodeRelation: any) => {
+      console.log('nodeRelation injection', nodeRelation.startshapeid);
+
+      nodeList.map((node: any) => {
+        if (node.id === nodeRelation.startshapeid) {
+          nodeInjections.push(node);
+
+          console.log('getNodeInjections', node);
+        }
+      });
+    });
+
+    return nodeInjections;
+  };
+
+  public static getManuallyToFollowNodes = (manuallyToFollowNodes: any, nodeList: any) => {
+    return nodeList.filter((node: any) => {
+      return typeof manuallyToFollowNodes.find((o: any) => o.endshapeid === node.id.toString()) !== 'undefined';
+    });
+  };
+
+  public static getInjections = (injectIntoNodeId: any, nodeList: any, nodeTypes: any) => {
+    const injections: any = [];
+
+    const nodeInjections = nodeList.filter(
+      (o: any) =>
+        o.endshapeid === injectIntoNodeId && o.shapeType === 'line' && o.followflow === 'injectConfigIntoPayload',
+    );
+
+    nodeInjections.map((nodeRelation: any) => {
+      nodeList.map((node: any) => {
+        if (node.id === nodeRelation.startshapeid) {
+          const nodeType = nodeTypes[node.shapeType];
+          if (typeof nodeType !== 'undefined') {
+            const nodeInstance = Object.assign({}, node);
+            nodeInstance.payload = {};
+
+            injections.push({ pluginInstance: nodeType.pluginInstance, node });
+            /*
 						  let result = nodeType.pluginInstance.execute(nodeInstance, _services);
 	  
 						  if (typeof result == "object" && typeof result.then == "function") {
@@ -80,11 +80,11 @@ export class FlowEventRunnerHelper {
 							  }
 						  }
 						  */
-			  }
-			}
-		  });
-		});
-	  
-		return injections;
-	}
+          }
+        }
+      });
+    });
+
+    return injections;
+  };
 }

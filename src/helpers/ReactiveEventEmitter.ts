@@ -1,5 +1,5 @@
 import * as Rx from '@reactivex/rxjs';
-import  { indexOf } from './IndexOf';
+import { indexOf } from './IndexOf';
 
 export class ReactiveEventEmitter {
   private events: any = {};

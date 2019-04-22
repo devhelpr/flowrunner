@@ -169,7 +169,14 @@ function createNodes(nodeList: any) {
                   payloadResult.response = null;
                   payloadResult.request = null;
 
-                  FlowEventRunnerHelper.callMiddleware(middleware, 'injection', nodeInstance.id, nodeInstance.title, node.shapeType, payloadResult);
+                  FlowEventRunnerHelper.callMiddleware(
+                    middleware,
+                    'injection',
+                    nodeInstance.id,
+                    nodeInstance.title,
+                    node.shapeType,
+                    payloadResult,
+                  );
 
                   for (const property in payloadResult) {
                     if (typeof payloadResult[property] === 'undefined' || payloadResult[property] === null) {
@@ -185,7 +192,14 @@ function createNodes(nodeList: any) {
                   console.log('injection promise failed', err);
                 });
             } else if (typeof result === 'object') {
-              FlowEventRunnerHelper.callMiddleware(middleware, 'injection', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
+              FlowEventRunnerHelper.callMiddleware(
+                middleware,
+                'injection',
+                nodeInstance.id,
+                nodeInstance.title,
+                node.shapeType,
+                payload,
+              );
 
               for (const property in result) {
                 if (!result.hasOwnProperty(property)) {
@@ -360,13 +374,27 @@ function createNodes(nodeList: any) {
                     console.log('Completed observable for ', nodeInstance.title);
                   },
                   error: (err: any) => {
-                    FlowEventRunnerHelper.callMiddleware(middleware, 'error', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
+                    FlowEventRunnerHelper.callMiddleware(
+                      middleware,
+                      'error',
+                      nodeInstance.id,
+                      nodeInstance.title,
+                      node.shapeType,
+                      payload,
+                    );
 
                     nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
                     emitToError(nodeInstance, newCallStack);
                   },
                   next: (incomingPayload: any) => {
-                    FlowEventRunnerHelper.callMiddleware(middleware, 'ok', nodeInstance.id, nodeInstance.title, node.shapeType, incomingPayload);
+                    FlowEventRunnerHelper.callMiddleware(
+                      middleware,
+                      'ok',
+                      nodeInstance.id,
+                      nodeInstance.title,
+                      node.shapeType,
+                      incomingPayload,
+                    );
 
                     nodeInstance.payload = incomingPayload;
                     emitToOutputs(nodeInstance, newCallStack);
@@ -378,7 +406,14 @@ function createNodes(nodeList: any) {
                 // Promise
                 result
                   .then((incomingPayload: any) => {
-                    FlowEventRunnerHelper.callMiddleware(middleware, 'ok', nodeInstance.id, nodeInstance.title, node.shapeType, incomingPayload);
+                    FlowEventRunnerHelper.callMiddleware(
+                      middleware,
+                      'ok',
+                      nodeInstance.id,
+                      nodeInstance.title,
+                      node.shapeType,
+                      incomingPayload,
+                    );
 
                     nodeInstance.payload = incomingPayload;
                     emitToOutputs(nodeInstance, newCallStack);
@@ -386,22 +421,50 @@ function createNodes(nodeList: any) {
                   .catch((err: any) => {
                     console.log(err);
 
-                    FlowEventRunnerHelper.callMiddleware(middleware, 'error', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
+                    FlowEventRunnerHelper.callMiddleware(
+                      middleware,
+                      'error',
+                      nodeInstance.id,
+                      nodeInstance.title,
+                      node.shapeType,
+                      nodeInstance.payload,
+                    );
 
                     nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
                     emitToError(nodeInstance, newCallStack);
                   });
               } else if (typeof result === 'object') {
-                FlowEventRunnerHelper.callMiddleware(middleware, 'ok', nodeInstance.id, nodeInstance.title, node.shapeType, result);
+                FlowEventRunnerHelper.callMiddleware(
+                  middleware,
+                  'ok',
+                  nodeInstance.id,
+                  nodeInstance.title,
+                  node.shapeType,
+                  result,
+                );
 
                 nodeInstance.payload = result;
                 emitToOutputs(nodeInstance, newCallStack);
               } else if (typeof result === 'boolean' && result === true) {
-                FlowEventRunnerHelper.callMiddleware(middleware, 'ok', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
+                FlowEventRunnerHelper.callMiddleware(
+                  middleware,
+                  'ok',
+                  nodeInstance.id,
+                  nodeInstance.title,
+                  node.shapeType,
+                  nodeInstance.payload,
+                );
 
                 emitToOutputs(nodeInstance, newCallStack);
               } else if (typeof result === 'boolean' && result === false) {
-                FlowEventRunnerHelper.callMiddleware(middleware, 'error', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
+                FlowEventRunnerHelper.callMiddleware(
+                  middleware,
+                  'error',
+                  nodeInstance.id,
+                  nodeInstance.title,
+                  node.shapeType,
+                  nodeInstance.payload,
+                );
 
                 emitToError(nodeInstance, newCallStack);
               }
@@ -450,7 +513,7 @@ export const FlowEventRunner = {
     flowNodeOverrideAttachHooks.push(hook);
   },
 
-  useTask: (taskName : string, taskClass: any) => {
+  useTask: (taskName: string, taskClass: any) => {
     tasks[taskName] = taskClass;
     return true;
   },
@@ -510,7 +573,7 @@ export const FlowEventRunner = {
       services.pluginClasses['FunctionOutputTask'] = FunctionOutputTask;
     }
 
-    services.pluginClasses = Object.assign({} , services.pluginClasses, tasks);
+    services.pluginClasses = Object.assign({}, services.pluginClasses, tasks);
 
     return new Promise((resolve: any, reject: any) => {
       try {
