@@ -1,31 +1,5 @@
 import * as Rx from '@reactivex/rxjs';
-
-/* Polyfill indexOf. */
-let indexOf: any;
-
-if (typeof Array.prototype.indexOf === 'function') {
-  indexOf = (haystack: any, needle: any) => {
-    return haystack.indexOf(needle);
-  };
-} else {
-  indexOf = (haystack: any, needle: any) => {
-    let i : number = 0;
-    const length : number = haystack.length;
-    let idx : number = -1;
-    let found : boolean = false;
-
-    while (i < length && !found) {
-      if (haystack[i] === needle) {
-        idx = i;
-        found = true;
-      }
-
-      i++;
-    }
-
-    return idx;
-  };
-}
+import  { indexOf } from './IndexOf';
 
 export class ReactiveEventEmitter {
   private events: any = {};
