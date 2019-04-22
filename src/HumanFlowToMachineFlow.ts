@@ -7,6 +7,11 @@ export const HumanFlowToMachineFlow = {
 
     flowPackage.flow.map((flowNode: any) => {
       flowNode._id = flowNode.id;
+
+      if (flowNode.task !== undefined) {
+        flowNode.shapeType = flowNode.task;
+      }
+      
       if (typeof flowNode._outputs !== 'undefined') {
         flowNode._outputs.map((outputNode: any) => {
           const connection: any = {};

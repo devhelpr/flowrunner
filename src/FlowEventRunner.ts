@@ -2,7 +2,8 @@ import * as Rx from '@reactivex/rxjs';
 import * as Promise from 'promise';
 import * as uuid from 'uuid';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
-import { EventEmitterHelper } from './helpers/EventEmitterHelper';
+import { FlowEventRunnerHelper } from './helpers/FlowEventRunnerHelper';
+import { ReactiveEventEmitter } from './helpers/ReactiveEventEmitter';
 import { AssignTask } from './plugins/AssignTask';
 import { ClearTask } from './plugins/ClearTask';
 import { ForwardTask } from './plugins/ForwardTask';
@@ -12,104 +13,19 @@ import { FunctionOutputTask } from './plugins/FunctionOutputTask';
 import { IfConditionTask } from './plugins/IfConditionTask';
 import { ObserverTask } from './plugins/ObserverTask';
 import { TraceConsoleTask } from './plugins/TraceConsoleTask';
+
 const uuidV4 = uuid.v4;
 
 let services: any;
 let nodes: any;
 let flowEventEmitter: any;
+const tasks: any = {};
 
 const middleware: any = [];
 const functionNodes: any = [];
 const flowNodeTriggers: any = [];
 const flowNodeRegisterHooks: any = [];
 const flowNodeOverrideAttachHooks: any = [];
-
-function callMiddleware(result: any, id: any, title: any, nodeType: any, payload: any) {
-  const cleanPayload = Object.assign({}, payload);
-
-  cleanPayload.request = undefined;
-  cleanPayload.response = undefined;
-
-  middleware.map((middlewareFunction: any) => {
-    middlewareFunction(result, id, title, nodeType, cleanPayload);
-  });
-}
-
-function getNodeInjections(injections: any, nodeList: any) {
-  const nodeInjections: any = [];
-  if (injections.length > 0) {
-    console.log('INJECTIONS getNodeInjections', injections);
-  }
-  injections.map((nodeRelation: any) => {
-    console.log('nodeRelation injection', nodeRelation.startshapeid);
-
-    nodeList.map((node: any) => {
-      if (node.id === nodeRelation.startshapeid) {
-        nodeInjections.push(node);
-
-        console.log('getNodeInjections', node);
-      }
-    });
-  });
-
-  return nodeInjections;
-}
-
-function getManuallyToFollowNodes(manuallyToFollowNodes: any, nodeList: any) {
-  return nodeList.filter((node: any) => {
-    return typeof manuallyToFollowNodes.find((o: any) => o.endshapeid === node.id.toString()) !== 'undefined';
-  });
-}
-
-function getInjections(injectIntoNodeId: any, nodeList: any, nodeTypes: any) {
-  const injections: any = [];
-
-  const nodeInjections = nodeList.filter(
-    (o: any) =>
-      o.endshapeid === injectIntoNodeId && o.shapeType === 'line' && o.followflow === 'injectConfigIntoPayload',
-  );
-
-  nodeInjections.map((nodeRelation: any) => {
-    nodeList.map((node: any) => {
-      if (node.id === nodeRelation.startshapeid) {
-        const nodeType = nodeTypes[node.shapeType];
-        if (typeof nodeType !== 'undefined') {
-          const nodeInstance = Object.assign({}, node);
-          nodeInstance.payload = {};
-
-          injections.push({ pluginInstance: nodeType.pluginInstance, node });
-          /*
-					let result = nodeType.pluginInstance.execute(nodeInstance, _services);
-
-					if (typeof result == "object" && typeof result.then == "function") {
-						result.then((payload) => {
-							
-							for (var key in payload) {
-								if (!payload.hasOwnProperty(key)) {
-									continue;
-								}
-								injections[key] = payload[key];
-							}	
-						})
-						.catch((err) => {
-							console.log("injection promise failed",err)
-						})
-					} else if (typeof result == "object") {
-						for (var key in result) {
-							if (!result.hasOwnProperty(key)) {
-								continue;
-							}
-							injections[key] = result[key];
-						}
-					}
-					*/
-        }
-      }
-    });
-  });
-
-  return injections;
-}
 
 // TODO : refactor .. this method does too much
 // - creating events foreach node
@@ -121,7 +37,7 @@ function getInjections(injectIntoNodeId: any, nodeList: any, nodeTypes: any) {
 // split in multiple methods / classes
 
 function createNodes(nodeList: any) {
-  const nodeEmitter: any = EventEmitterHelper.getEventEmitter();
+  const nodeEmitter: any = new ReactiveEventEmitter();
 
   flowEventEmitter = nodeEmitter;
 
@@ -187,7 +103,7 @@ function createNodes(nodeList: any) {
           ),
           // TODO : hier direct de nodes uitlezen en de variabelen die geinjecteerd moeten
           // worden toevoegen
-          injections: getInjections(node.id.toString(), nodeList, nodeTypes),
+          injections: FlowEventRunnerHelper.getInjections(node.id.toString(), nodeList, nodeTypes),
           inputs: nodeList.filter(
             (o: any) =>
               o.endshapeid === node.id.toString() &&
@@ -195,7 +111,7 @@ function createNodes(nodeList: any) {
               o.followflow !== 'followManually' &&
               o.followflow !== 'injectConfigIntoPayload',
           ),
-          manuallyToFollowNodes: getManuallyToFollowNodes(
+          manuallyToFollowNodes: FlowEventRunnerHelper.getManuallyToFollowNodes(
             nodeList.filter(
               (o: any) =>
                 o.startshapeid === node.id.toString() && o.shapeType === 'line' && o.followflow === 'followManually',
@@ -253,7 +169,7 @@ function createNodes(nodeList: any) {
                   payloadResult.response = null;
                   payloadResult.request = null;
 
-                  callMiddleware('injection', nodeInstance.id, nodeInstance.title, node.shapeType, payloadResult);
+                  FlowEventRunnerHelper.callMiddleware(middleware, 'injection', nodeInstance.id, nodeInstance.title, node.shapeType, payloadResult);
 
                   for (const property in payloadResult) {
                     if (typeof payloadResult[property] === 'undefined' || payloadResult[property] === null) {
@@ -269,7 +185,7 @@ function createNodes(nodeList: any) {
                   console.log('injection promise failed', err);
                 });
             } else if (typeof result === 'object') {
-              callMiddleware('injection', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
+              FlowEventRunnerHelper.callMiddleware(middleware, 'injection', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
 
               for (const property in result) {
                 if (!result.hasOwnProperty(property)) {
@@ -444,13 +360,13 @@ function createNodes(nodeList: any) {
                     console.log('Completed observable for ', nodeInstance.title);
                   },
                   error: (err: any) => {
-                    callMiddleware('error', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
+                    FlowEventRunnerHelper.callMiddleware(middleware, 'error', nodeInstance.id, nodeInstance.title, node.shapeType, payload);
 
                     nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
                     emitToError(nodeInstance, newCallStack);
                   },
                   next: (incomingPayload: any) => {
-                    callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, incomingPayload);
+                    FlowEventRunnerHelper.callMiddleware(middleware, 'ok', nodeInstance.id, nodeInstance.title, node.shapeType, incomingPayload);
 
                     nodeInstance.payload = incomingPayload;
                     emitToOutputs(nodeInstance, newCallStack);
@@ -462,7 +378,7 @@ function createNodes(nodeList: any) {
                 // Promise
                 result
                   .then((incomingPayload: any) => {
-                    callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, incomingPayload);
+                    FlowEventRunnerHelper.callMiddleware(middleware, 'ok', nodeInstance.id, nodeInstance.title, node.shapeType, incomingPayload);
 
                     nodeInstance.payload = incomingPayload;
                     emitToOutputs(nodeInstance, newCallStack);
@@ -470,22 +386,22 @@ function createNodes(nodeList: any) {
                   .catch((err: any) => {
                     console.log(err);
 
-                    callMiddleware('error', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
+                    FlowEventRunnerHelper.callMiddleware(middleware, 'error', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
 
                     nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
                     emitToError(nodeInstance, newCallStack);
                   });
               } else if (typeof result === 'object') {
-                callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, result);
+                FlowEventRunnerHelper.callMiddleware(middleware, 'ok', nodeInstance.id, nodeInstance.title, node.shapeType, result);
 
                 nodeInstance.payload = result;
                 emitToOutputs(nodeInstance, newCallStack);
               } else if (typeof result === 'boolean' && result === true) {
-                callMiddleware('ok', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
+                FlowEventRunnerHelper.callMiddleware(middleware, 'ok', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
 
                 emitToOutputs(nodeInstance, newCallStack);
               } else if (typeof result === 'boolean' && result === false) {
-                callMiddleware('error', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
+                FlowEventRunnerHelper.callMiddleware(middleware, 'error', nodeInstance.id, nodeInstance.title, node.shapeType, nodeInstance.payload);
 
                 emitToError(nodeInstance, newCallStack);
               }
@@ -534,6 +450,11 @@ export const FlowEventRunner = {
     flowNodeOverrideAttachHooks.push(hook);
   },
 
+  useTask: (taskName : string, taskClass: any) => {
+    tasks[taskName] = taskClass;
+    return true;
+  },
+
   executeFlowFunction: (flowFunctionName: any) => {
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
@@ -566,7 +487,7 @@ export const FlowEventRunner = {
     });
   },
 
-  start: (flowPackage: any, customServices: any, mergeWithDefaultPlugins: any) => {
+  start: (flowPackage: any, customServices: any, mergeWithDefaultPlugins: boolean = true) => {
     if (customServices !== undefined) {
       services = customServices;
     } else {
@@ -588,6 +509,8 @@ export const FlowEventRunner = {
       services.pluginClasses['FunctionInputTask'] = FunctionInputTask;
       services.pluginClasses['FunctionOutputTask'] = FunctionOutputTask;
     }
+
+    services.pluginClasses = Object.assign({} , services.pluginClasses, tasks);
 
     return new Promise((resolve: any, reject: any) => {
       try {

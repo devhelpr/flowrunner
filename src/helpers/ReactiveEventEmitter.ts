@@ -9,10 +9,10 @@ if (typeof Array.prototype.indexOf === 'function') {
   };
 } else {
   indexOf = (haystack: any, needle: any) => {
-    var i = 0,
-      length = haystack.length,
-      idx = -1,
-      found = false;
+    let i : number = 0;
+    const length : number = haystack.length;
+    let idx : number = -1;
+    let found : boolean = false;
 
     while (i < length && !found) {
       if (haystack[i] === needle) {
@@ -27,7 +27,7 @@ if (typeof Array.prototype.indexOf === 'function') {
   };
 }
 
-class ReactiveEventEmitter {
+export class ReactiveEventEmitter {
   private events: any = {};
   private subjects: any = {};
 
@@ -40,12 +40,11 @@ class ReactiveEventEmitter {
 
     if (typeof this.subjects[event] !== 'object') {
       this.subjects[event] = new Rx.Subject();
-      let self: any = this;
+      const self: any = this;
       this.subjects[event].subscribe({
         next: (data: any) => {
           if (typeof self.events[event] === 'object') {
-            //let listeners = this.events[event].slice();
-            let length = self.events[event].length;
+            const length = self.events[event].length;
 
             for (let i = 0; i < length; i++) {
               self.events[event][i](...data);
@@ -57,7 +56,7 @@ class ReactiveEventEmitter {
   };
 
   public removeListener = (event: any, listener: any) => {
-    var idx;
+    let idx;
 
     if (typeof this.events[event] === 'object') {
       idx = indexOf(this.events[event], listener);
@@ -70,15 +69,9 @@ class ReactiveEventEmitter {
 
   public emit = (event: any, ...args: any) => {
     if (typeof this.subjects[event] === 'object') {
-      let subject$ = this.subjects[event];
+      const subject$ = this.subjects[event];
 
       subject$.next(args);
     }
   };
-}
-
-export class EventEmitterHelper {
-  static getEventEmitter() {
-    return new ReactiveEventEmitter();
-  }
 }
