@@ -20,9 +20,9 @@ const uuidV4 = uuid.v4;
 export class FlowEventRunner {
   constructor() {
     this.services = {
-      logMessage: (message? : string) => {},
+      logMessage: (message?: string) => {},
       pluginClasses: [],
-      registerModel: (modelName : string, definition: any) => {}
+      registerModel: (modelName: string, definition: any) => {},
     };
   }
 
@@ -110,7 +110,8 @@ export class FlowEventRunner {
           {},
           {
             error: nodeList.filter(
-              (o: any) => o.startshapeid === node.id.toString() && o.shapeType === 'line' && o.followflow === 'onfailure',
+              (o: any) =>
+                o.startshapeid === node.id.toString() && o.shapeType === 'line' && o.followflow === 'onfailure',
             ),
             // TODO : hier direct de nodes uitlezen en de variabelen die geinjecteerd moeten
             // worden toevoegen
@@ -494,39 +495,39 @@ export class FlowEventRunner {
     autostarters.map((nodeId: any) => {
       nodeEmitter.emit(nodeId.toString(), {}, {});
     });
-  }
+  };
 
   getFunctionNodeId = (title: any) => {
     if (typeof this.functionNodes[title] !== 'undefined' && this.functionNodes[title] !== '') {
       return this.functionNodes[title];
     }
     return false;
-  }
+  };
 
   callNode = (nodeId: any, payload: any) => {
     this.flowEventEmitter.emit(nodeId.toString(), payload, {});
-  }
+  };
 
   getFlowEventEmitter = () => {
     return this.flowEventEmitter;
-  }
+  };
 
   useFlowNodeTrigger = (effect: any) => {
     this.flowNodeTriggers.push(effect);
-  }
+  };
 
   useFlowNodeRegisterHook = (hook: any) => {
     this.flowNodeRegisterHooks.push(hook);
-  }
+  };
 
   useFlowNodeOverrideAttachHook = (hook: any) => {
     this.flowNodeOverrideAttachHooks.push(hook);
-  }
+  };
 
   useTask = (taskName: string, taskClass: any) => {
     this.tasks[taskName] = taskClass;
     return true;
-  }
+  };
 
   executeFlowFunction = (flowFunctionName: any) => {
     let self = this;
@@ -539,8 +540,10 @@ export class FlowEventRunner {
       }
 
       try {
-        if (typeof this.functionNodes[flowFunctionName] !== 'undefined' && 
-          self.functionNodes[flowFunctionName] !== '') {
+        if (
+          typeof this.functionNodes[flowFunctionName] !== 'undefined' &&
+          self.functionNodes[flowFunctionName] !== ''
+        ) {
           tempNodeId = uuidV4().toString();
           const nodeId = self.functionNodes[flowFunctionName];
 
@@ -561,16 +564,16 @@ export class FlowEventRunner {
         reject();
       }
     });
-  }
+  };
 
   start = (flowPackage: any, customServices?: ServicesInterface, mergeWithDefaultPlugins: boolean = true) => {
     if (customServices !== undefined) {
       this.services = customServices;
     } else {
       this.services = {
-        logMessage: (message? : string) => {},
+        logMessage: (message?: string) => {},
         pluginClasses: {},
-        registerModel: (modelName : string, definition: any) => {}
+        registerModel: (modelName: string, definition: any) => {},
       };
     }
 
@@ -598,5 +601,5 @@ export class FlowEventRunner {
         reject();
       }
     });
-  }
-};
+  };
+}
