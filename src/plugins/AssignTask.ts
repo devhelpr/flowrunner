@@ -2,12 +2,13 @@ import * as moment from 'moment';
 import * as uuid from 'uuid';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
+import { ServicesInterface } from '../interfaces/ServicesInterface';
 
 const uuidV4 = uuid.v4;
 
 export class AssignTask extends FlowTask {
-  public execute(node: any) {
-    console.log('RUNNING AssignTask: ' + node.id + ' - ' + node.title);
+  public execute(node: any, services: ServicesInterface) {
+    services.logMessage('RUNNING AssignTask: ' + node.id + ' - ' + node.title);
     try {
       node.payload = Object.assign({}, node.payload);
 
@@ -17,7 +18,7 @@ export class AssignTask extends FlowTask {
         }
       }
 
-      if (node.value !== '') {
+      if (node.value !== undefined && node.value !== '') {
         let value = node.value;
         if (value === '[UUID]') {
           value = uuidV4().toString();
@@ -53,7 +54,7 @@ export class AssignTask extends FlowTask {
 
       return node.payload;
     } catch (err) {
-      console.log('Assigntask', err);
+      services.logMessage(err);
     }
   }
 
