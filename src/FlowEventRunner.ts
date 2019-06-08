@@ -17,6 +17,11 @@ import { TraceConsoleTask } from './plugins/TraceConsoleTask';
 
 const uuidV4 = uuid.v4;
 
+interface registeredObservable {
+  nodeId : string;
+  observable : Rx.Observable<any>;
+}
+
 export class FlowEventRunner {
   constructor() {
     this.services = {
@@ -37,6 +42,7 @@ export class FlowEventRunner {
   flowNodeTriggers: any = [];
   flowNodeRegisterHooks: any = [];
   flowNodeOverrideAttachHooks: any = [];
+  observables: registeredObservable[] = [];
 
   // TODO : refactor .. this method does too much
   // - creating events foreach node
@@ -381,6 +387,12 @@ export class FlowEventRunner {
 
                 const result = nodeType.pluginInstance.execute(nodeInstance, this.services, newCallStack);
                 if (result instanceof Rx.Observable) {
+                  
+                  this.observables.push({
+                    nodeId: nodeInstance.id,
+                    observable: result
+                  });
+
                   const observer = {
                     complete: () => {
                       console.log('Completed observable for ', nodeInstance.title);
@@ -512,21 +524,25 @@ export class FlowEventRunner {
     return this.flowEventEmitter;
   };
 
-  useFlowNodeTrigger = (effect: any) => {
+  registerFlowNodeTrigger = (effect: any) => {
     this.flowNodeTriggers.push(effect);
   };
 
-  useFlowNodeRegisterHook = (hook: any) => {
+  registerFlowNodeRegisterHook = (hook: any) => {
     this.flowNodeRegisterHooks.push(hook);
   };
 
-  useFlowNodeOverrideAttachHook = (hook: any) => {
+  registerFlowNodeOverrideAttachHook = (hook: any) => {
     this.flowNodeOverrideAttachHooks.push(hook);
   };
 
-  useTask = (taskName: string, taskClass: any) => {
+  registerTask = (taskName: string, taskClass: any) => {
     this.tasks[taskName] = taskClass;
     return true;
+  };
+
+  getObservableForNode = (nodeId: string) => {
+    return false;
   };
 
   executeFlowFunction = (flowFunctionName: any) => {
