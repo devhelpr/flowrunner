@@ -18,8 +18,8 @@ import { TraceConsoleTask } from './plugins/TraceConsoleTask';
 const uuidV4 = uuid.v4;
 
 interface registeredObservable {
-  nodeId : string;
-  observable : Rx.Observable<any>;
+  nodeId: string;
+  observable: Rx.Observable<any>;
 }
 
 export class FlowEventRunner {
@@ -387,10 +387,9 @@ export class FlowEventRunner {
 
                 const result = nodeType.pluginInstance.execute(nodeInstance, this.services, newCallStack);
                 if (result instanceof Rx.Observable) {
-                  
                   this.observables.push({
                     nodeId: nodeInstance.id,
-                    observable: result
+                    observable: result,
                   });
 
                   const observer = {
