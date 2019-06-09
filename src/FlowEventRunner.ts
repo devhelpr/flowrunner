@@ -544,14 +544,14 @@ export class FlowEventRunner {
     return true;
   };
 
-  getObservableForNode = (nodeName: string) => {
+  getObservableNode = (nodeName: string) => {
     let observables = this.observables.filter((observableNode) => {
       return observableNode.name === nodeName;
     });
     return observables.length > 0 ? observables[0] : false;
   };
 
-  executeFlowFunction = (flowFunctionName: any) => {
+  executeFlowFunction = (nodeName: any) => {
     let self = this;
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
@@ -563,11 +563,11 @@ export class FlowEventRunner {
 
       try {
         if (
-          typeof this.functionNodes[flowFunctionName] !== 'undefined' &&
-          self.functionNodes[flowFunctionName] !== ''
+          typeof this.functionNodes[nodeName] !== 'undefined' &&
+          self.functionNodes[nodeName] !== ''
         ) {
           tempNodeId = uuidV4().toString();
-          const nodeId = self.functionNodes[flowFunctionName];
+          const nodeId = self.functionNodes[nodeName];
 
           self.flowEventEmitter.on(tempNodeId, onFunctionResult);
           const payload = {};
