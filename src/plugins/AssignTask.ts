@@ -8,7 +8,7 @@ const uuidV4 = uuid.v4;
 
 export class AssignTask extends FlowTask {
   public execute(node: any, services: ServicesInterface) {
-    services.logMessage('RUNNING AssignTask: ' + node.id + ' - ' + node.title);
+    services.logMessage('RUNNING AssignTask: ' + node.id + ' - ' + node.name);
     try {
       node.payload = Object.assign({}, node.payload);
 

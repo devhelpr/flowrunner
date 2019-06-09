@@ -14,11 +14,13 @@ import { IfConditionTask } from './plugins/IfConditionTask';
 import { ObserverTask } from './plugins/ObserverTask';
 import { ServicesInterface } from './interfaces/ServicesInterface';
 import { TraceConsoleTask } from './plugins/TraceConsoleTask';
+import { observable } from 'rxjs';
 
 const uuidV4 = uuid.v4;
 
 interface registeredObservable {
   nodeId: string;
+  name: string;
   observable: Rx.Observable<any>;
 }
 
@@ -89,7 +91,7 @@ export class FlowEventRunner {
         thisNode.payload = {};
 
         if (node.subtype === 'registrate') {
-          this.services.logMessage('REGISTRATE ' + node.title);
+          this.services.logMessage('REGISTRATE ' + node.name);
 
           const nodeTaskForCurrentNode = nodeTypes[node.shapeType];
           const nodeInstance = Object.assign({}, thisNode);
@@ -146,6 +148,7 @@ export class FlowEventRunner {
                 o.followflow !== 'injectConfigIntoPayload',
             ),
             title: node.title,
+            name: node.name
           },
         );
 
@@ -170,7 +173,7 @@ export class FlowEventRunner {
           }
 
           if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_INPUT_NODE) {
-            this.functionNodes[node.title] = node.id.toString();
+            this.functionNodes[node.name] = node.id.toString();
           }
 
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
@@ -191,7 +194,7 @@ export class FlowEventRunner {
                       this.middleware,
                       'injection',
                       nodeInstance.id,
-                      nodeInstance.title,
+                      nodeInstance.name,
                       node.shapeType,
                       payloadResult,
                     );
@@ -214,7 +217,7 @@ export class FlowEventRunner {
                   this.middleware,
                   'injection',
                   nodeInstance.id,
-                  nodeInstance.title,
+                  nodeInstance.name,
                   node.shapeType,
                   payload,
                 );
@@ -239,7 +242,7 @@ export class FlowEventRunner {
                 callStack.sessionId = uuidV4();
               }
 
-              console.log('EVENT Received for node: ', nodeEvent.title, node.id.toString());
+              console.log('EVENT Received for node: ', nodeEvent.name, node.id.toString());
 
               function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
                 let followFlow = '';
@@ -316,7 +319,7 @@ export class FlowEventRunner {
 
                   console.log('nodeEvent.outputs', nodeEvent.outputs.length);
                   nodeEvent.outputs.map((nodeOutput: any) => {
-                    if (followFlow === '' || (followFlow !== '' && nodeOutput.title === followFlow)) {
+                    if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
                       console.log('before emit', nodeOutput.endshapeid.toString());
                       nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
                     }
@@ -389,19 +392,20 @@ export class FlowEventRunner {
                 if (result instanceof Rx.Observable) {
                   this.observables.push({
                     nodeId: nodeInstance.id,
+                    name: nodeInstance.name || nodeInstance.title.replace(/ /g, ''),
                     observable: result,
                   });
 
                   const observer = {
                     complete: () => {
-                      console.log('Completed observable for ', nodeInstance.title);
+                      console.log('Completed observable for ', nodeInstance.name);
                     },
                     error: (err: any) => {
                       FlowEventRunnerHelper.callMiddleware(
                         this.middleware,
                         'error',
                         nodeInstance.id,
-                        nodeInstance.title,
+                        nodeInstance.name,
                         node.shapeType,
                         payload,
                       );
@@ -414,7 +418,7 @@ export class FlowEventRunner {
                         this.middleware,
                         'ok',
                         nodeInstance.id,
-                        nodeInstance.title,
+                        nodeInstance.name,
                         node.shapeType,
                         incomingPayload,
                       );
@@ -433,7 +437,7 @@ export class FlowEventRunner {
                         this.middleware,
                         'ok',
                         nodeInstance.id,
-                        nodeInstance.title,
+                        nodeInstance.name,
                         node.shapeType,
                         incomingPayload,
                       );
@@ -448,7 +452,7 @@ export class FlowEventRunner {
                         this.middleware,
                         'error',
                         nodeInstance.id,
-                        nodeInstance.title,
+                        nodeInstance.name,
                         node.shapeType,
                         nodeInstance.payload,
                       );
@@ -461,7 +465,7 @@ export class FlowEventRunner {
                     this.middleware,
                     'ok',
                     nodeInstance.id,
-                    nodeInstance.title,
+                    nodeInstance.name,
                     node.shapeType,
                     result,
                   );
@@ -473,7 +477,7 @@ export class FlowEventRunner {
                     this.middleware,
                     'ok',
                     nodeInstance.id,
-                    nodeInstance.title,
+                    nodeInstance.name,
                     node.shapeType,
                     nodeInstance.payload,
                   );
@@ -484,7 +488,7 @@ export class FlowEventRunner {
                     this.middleware,
                     'error',
                     nodeInstance.id,
-                    nodeInstance.title,
+                    nodeInstance.name,
                     node.shapeType,
                     nodeInstance.payload,
                   );
@@ -540,8 +544,11 @@ export class FlowEventRunner {
     return true;
   };
 
-  getObservableForNode = (nodeId: string) => {
-    return false;
+  getObservableForNode = (nodeName: string) => {
+    let observables = this.observables.filter((observableNode) => {
+      return observableNode.name === nodeName;
+    });
+    return observables.length > 0 ? observables[0] : false;
   };
 
   executeFlowFunction = (flowFunctionName: any) => {

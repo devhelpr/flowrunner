@@ -4,7 +4,7 @@ import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ForwardTask extends FlowTask {
   public execute(node: any) {
-    console.log('RUNNING ForwardTask: ' + node.id + ' - ' + node.title);
+    console.log('RUNNING ForwardTask: ' + node.id + ' - ' + node.name);
 
     return true;
   }

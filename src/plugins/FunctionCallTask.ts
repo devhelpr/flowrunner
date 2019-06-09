@@ -4,7 +4,7 @@ import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class FunctionCallTask extends FlowTask {
   public execute(node: any) {
-    console.log('RUNNING FunctionCallTask: ' + node.id + ' - ' + node.title);
+    console.log('RUNNING FunctionCallTask: ' + node.id + ' - ' + node.name);
 
     return new Promise((resolve: any, reject: any) => {
       resolve(node.payload);

@@ -3,7 +3,7 @@ import { FlowTask } from '../FlowTask';
 
 export class TraceConsoleTask extends FlowTask {
   public execute(node: any, services: any, callStack: any) {
-    console.log('RUNNING: ' + node.id + ' - ' + node.title);
+    console.log('RUNNING: ' + node.id + ' - ' + node.name);
 
     if (node.message !== undefined && node.message !== '') {
       console.log('LOGMESSAGE:', node.message);
