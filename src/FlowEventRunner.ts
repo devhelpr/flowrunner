@@ -36,6 +36,7 @@ export class FlowEventRunner {
   services: ServicesInterface;
 
   nodes: any;
+  nodeNames : any[] = [];
   flowEventEmitter: any;
   tasks: any = {};
 
@@ -89,7 +90,7 @@ export class FlowEventRunner {
       .map((node: any) => {
         const thisNode = node;
         thisNode.payload = {};
-
+        
         if (node.subtype === 'registrate') {
           this.services.logMessage('REGISTRATE ' + node.name);
 
@@ -151,6 +152,8 @@ export class FlowEventRunner {
             name: node.name
           },
         );
+
+        this.nodeNames[node.name] = node.id;
 
         const nodeType = nodeTypes[node.shapeType];
         if (typeof nodeType !== 'undefined' && typeof nodeType.pluginInstance !== 'undefined') {
@@ -295,6 +298,8 @@ export class FlowEventRunner {
                     newCallStack,
                   );
                 } else {
+
+                  
                   if (
                     typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
                     currentNodeInstance.payload.followFlow
@@ -324,6 +329,15 @@ export class FlowEventRunner {
                       nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
                     }
                   });
+
+                  if (typeof currentCallStack.outputs !== 'undefined') {
+                    const upperCallStack = currentCallStack.callStack;
+                    const newPayload = Object.assign({}, currentNodeInstance.payload);
+                    delete newPayload.followFlow;
+                    currentCallStack.outputs.map((outputNode: any) => {
+                      nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
+                    });
+                  }
                 }
               }
 
@@ -522,6 +536,33 @@ export class FlowEventRunner {
   callNode = (nodeId: any, payload: any) => {
     this.flowEventEmitter.emit(nodeId.toString(), payload, {});
   };
+
+  executeNode = (nodeName : any, payload: any) => {
+    let self = this;
+    return new Promise((resolve: any, reject: any) => {
+      let tempNodeId: any;
+
+      function onResult(payload: any) {
+        self.flowEventEmitter.removeListener(tempNodeId, onResult);
+        resolve(payload);
+      }
+
+      try {
+          tempNodeId = uuidV4().toString();
+          const nodeId = self.nodeNames[nodeName];
+
+          self.flowEventEmitter.on(tempNodeId, onResult);
+          const callStack = {
+            error: [],
+            outputs: [{ endshapeid: tempNodeId }],
+          };
+          self.flowEventEmitter.emit(nodeId.toString(), payload, callStack);
+      } catch (err) {
+        console.log('executeNode error', err);
+        reject();
+      }
+    });
+  }
 
   getFlowEventEmitter = () => {
     return this.flowEventEmitter;

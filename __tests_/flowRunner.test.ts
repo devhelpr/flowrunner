@@ -7,10 +7,8 @@ const testBasicFlow = async () => {
 	const humanFlowPackage = {
 		flow : [
 			{
-				"id": "consolelog1error",
-				"shapeType": "TraceConsoleTask",
+				"taskType": "TraceConsoleTask",
 				"name":"console",
-				"title": "test taak ",
 				"message":"test",
 				"subtype": "",
 				"_outputs":[]
@@ -22,13 +20,14 @@ const testBasicFlow = async () => {
 		 
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
-		await flowEventRunner.callNode("consolelog1error", {});
-		value = true;
+		let result : any = await flowEventRunner.executeNode("console", {"testProperty" : 303});
+		value = (result.testProperty === 303);
 	});
 	return value;
 }
 
 test('testBasicFlow', async () => {
+	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testBasicFlow();
 	expect(value).toBe(true);
 })
