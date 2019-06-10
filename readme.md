@@ -5,7 +5,7 @@ Library to run a flow-graph defined in json, expandable by plugins.
 The reason for the existence of this library is reusability. 
 When talking about reusability, this usually is from code perspective. 
 But throughout the years my conclusion is that the lifespan of code is limited. It will be replaced
-by other code either in the same programming language or in different programming language in new environments.
+by other code either in the same programming language or in a different programming language in new environments.
 While often things like business rules/logic, data and application flows are being transferred to new code environments while the actual rules/logic/flows stays the same.
 
 The question that I asked myself is: can this be avoided if we represent these rules/logic in a different way then in code? A possible solution for this is a directed graph consisting of simple properties and data types which can be represented in json or xml and shown visually on screen.
