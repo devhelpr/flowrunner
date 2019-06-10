@@ -328,8 +328,7 @@ export class FlowEventRunner {
                     }
                   });
 
-                  if (nodeEvent.outputs.length == 0 && 
-                    typeof currentCallStack.outputs !== 'undefined') {
+                  if (nodeEvent.outputs.length == 0 && typeof currentCallStack.outputs !== 'undefined') {
                     const upperCallStack = currentCallStack.callStack;
                     const newPayload = Object.assign({}, currentNodeInstance.payload);
                     delete newPayload.followFlow;

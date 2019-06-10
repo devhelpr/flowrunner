@@ -6,7 +6,6 @@ export const HumanFlowToMachineFlow = {
     const flowPackage = Object.assign({}, humanFlowPackege);
 
     flowPackage.flow.map((flowNode: any) => {
-      
       flowNode.title = flowNode.title || flowNode.name || flowNode.id;
       flowNode.name = flowNode.name || flowNode.title.replace(/ /g, '');
       flowNode.shapeType = flowNode.shapeType || flowNode.taskType;
