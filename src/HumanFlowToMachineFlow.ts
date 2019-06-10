@@ -9,7 +9,8 @@ export const HumanFlowToMachineFlow = {
       flowNode.id = flowNode.id || uuidV4();
       flowNode._id = flowNode.id;
       flowNode.name = flowNode.name || flowNode.title.replace(/ /g, '');
-
+      flowNode.shapeType = flowNode.shapeType || flowNode.taskType;
+      
       if (flowNode.task !== undefined) {
         flowNode.shapeType = flowNode.task;
       }
