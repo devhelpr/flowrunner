@@ -36,7 +36,7 @@ export class FlowEventRunner {
   services: ServicesInterface;
 
   nodes: any;
-  nodeNames : any[] = [];
+  nodeNames: any[] = [];
   flowEventEmitter: any;
   tasks: any = {};
 
@@ -90,7 +90,7 @@ export class FlowEventRunner {
       .map((node: any) => {
         const thisNode = node;
         thisNode.payload = {};
-        
+
         if (node.subtype === 'registrate') {
           this.services.logMessage('REGISTRATE ' + node.name);
 
@@ -149,7 +149,7 @@ export class FlowEventRunner {
                 o.followflow !== 'injectConfigIntoPayload',
             ),
             title: node.title,
-            name: node.name
+            name: node.name,
           },
         );
 
@@ -298,8 +298,6 @@ export class FlowEventRunner {
                     newCallStack,
                   );
                 } else {
-
-                  
                   if (
                     typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
                     currentNodeInstance.payload.followFlow
@@ -537,7 +535,7 @@ export class FlowEventRunner {
     this.flowEventEmitter.emit(nodeId.toString(), payload, {});
   };
 
-  executeNode = (nodeName : any, payload: any) => {
+  executeNode = (nodeName: any, payload: any) => {
     let self = this;
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
@@ -548,21 +546,21 @@ export class FlowEventRunner {
       }
 
       try {
-          tempNodeId = uuidV4().toString();
-          const nodeId = self.nodeNames[nodeName];
+        tempNodeId = uuidV4().toString();
+        const nodeId = self.nodeNames[nodeName];
 
-          self.flowEventEmitter.on(tempNodeId, onResult);
-          const callStack = {
-            error: [],
-            outputs: [{ endshapeid: tempNodeId }],
-          };
-          self.flowEventEmitter.emit(nodeId.toString(), payload, callStack);
+        self.flowEventEmitter.on(tempNodeId, onResult);
+        const callStack = {
+          error: [],
+          outputs: [{ endshapeid: tempNodeId }],
+        };
+        self.flowEventEmitter.emit(nodeId.toString(), payload, callStack);
       } catch (err) {
         console.log('executeNode error', err);
         reject();
       }
     });
-  }
+  };
 
   getFlowEventEmitter = () => {
     return this.flowEventEmitter;
@@ -586,7 +584,7 @@ export class FlowEventRunner {
   };
 
   getObservableNode = (nodeName: string) => {
-    let observables = this.observables.filter((observableNode) => {
+    let observables = this.observables.filter(observableNode => {
       return observableNode.name === nodeName;
     });
     return observables.length > 0 ? observables[0] : false;
@@ -603,10 +601,7 @@ export class FlowEventRunner {
       }
 
       try {
-        if (
-          typeof this.functionNodes[nodeName] !== 'undefined' &&
-          self.functionNodes[nodeName] !== ''
-        ) {
+        if (typeof this.functionNodes[nodeName] !== 'undefined' && self.functionNodes[nodeName] !== '') {
           tempNodeId = uuidV4().toString();
           const nodeId = self.functionNodes[nodeName];
 
