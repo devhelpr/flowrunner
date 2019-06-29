@@ -11,10 +11,10 @@ import { FunctionCallTask } from './plugins/FunctionCallTask';
 import { FunctionInputTask } from './plugins/FunctionInputTask';
 import { FunctionOutputTask } from './plugins/FunctionOutputTask';
 import { IfConditionTask } from './plugins/IfConditionTask';
+import { ObservableTask } from './plugins/ObservableTask';
 import { ObserverTask } from './plugins/ObserverTask';
 import { ServicesInterface } from './interfaces/ServicesInterface';
 import { TraceConsoleTask } from './plugins/TraceConsoleTask';
-import { observable } from 'rxjs';
 
 const uuidV4 = uuid.v4;
 
@@ -175,6 +175,15 @@ export class FlowEventRunner {
             autostarters.push(node.id.toString());
           }
 
+          if (nodeType.pluginInstance.getObservable !== undefined) {
+            this.observables.push({
+              nodeId: thisNode.id,
+              name: thisNode.name || thisNode.title.replace(/ /g, ''),
+              observable: nodeType.pluginInstance.getObservable(),
+            });
+          }
+
+
           if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_INPUT_NODE) {
             this.functionNodes[node.name] = node.id.toString();
           }
@@ -185,6 +194,7 @@ export class FlowEventRunner {
             nodeEvent.injections.map((nodeInjection: any) => {
               const nodeInstance = Object.assign({}, nodeInjection.node);
               nodeInstance.payload = Object.assign({}, payload);
+
               const result = nodeInjection.pluginInstance.execute(nodeInstance, this.services, callStack);
 
               if (typeof result === 'object' && typeof result.then === 'function') {
@@ -401,12 +411,16 @@ export class FlowEventRunner {
                 nodeInstance.payload._forwardFollowFlow = undefined;
 
                 const result = nodeType.pluginInstance.execute(nodeInstance, this.services, newCallStack);
-                if (result instanceof Rx.Observable) {
-                  this.observables.push({
-                    nodeId: nodeInstance.id,
-                    name: nodeInstance.name || nodeInstance.title.replace(/ /g, ''),
-                    observable: result,
-                  });
+                
+                if (result instanceof Rx.Observable || result instanceof Rx.Subject) {
+
+                  if (nodeType.pluginInstance.getObservable === undefined) {
+                    this.observables.push({
+                      nodeId: nodeInstance.id,
+                      name: nodeInstance.name || nodeInstance.title.replace(/ /g, ''),
+                      observable: result,
+                    });
+                  }
 
                   const observer = {
                     complete: () => {
@@ -587,7 +601,7 @@ export class FlowEventRunner {
     let observables = this.observables.filter(observableNode => {
       return observableNode.name === nodeName;
     });
-    return observables.length > 0 ? observables[0] : false;
+    return observables.length > 0 ? observables[0].observable : false;
   };
 
   executeFlowFunction = (nodeName: any) => {
@@ -640,6 +654,7 @@ export class FlowEventRunner {
       this.services.pluginClasses['ClearTask'] = ClearTask;
       this.services.pluginClasses['ForwardTask'] = ForwardTask;
       this.services.pluginClasses['ObserverTask'] = ObserverTask;
+      this.services.pluginClasses['ObservableTask'] = ObservableTask;
       this.services.pluginClasses['TraceConsoleTask'] = TraceConsoleTask;
       this.services.pluginClasses['IfConditionTask'] = IfConditionTask;
       this.services.pluginClasses['FunctionCallTask'] = FunctionCallTask;
