@@ -4,11 +4,9 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ObservableTask extends FlowTask {
-
-  observable? : Subject<string>;
+  observable?: Subject<string>;
 
   public execute(node: any, services: any) {
-    
     if (this.observable) {
       if (node.observeProperty && node.payload[node.observeProperty]) {
         this.observable.next(node.payload[node.observeProperty]);

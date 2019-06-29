@@ -183,7 +183,6 @@ export class FlowEventRunner {
             });
           }
 
-
           if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_INPUT_NODE) {
             this.functionNodes[node.name] = node.id.toString();
           }
@@ -411,9 +410,8 @@ export class FlowEventRunner {
                 nodeInstance.payload._forwardFollowFlow = undefined;
 
                 const result = nodeType.pluginInstance.execute(nodeInstance, this.services, newCallStack);
-                
-                if (result instanceof Rx.Observable || result instanceof Rx.Subject) {
 
+                if (result instanceof Rx.Observable || result instanceof Rx.Subject) {
                   if (nodeType.pluginInstance.getObservable === undefined) {
                     this.observables.push({
                       nodeId: nodeInstance.id,
