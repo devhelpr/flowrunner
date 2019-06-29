@@ -4,7 +4,6 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ObservableTask extends FlowTask {
-
   public execute(node: any, services: any) {
     if (node.observable) {
       if (node.observeProperty && node.payload[node.observeProperty]) {
