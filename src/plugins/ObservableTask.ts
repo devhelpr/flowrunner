@@ -4,24 +4,23 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ObservableTask extends FlowTask {
-  observable?: Subject<string>;
 
   public execute(node: any, services: any) {
-    if (this.observable) {
+    if (node.observable) {
       if (node.observeProperty && node.payload[node.observeProperty]) {
-        this.observable.next(Object.assign({}, node.payload));
+        node.observable.next(Object.assign({}, node.payload));
       }
 
-      return this.observable;
+      return node.observable;
     }
     return false;
   }
 
   public getObservable(node: any) {
-    if (this.observable === undefined) {
-      this.observable = new Subject<string>();
+    if (node.observable === undefined) {
+      node.observable = new Subject<string>();
     }
-    return this.observable;
+    return node.observable;
   }
 
   public isAttachedToExternalObservable() {

@@ -179,7 +179,7 @@ export class FlowEventRunner {
             this.observables.push({
               nodeId: thisNode.id,
               name: thisNode.name || thisNode.title.replace(/ /g, ''),
-              observable: nodeType.pluginInstance.getObservable(),
+              observable: nodeType.pluginInstance.getObservable(thisNode),
             });
           }
 
