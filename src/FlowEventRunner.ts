@@ -2,8 +2,10 @@ import * as Rx from '@reactivex/rxjs';
 import * as Promise from 'promise';
 import * as uuid from 'uuid';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
+import { BuildNodeInfoHelper } from './helpers/BuildNodeInfoHelper';
 import { EmitOutput } from './helpers/EmitOutput';
 import { FlowEventRunnerHelper } from './helpers/FlowEventRunnerHelper';
+import { InjectionHelper } from './helpers/InjectionHelper';
 import { ReactiveEventEmitter } from './helpers/ReactiveEventEmitter';
 import { AssignTask } from './plugins/AssignTask';
 import { ClearTask } from './plugins/ClearTask';
@@ -57,7 +59,7 @@ export class FlowEventRunner {
   //
   // split in multiple methods / classes
 
-  createNodes = (nodeList: any) => {
+  createNodes = (nodeList: any[]) => {
     const nodeEmitter: any = new ReactiveEventEmitter();
 
     this.flowEventEmitter = nodeEmitter;
@@ -89,6 +91,7 @@ export class FlowEventRunner {
     this.nodes = nodeList
       .filter((o: any) => o.shapeType !== 'line')
       .map((node: any) => {
+        // node is the actual node on flow-level (it contains just the basic properties defined in the flow)
         node.payload = {};
 
         if (node.subtype === 'registrate') {
@@ -96,47 +99,13 @@ export class FlowEventRunner {
           return;
         }
 
-        // followflow onfailure
-        const nodeEvent = Object.assign(
-          {},
-          {
-            error: nodeList.filter(
-              (o: any) =>
-                o.startshapeid === node.id.toString() && o.shapeType === 'line' && o.followflow === 'onfailure',
-            ),
-            // TODO : hier direct de nodes uitlezen en de variabelen die geinjecteerd moeten
-            // worden toevoegen
-            injections: FlowEventRunnerHelper.getInjections(node.id.toString(), nodeList, nodePluginInfoMap),
-            inputs: nodeList.filter(
-              (o: any) =>
-                o.endshapeid === node.id.toString() &&
-                o.shapeType === 'line' &&
-                o.followflow !== 'followManually' &&
-                o.followflow !== 'injectConfigIntoPayload',
-            ),
-            manuallyToFollowNodes: FlowEventRunnerHelper.getManuallyToFollowNodes(
-              nodeList.filter(
-                (o: any) =>
-                  o.startshapeid === node.id.toString() && o.shapeType === 'line' && o.followflow === 'followManually',
-              ),
-              nodeList,
-            ),
-            nodeId: node.id,
-            outputs: nodeList.filter(
-              (o: any) =>
-                o.startshapeid === node.id.toString() &&
-                o.shapeType === 'line' &&
-                o.followflow !== 'onfailure' &&
-                o.followflow !== 'followManually' &&
-                o.followflow !== 'injectConfigIntoPayload',
-            ),
-            title: node.title,
-            name: node.name,
-          },
-        );
+        // nodeInfo contains the info needed to run the plugin on and list of input/output nodes and
+        // which nodes are used for injection on each run of a plugin        
+        const nodeInfo = BuildNodeInfoHelper.build(nodeList, node, nodePluginInfoMap);
 
         this.nodeNames[node.name] = node.id;
 
+        // nodePluginInfo contains info about the the plugin such as the plugInstance, className and config metadata 
         const nodePluginInfo = nodePluginInfoMap[node.shapeType];
         if (typeof nodePluginInfo !== 'undefined' && typeof nodePluginInfo.pluginInstance !== 'undefined') {
           this.flowNodeTriggers.map((flowNodeTrigger: any) => {
@@ -148,7 +117,7 @@ export class FlowEventRunner {
 
         if (typeof nodePluginInfo !== 'undefined') {
           this.flowNodeOverrideAttachHooks.map((hook: any) => {
-            if (hook(node, nodePluginInfo.pluginInstance, this.flowEventEmitter, nodeEvent)) {
+            if (hook(node, nodePluginInfo.pluginInstance, this.flowEventEmitter, nodeInfo)) {
               return;
             }
           });
@@ -172,64 +141,13 @@ export class FlowEventRunner {
 
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
             const injectionValues: any = {};
-            const injectionPromises: any = [];
-            nodeEvent.injections.map((nodeInjection: any) => {
-              const nodeInstance = Object.assign({}, nodeInjection.node);
-              nodeInstance.payload = Object.assign({}, payload);
-
-              const result = nodeInjection.pluginInstance.execute(nodeInstance, this.services, callStack);
-
-              if (typeof result === 'object' && typeof result.then === 'function') {
-                result
-                  .then((payloadResult: any) => {
-                    payloadResult.response = null;
-                    payloadResult.request = null;
-
-                    FlowEventRunnerHelper.callMiddleware(
-                      this.middleware,
-                      'injection',
-                      nodeInstance.id,
-                      nodeInstance.name,
-                      node.shapeType,
-                      payloadResult,
-                    );
-
-                    for (const property in payloadResult) {
-                      if (typeof payloadResult[property] === 'undefined' || payloadResult[property] === null) {
-                        continue;
-                      }
-                      if (!payloadResult.hasOwnProperty(property)) {
-                        continue;
-                      }
-                      injectionValues[property] = payloadResult[property];
-                    }
-                  })
-                  .catch((err: any) => {
-                    console.log('injection promise failed', err);
-                  });
-              } else if (typeof result === 'object') {
-                FlowEventRunnerHelper.callMiddleware(
-                  this.middleware,
-                  'injection',
-                  nodeInstance.id,
-                  nodeInstance.name,
-                  node.shapeType,
-                  payload,
-                );
-
-                for (const property in result) {
-                  if (!result.hasOwnProperty(property)) {
-                    continue;
-                  }
-                  injectionValues[property] = result[property];
-                }
-              }
-
-              injectionPromises.push(result);
-            });
+            const injectionPromises: any = InjectionHelper.executeInjections(node, nodeInfo, injectionValues, payload, this.services, callStack, this.middleware);
 
             Promise.all(injectionPromises).then(() => {
-              const nodeInstance = Object.assign({}, node, { followNodes: nodeEvent.manuallyToFollowNodes });
+              
+              // nodeInstance contains the payload and is the current instance of the node which
+              // is used to execute the plugin on.
+              const nodeInstance = Object.assign({}, node, { followNodes: nodeInfo.manuallyToFollowNodes });
 
               nodeInstance.payload = Object.assign({}, payload, injectionValues);
 
@@ -237,16 +155,16 @@ export class FlowEventRunner {
                 callStack.sessionId = uuidV4();
               }
 
-              console.log('EVENT Received for node: ', nodeEvent.name, node.id.toString());
+              console.log('EVENT Received for node: ', nodeInfo.name, node.id.toString());
 
               function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
-                EmitOutput.emitToOutputs(nodePluginInfo, nodeEmitter, nodeEvent,
+                EmitOutput.emitToOutputs(nodePluginInfo, nodeEmitter, nodeInfo,
                     currentNodeInstance, currentCallStack
                   )
               }
 
               function emitToError(currentNodeInstance: any, currentCallStack: any) {
-                EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeEvent,
+                EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo,
                     currentNodeInstance, currentCallStack
                   )
               }
@@ -395,7 +313,7 @@ export class FlowEventRunner {
             });
           });
 
-          return nodeEvent;
+          return nodeInfo;
         }
       });
 
