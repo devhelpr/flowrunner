@@ -35,7 +35,7 @@ export class FunctionCallTask extends FlowTask {
     return 'both';
   }
 
-  public etPackageType() {
+  public getPackageType() {
     return FlowTaskPackageType.FUNCTION_NODE;
   }
 

@@ -87,4 +87,26 @@ export class FlowEventRunnerHelper {
 
     return injections;
   };
+
+  public static registerNode(node: any, nodePluginInfoMap : any, services : any, flowNodeRegisterHooks: any) {
+    services.logMessage('REGISTRATE ' + node.name);
+
+    const nodePluginInfo = nodePluginInfoMap[node.shapeType];
+    const nodeInstance = Object.assign({}, node);
+
+    if (typeof nodePluginInfo !== 'undefined') {
+      flowNodeRegisterHooks.map((hook: any) => {
+        if (hook(node, nodePluginInfo.pluginInstance)) {
+          return;
+        }
+      });
+
+      const result = nodePluginInfo.pluginInstance.execute(nodeInstance, services, {});
+      if (typeof result === 'object' && typeof result.then === 'function') {
+        result.then((payload: any) => {
+          services.registerModel(node.modelname, payload.modelDefinition);
+        });
+      }
+    }
+  }
 }

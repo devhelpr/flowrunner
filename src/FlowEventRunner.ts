@@ -2,6 +2,7 @@ import * as Rx from '@reactivex/rxjs';
 import * as Promise from 'promise';
 import * as uuid from 'uuid';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
+import { EmitOutput } from './helpers/EmitOutput';
 import { FlowEventRunnerHelper } from './helpers/FlowEventRunnerHelper';
 import { ReactiveEventEmitter } from './helpers/ReactiveEventEmitter';
 import { AssignTask } from './plugins/AssignTask';
@@ -66,7 +67,7 @@ export class FlowEventRunner {
       console.log(err);
     });
 
-    const nodeTypes: any = {};
+    const nodePluginInfoMap: any = {};
     const autostarters: any = [];
 
     for (const pluginClassName in this.services.pluginClasses) {
@@ -74,7 +75,7 @@ export class FlowEventRunner {
         const pluginClass = this.services.pluginClasses[pluginClassName];
         const pluginInstance = new pluginClass();
 
-        nodeTypes[pluginInstance.getName()] = {
+        nodePluginInfoMap[pluginInstance.getName()] = {
           configMetaData: pluginInstance.getConfigMetaData(),
           fullName: pluginInstance.getFullName(),
           name: pluginInstance.getName(),
@@ -88,29 +89,10 @@ export class FlowEventRunner {
     this.nodes = nodeList
       .filter((o: any) => o.shapeType !== 'line')
       .map((node: any) => {
-        const thisNode = node;
-        thisNode.payload = {};
+        node.payload = {};
 
         if (node.subtype === 'registrate') {
-          this.services.logMessage('REGISTRATE ' + node.name);
-
-          const nodeTaskForCurrentNode = nodeTypes[node.shapeType];
-          const nodeInstance = Object.assign({}, thisNode);
-
-          if (typeof nodeTaskForCurrentNode !== 'undefined') {
-            this.flowNodeRegisterHooks.map((hook: any) => {
-              if (hook(node, nodeTaskForCurrentNode.pluginInstance)) {
-                return;
-              }
-            });
-
-            const result = nodeTaskForCurrentNode.pluginInstance.execute(nodeInstance, this.services, {});
-            if (typeof result === 'object' && typeof result.then === 'function') {
-              result.then((payload: any) => {
-                this.services.registerModel(node.modelname, payload.modelDefinition);
-              });
-            }
-          }
+          FlowEventRunnerHelper.registerNode(node, nodePluginInfoMap, this.services, this.flowNodeRegisterHooks);          
           return;
         }
 
@@ -124,7 +106,7 @@ export class FlowEventRunner {
             ),
             // TODO : hier direct de nodes uitlezen en de variabelen die geinjecteerd moeten
             // worden toevoegen
-            injections: FlowEventRunnerHelper.getInjections(node.id.toString(), nodeList, nodeTypes),
+            injections: FlowEventRunnerHelper.getInjections(node.id.toString(), nodeList, nodePluginInfoMap),
             inputs: nodeList.filter(
               (o: any) =>
                 o.endshapeid === node.id.toString() &&
@@ -155,36 +137,37 @@ export class FlowEventRunner {
 
         this.nodeNames[node.name] = node.id;
 
-        const nodeType = nodeTypes[node.shapeType];
-        if (typeof nodeType !== 'undefined' && typeof nodeType.pluginInstance !== 'undefined') {
+        const nodePluginInfo = nodePluginInfoMap[node.shapeType];
+        if (typeof nodePluginInfo !== 'undefined' && typeof nodePluginInfo.pluginInstance !== 'undefined') {
           this.flowNodeTriggers.map((flowNodeTrigger: any) => {
-            flowNodeTrigger(nodeType.pluginInstance.getPackageType(), thisNode, (payload: any, callStack: any) => {
-              nodeEmitter.emit(thisNode.id.toString(), payload, callStack);
+            flowNodeTrigger(nodePluginInfo.pluginInstance.getPackageType(), node, (payload: any, callStack: any) => {
+              nodeEmitter.emit(node.id.toString(), payload, callStack);
             });
           });
         }
 
-        if (typeof nodeType !== 'undefined') {
+        if (typeof nodePluginInfo !== 'undefined') {
           this.flowNodeOverrideAttachHooks.map((hook: any) => {
-            if (hook(thisNode, nodeType.pluginInstance, this.flowEventEmitter, nodeEvent)) {
+            if (hook(node, nodePluginInfo.pluginInstance, this.flowEventEmitter, nodeEvent)) {
               return;
             }
           });
 
-          if (thisNode.subtype === 'autostart') {
+          if (node.subtype === 'autostart') {
             autostarters.push(node.id.toString());
           }
 
-          if (nodeType.pluginInstance.getObservable !== undefined) {
+          if (nodePluginInfo.pluginInstance.getObservable !== undefined) {
             this.observables.push({
-              nodeId: thisNode.id,
-              name: thisNode.name || thisNode.title.replace(/ /g, ''),
-              observable: nodeType.pluginInstance.getObservable(thisNode),
+              nodeId: node.id,
+              name: node.name || node.title.replace(/ /g, ''),
+              observable: nodePluginInfo.pluginInstance.getObservable(node),
             });
           }
 
-          if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_INPUT_NODE) {
+          if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_INPUT_NODE) {
             this.functionNodes[node.name] = node.id.toString();
+            console.log(this.functionNodes);
           }
 
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
@@ -246,147 +229,32 @@ export class FlowEventRunner {
             });
 
             Promise.all(injectionPromises).then(() => {
-              const nodeInstance = Object.assign({}, thisNode, { followNodes: nodeEvent.manuallyToFollowNodes });
+              const nodeInstance = Object.assign({}, node, { followNodes: nodeEvent.manuallyToFollowNodes });
 
               nodeInstance.payload = Object.assign({}, payload, injectionValues);
 
-              if (thisNode.subtype === 'start') {
+              if (node.subtype === 'start') {
                 callStack.sessionId = uuidV4();
               }
 
               console.log('EVENT Received for node: ', nodeEvent.name, node.id.toString());
 
               function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
-                let followFlow = '';
-
-                if (
-                  typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
-                  currentNodeInstance.payload.followFlow
-                ) {
-                  currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
-                }
-
-                if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
-                  const newPayload = Object.assign({}, currentNodeInstance.payload);
-                  delete newPayload.followFlow;
-
-                  // TODO: Is this needed?
-                  if (
-                    typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
-                    currentNodeInstance.payload.followFlow
-                  ) {
-                    followFlow = currentNodeInstance.payload.followFlow;
-
-                    if (followFlow === 'isError') {
-                      currentNodeInstance.payload._functionErrorOutputs.map((errorNode: any) => {
-                        nodeEmitter.emit(errorNode.endshapeid.toString(), newPayload, currentCallStack);
-                      });
-                      return;
-                    }
-                  }
-                  // END CHECK TODO: Is this needed?
-
-                  if (typeof currentCallStack.outputs !== 'undefined') {
-                    const upperCallStack = currentCallStack.callStack;
-                    currentCallStack.outputs.map((outputNode: any) => {
-                      nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
-                    });
-                  }
-                } else if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
-                  const newCallStack = {
-                    callStack: currentCallStack,
-                    callStackType: 'FUNCTION',
-                    error: nodeEvent.error,
-                    outputs: nodeEvent.outputs,
-                    returnNodeId: currentNodeInstance.id,
-                  };
-
-                  nodeEmitter.emit(
-                    currentNodeInstance.functionnodeid.toString(),
-                    currentNodeInstance.payload,
-                    newCallStack,
-                  );
-                } else {
-                  if (
-                    typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
-                    currentNodeInstance.payload.followFlow
-                  ) {
-                    followFlow = currentNodeInstance.payload.followFlow;
-
-                    if (followFlow === 'isError') {
-                      if (nodeType.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE) {
-                        currentNodeInstance.payload.followFlow = undefined;
-                      }
-
-                      emitToError(currentNodeInstance, currentCallStack);
-                      return;
-                    }
-                  }
-
-                  if (nodeType.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE) {
-                    currentNodeInstance.payload.followFlow = undefined;
-                  }
-
-                  delete currentNodeInstance.payload.errors;
-
-                  console.log('nodeEvent.outputs', nodeEvent.outputs.length);
-                  nodeEvent.outputs.map((nodeOutput: any) => {
-                    if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
-                      console.log('before emit', nodeOutput.endshapeid.toString());
-                      nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
-                    }
-                  });
-
-                  if (nodeEvent.outputs.length == 0 && typeof currentCallStack.outputs !== 'undefined') {
-                    const upperCallStack = currentCallStack.callStack;
-                    const newPayload = Object.assign({}, currentNodeInstance.payload);
-                    delete newPayload.followFlow;
-                    currentCallStack.outputs.map((outputNode: any) => {
-                      nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
-                    });
-                  }
-                }
+                EmitOutput.emitToOutputs(nodePluginInfo, nodeEmitter, nodeEvent,
+                    currentNodeInstance, currentCallStack
+                  )
               }
 
               function emitToError(currentNodeInstance: any, currentCallStack: any) {
-                if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
-                  const newPayload = Object.assign({}, currentNodeInstance.payload);
-
-                  if (typeof newPayload.followFlow !== 'undefined' && newPayload.followFlow) {
-                    newPayload._forwardFollowFlow = newPayload.followFlow;
-                  }
-
-                  // delete _payload._functionOutputs;
-                  // delete _payload._functionErrorOutputs;
-                  delete newPayload.followFlow;
-
-                  /* nodeInstance.payload._functionErrorOutputs.map((node) => {
-                  nodeEmitter.emit(node.endshapeid.toString(), _payload, callStack)
-                })
-                */
-
-                  const upperCallStack = currentCallStack.callStack;
-                  currentCallStack.error.map((currentNode: any) => {
-                    nodeEmitter.emit(currentNode.endshapeid.toString(), newPayload, upperCallStack);
-                  });
-                } else {
-                  if (
-                    typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
-                    currentNodeInstance.payload.followFlow
-                  ) {
-                    currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
-                  }
-
-                  nodeEvent.error.map((currentNode: any) => {
-                    nodeEmitter.emit(currentNode.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
-                  });
-                }
+                EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeEvent,
+                    currentNodeInstance, currentCallStack
+                  )
               }
 
               try {
                 const newCallStack = callStack;
 
-                if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
+                if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
                   if (typeof nodeInstance.payload.followFlow !== 'undefined') {
                     if (nodeInstance.payload.followFlow === 'isError') {
                       emitToOutputs(nodeInstance, newCallStack);
@@ -396,8 +264,8 @@ export class FlowEventRunner {
                 }
 
                 if (
-                  nodeType.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE &&
-                  nodeType.pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_OUTPUT_NODE
+                  nodePluginInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE &&
+                  nodePluginInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_OUTPUT_NODE
                 ) {
                   if (typeof nodeInstance.payload.followFlow !== 'undefined') {
                     delete nodeInstance.payload.followFlow;
@@ -409,10 +277,10 @@ export class FlowEventRunner {
                 }
                 nodeInstance.payload._forwardFollowFlow = undefined;
 
-                const result = nodeType.pluginInstance.execute(nodeInstance, this.services, newCallStack);
+                const result = nodePluginInfo.pluginInstance.execute(nodeInstance, this.services, newCallStack);
 
                 if (result instanceof Rx.Observable || result instanceof Rx.Subject) {
-                  if (nodeType.pluginInstance.getObservable === undefined) {
+                  if (nodePluginInfo.pluginInstance.getObservable === undefined) {
                     this.observables.push({
                       nodeId: nodeInstance.id,
                       name: nodeInstance.name || nodeInstance.title.replace(/ /g, ''),
@@ -553,6 +421,7 @@ export class FlowEventRunner {
       let tempNodeId: any;
 
       function onResult(payload: any) {
+        console.log("executeNode result", payload);
         self.flowEventEmitter.removeListener(tempNodeId, onResult);
         resolve(payload);
       }

@@ -17,28 +17,28 @@ export const HumanFlowToMachineFlow = {
       }
 
       if (typeof flowNode._outputs !== 'undefined') {
-        flowNode._outputs.map((outputNode: any) => {
+        flowNode._outputs.map((outputNodeName: any) => {
           const connection: any = {};
           connection.id = uuidV4();
           connection._id = connection.id;
           connection.shapeType = 'line';
-          connection.title = 'relatedTo';
-          connection.name = 'relatedTo' + flowNode.name;
-          connection.startshapeid = flowNode.id;
-          connection.endshapeid = outputNode;
+          connection.title = 'connection';
+          connection.name = 'outputsFrom_' + flowNode.name + "_to_" + outputNodeName + "_" + connection.id;
+          connection.startshapeid = flowNode.name;
+          connection.endshapeid = outputNodeName;
           flowPackage.flow.push(connection);
         });
       }
       if (typeof flowNode._errors !== 'undefined') {
-        flowNode._errors.map((outputNode: any) => {
+        flowNode._errors.map((outputNodeName: any) => {
           const connection: any = {};
           connection.id = uuidV4();
           connection._id = connection.id;
           connection.shapeType = 'line';
-          connection.title = 'relatedTo';
-          connection.name = 'relatedTo' + flowNode.name;
+          connection.title = 'connection';
+          connection.name = 'sendsErrorFrom_' + flowNode.name + "_to_" + outputNodeName + "_" + connection.id;
           connection.startshapeid = flowNode.id;
-          connection.endshapeid = outputNode;
+          connection.endshapeid = outputNodeName;
           connection.followflow = 'onfailure';
           flowPackage.flow.push(connection);
         });
