@@ -23,7 +23,7 @@ export const HumanFlowToMachineFlow = {
           connection._id = connection.id;
           connection.shapeType = 'line';
           connection.title = 'connection';
-          connection.name = 'outputsFrom_' + flowNode.name + "_to_" + outputNodeName + "_" + connection.id;
+          connection.name = 'outputsFrom_' + flowNode.name + '_to_' + outputNodeName + '_' + connection.id;
           connection.startshapeid = flowNode.name;
           connection.endshapeid = outputNodeName;
           flowPackage.flow.push(connection);
@@ -36,7 +36,7 @@ export const HumanFlowToMachineFlow = {
           connection._id = connection.id;
           connection.shapeType = 'line';
           connection.title = 'connection';
-          connection.name = 'sendsErrorFrom_' + flowNode.name + "_to_" + outputNodeName + "_" + connection.id;
+          connection.name = 'sendsErrorFrom_' + flowNode.name + '_to_' + outputNodeName + '_' + connection.id;
           connection.startshapeid = flowNode.id;
           connection.endshapeid = outputNodeName;
           connection.followflow = 'onfailure';

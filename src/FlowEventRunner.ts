@@ -35,7 +35,6 @@ export interface TaskMetaData {
   shape: string;
 }
 
-
 export class FlowEventRunner {
   constructor() {
     this.services = {
@@ -104,17 +103,17 @@ export class FlowEventRunner {
         node.payload = {};
 
         if (node.subtype === 'registrate') {
-          FlowEventRunnerHelper.registerNode(node, nodePluginInfoMap, this.services, this.flowNodeRegisterHooks);          
+          FlowEventRunnerHelper.registerNode(node, nodePluginInfoMap, this.services, this.flowNodeRegisterHooks);
           return;
         }
 
         // nodeInfo contains the info needed to run the plugin on and list of input/output nodes and
-        // which nodes are used for injection on each run of a plugin        
+        // which nodes are used for injection on each run of a plugin
         const nodeInfo = BuildNodeInfoHelper.build(nodeList, node, nodePluginInfoMap);
 
         this.nodeNames[node.name] = node.id;
 
-        // nodePluginInfo contains info about the the plugin such as the plugInstance, className and config metadata 
+        // nodePluginInfo contains info about the the plugin such as the plugInstance, className and config metadata
         const nodePluginInfo = nodePluginInfoMap[node.shapeType];
         if (typeof nodePluginInfo !== 'undefined' && typeof nodePluginInfo.pluginInstance !== 'undefined') {
           this.flowNodeTriggers.map((flowNodeTrigger: any) => {
@@ -150,10 +149,17 @@ export class FlowEventRunner {
 
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
             const injectionValues: any = {};
-            const injectionPromises: any = InjectionHelper.executeInjections(node, nodeInfo, injectionValues, payload, this.services, callStack, this.middleware);
+            const injectionPromises: any = InjectionHelper.executeInjections(
+              node,
+              nodeInfo,
+              injectionValues,
+              payload,
+              this.services,
+              callStack,
+              this.middleware,
+            );
 
             Promise.all(injectionPromises).then(() => {
-              
               // nodeInstance contains the payload and is the current instance of the node which
               // is used to execute the plugin on.
               const nodeInstance = Object.assign({}, node, { followNodes: nodeInfo.manuallyToFollowNodes });
@@ -167,15 +173,11 @@ export class FlowEventRunner {
               console.log('EVENT Received for node: ', nodeInfo.name, node.id.toString());
 
               function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
-                EmitOutput.emitToOutputs(nodePluginInfo, nodeEmitter, nodeInfo,
-                    currentNodeInstance, currentCallStack
-                  )
+                EmitOutput.emitToOutputs(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack);
               }
 
               function emitToError(currentNodeInstance: any, currentCallStack: any) {
-                EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo,
-                    currentNodeInstance, currentCallStack
-                  )
+                EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack);
               }
 
               try {
@@ -198,7 +200,6 @@ export class FlowEventRunner {
                     delete nodeInstance.payload.followFlow;
                   }
                 } else {
-
                   // FORWARD_NODE OR FUNCTION_OUTPUT_NODE
                   //
                   // _forwardFollowFlow contains the last followFlow
@@ -354,7 +355,7 @@ export class FlowEventRunner {
       let tempNodeId: any;
 
       function onResult(payload: any) {
-        console.log("executeNode result", payload);
+        console.log('executeNode result', payload);
         self.flowEventEmitter.removeListener(tempNodeId, onResult);
         resolve(payload);
       }
@@ -476,8 +477,8 @@ export class FlowEventRunner {
     });
   };
 
-  getTaskMetaData = () : TaskMetaData[] => {
-    let metaData : TaskMetaData[] = [];
+  getTaskMetaData = (): TaskMetaData[] => {
+    let metaData: TaskMetaData[] = [];
     for (const pluginClassName in this.services.pluginClasses) {
       if (this.services.pluginClasses.hasOwnProperty(pluginClassName)) {
         const pluginClass = this.services.pluginClasses[pluginClassName];
@@ -494,5 +495,5 @@ export class FlowEventRunner {
     }
 
     return metaData;
-  }
+  };
 }

@@ -94,8 +94,7 @@ export function conditionCheck(field1: any, field2: any, condition: any, dataTyp
         return field1 >= field2;
       }
     }
-
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 }

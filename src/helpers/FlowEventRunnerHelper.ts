@@ -88,7 +88,7 @@ export class FlowEventRunnerHelper {
     return injections;
   };
 
-  public static registerNode(node: any, nodePluginInfoMap : any, services : any, flowNodeRegisterHooks: any) {
+  public static registerNode(node: any, nodePluginInfoMap: any, services: any, flowNodeRegisterHooks: any) {
     services.logMessage('REGISTRATE ' + node.name);
 
     const nodePluginInfo = nodePluginInfoMap[node.shapeType];
