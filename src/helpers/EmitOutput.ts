@@ -16,26 +16,12 @@ export class EmitOutput {
 		}
 
 		if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
+		  
+		  // HANDLE FUNCTION OUTPUT/RESULT
+
 		  const newPayload = Object.assign({}, currentNodeInstance.payload);
 		  delete newPayload.followFlow;
 
-		  // TODO: Is this needed?
-		  /*if (
-			typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
-			currentNodeInstance.payload.followFlow
-		  ) {
-			followFlow = currentNodeInstance.payload.followFlow;
-
-			if (followFlow === 'isError') {
-			  currentNodeInstance.payload._functionErrorOutputs.map((errorNode: any) => {
-				nodeEmitter.emit(errorNode.endshapeid.toString(), newPayload, currentCallStack);
-			  });
-			  return;
-			}
-		  }*/
-		  // END CHECK TODO: Is this needed?
-
-		  // THE above is not needed, but this is:
 		  if (
 			typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
 			currentNodeInstance.payload.followFlow
@@ -51,8 +37,6 @@ export class EmitOutput {
 				return;
 			}
 		  }
-		  // END: the needed stuff...
-		  
 
 		  if (typeof currentCallStack.outputs !== 'undefined') {
 			const upperCallStack = currentCallStack.callStack;
@@ -61,6 +45,9 @@ export class EmitOutput {
 			});
 		  }
 		} else if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
+		  
+		  // CALL FUNCTION NODE
+
 		  const newCallStack = {
 			callStack: currentCallStack,
 			callStackType: 'FUNCTION',
@@ -76,10 +63,12 @@ export class EmitOutput {
 			newCallStack,
 		  );
 		} else {
+
 		  if (
 			typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
 			currentNodeInstance.payload.followFlow
 		  ) {
+			// Handle error flow  
 			followFlow = currentNodeInstance.payload.followFlow;
 
 			if (followFlow === 'isError') {
@@ -102,6 +91,7 @@ export class EmitOutput {
 
 		  console.log('nodeEvent.outputs', nodeInfo.outputs.length);
 
+		  // CALL connected output nodes
 		  nodeInfo.outputs.map((nodeOutput: any) => {
 			if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
 			  
@@ -111,6 +101,7 @@ export class EmitOutput {
 			}
 		  });
 
+		  // call output nodes on callstack if node has no outputs
 		  if (nodeInfo.outputs.length == 0 && typeof currentCallStack.outputs !== 'undefined') {
 			const upperCallStack = currentCallStack.callStack;
 			const newPayload = Object.assign({}, currentNodeInstance.payload);

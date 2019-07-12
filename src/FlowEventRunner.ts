@@ -21,11 +21,20 @@ import { TraceConsoleTask } from './plugins/TraceConsoleTask';
 
 const uuidV4 = uuid.v4;
 
-interface registeredObservable {
+export interface registeredObservable {
   nodeId: string;
   name: string;
   observable: Rx.Observable<any>;
 }
+
+export interface TaskMetaData {
+  configMetaData: string;
+  fullName: string;
+  name: string;
+  className: string;
+  shape: string;
+}
+
 
 export class FlowEventRunner {
   constructor() {
@@ -189,6 +198,12 @@ export class FlowEventRunner {
                     delete nodeInstance.payload.followFlow;
                   }
                 } else {
+
+                  // FORWARD_NODE OR FUNCTION_OUTPUT_NODE
+                  //
+                  // _forwardFollowFlow contains the last followFlow
+                  // followFlow is used by IfConditionTask to handle 'else'
+
                   if (nodeInstance.payload._forwardFollowFlow !== undefined) {
                     nodeInstance.payload.followFlow = nodeInstance.payload._forwardFollowFlow;
                   }
@@ -460,4 +475,24 @@ export class FlowEventRunner {
       }
     });
   };
+
+  getTaskMetaData = () : TaskMetaData[] => {
+    let metaData : TaskMetaData[] = [];
+    for (const pluginClassName in this.services.pluginClasses) {
+      if (this.services.pluginClasses.hasOwnProperty(pluginClassName)) {
+        const pluginClass = this.services.pluginClasses[pluginClassName];
+        const pluginInstance = new pluginClass();
+
+        metaData.push({
+          configMetaData: pluginInstance.getConfigMetaData(),
+          fullName: pluginInstance.getFullName(),
+          name: pluginInstance.getName(),
+          className: pluginClassName,
+          shape: pluginInstance.getShape(),
+        });
+      }
+    }
+
+    return metaData;
+  }
 }
