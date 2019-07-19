@@ -96,7 +96,7 @@ export class EmitOutput {
     }
   }
 
-  static emitToError(nodeType: any, nodeEmitter: any, nodeEvent: any, currentNodeInstance: any, currentCallStack: any) {
+  static emitToError(nodeType: any, nodeEmitter: any, nodeInfo: any, currentNodeInstance: any, currentCallStack: any) {
     if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
       const newPayload = Object.assign({}, currentNodeInstance.payload);
 
@@ -122,9 +122,18 @@ export class EmitOutput {
         currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
       }
 
-      nodeEvent.error.map((currentNode: any) => {
+      nodeInfo.error.map((currentNode: any) => {
         nodeEmitter.emit(currentNode.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
       });
+console.log(currentCallStack.error);
+      if (nodeInfo.error.length == 0 && typeof currentCallStack.error !== 'undefined') {
+        const upperCallStack = currentCallStack.callStack;
+        const newPayload = Object.assign({}, currentNodeInstance.payload);
+        delete newPayload.followFlow;
+        currentCallStack.error.map((outputNode: any) => {
+          nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
+        });
+      }
     }
   }
 }

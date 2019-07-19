@@ -322,9 +322,12 @@ export class FlowEventRunner {
                   emitToError(nodeInstance, newCallStack);
                 }
               } catch (err) {
+                console.log(err);
                 const payloadForNotification = Object.assign({}, nodeInstance.payload);
                 payloadForNotification.response = undefined;
                 payloadForNotification.request = undefined;
+
+                emitToError(nodeInstance, callStack);
               }
             });
           });
@@ -353,20 +356,32 @@ export class FlowEventRunner {
     let self = this;
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
+      let tempErrorNodeId: any;
 
       function onResult(payload: any) {
         console.log('executeNode result', payload);
         self.flowEventEmitter.removeListener(tempNodeId, onResult);
+        self.flowEventEmitter.removeListener(tempErrorNodeId, onError);
         resolve(payload);
+      }
+
+      function onError(payload: any) {
+        console.log('executeNode result', payload);
+        self.flowEventEmitter.removeListener(tempNodeId, onResult);
+        self.flowEventEmitter.removeListener(tempErrorNodeId, onError);
+        reject();
       }
 
       try {
         tempNodeId = uuidV4().toString();
+        tempErrorNodeId = uuidV4().toString();
         const nodeId = self.nodeNames[nodeName];
-
+        
         self.flowEventEmitter.on(tempNodeId, onResult);
+        self.flowEventEmitter.on(tempErrorNodeId, onError);
+
         const callStack = {
-          error: [],
+          error: [{ endshapeid: tempErrorNodeId }],
           outputs: [{ endshapeid: tempNodeId }],
         };
         self.flowEventEmitter.emit(nodeId.toString(), payload, callStack);
