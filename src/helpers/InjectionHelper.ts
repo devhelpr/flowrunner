@@ -43,7 +43,7 @@ export class InjectionHelper {
             }
           })
           .catch((err: any) => {
-            console.log('injection promise failed', err);
+            throw new Error(err);
           });
       } else if (typeof result === 'object') {
         FlowEventRunnerHelper.callMiddleware(

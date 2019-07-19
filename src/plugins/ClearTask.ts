@@ -3,8 +3,8 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ClearTask extends FlowTask {
-  public execute(node: any) {
-    console.log('RUNNING ClearTask: ' + node.id + ' - ' + node.name);
+  public execute(node: any, services: any) {
+    services.logMessage('RUNNING ClearTask: ' + node.id + ' - ' + node.name);
 
     const properties: any = {};
 

@@ -1,5 +1,5 @@
 export interface ServicesInterface {
-  logMessage(message?: string): any;
+  logMessage(...args : any): any;
   pluginClasses: any;
   registerModel(modelName: string, definition: any): any;
 }

@@ -29,7 +29,6 @@ test('testObservableFlow', done => {
 	flowEventRunner.start(flowPackage).then((services) => {
 		console.log("started");
 
-
 		let observable = flowEventRunner.getObservableNode("observable");
 		if (observable !== false) {
 			console.log("observable found");

@@ -38,7 +38,7 @@ export interface TaskMetaData {
 export class FlowEventRunner {
   constructor() {
     this.services = {
-      logMessage: (message?: string) => {},
+      logMessage: (...args) => {},
       pluginClasses: [],
       registerModel: (modelName: string, definition: any) => {},
     };
@@ -144,7 +144,7 @@ export class FlowEventRunner {
 
           if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_INPUT_NODE) {
             this.functionNodes[node.name] = node.id.toString();
-            console.log(this.functionNodes);
+            this.services.logMessage(this.functionNodes);
           }
 
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
@@ -170,7 +170,7 @@ export class FlowEventRunner {
                 callStack.sessionId = uuidV4();
               }
 
-              console.log('EVENT Received for node: ', nodeInfo.name, node.id.toString());
+              this.services.logMessage('EVENT Received for node: ', nodeInfo.name, node.id.toString());
 
               function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
                 EmitOutput.emitToOutputs(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack);
@@ -224,7 +224,7 @@ export class FlowEventRunner {
 
                   const observer = {
                     complete: () => {
-                      console.log('Completed observable for ', nodeInstance.name);
+                      this.services.logMessage('Completed observable for ', nodeInstance.name);
                     },
                     error: (err: any) => {
                       FlowEventRunnerHelper.callMiddleware(
@@ -272,7 +272,7 @@ export class FlowEventRunner {
                       emitToOutputs(nodeInstance, newCallStack);
                     })
                     .catch((err: any) => {
-                      console.log(err);
+                      this.services.logMessage(err);
 
                       FlowEventRunnerHelper.callMiddleware(
                         this.middleware,
@@ -322,7 +322,7 @@ export class FlowEventRunner {
                   emitToError(nodeInstance, newCallStack);
                 }
               } catch (err) {
-                console.log(err);
+                this.services.logMessage(err);
                 const payloadForNotification = Object.assign({}, nodeInstance.payload);
                 payloadForNotification.response = undefined;
                 payloadForNotification.request = undefined;
@@ -359,14 +359,14 @@ export class FlowEventRunner {
       let tempErrorNodeId: any;
 
       function onResult(payload: any) {
-        console.log('executeNode result', payload);
+        self.services.logMessage('executeNode result', payload);
         self.flowEventEmitter.removeListener(tempNodeId, onResult);
         self.flowEventEmitter.removeListener(tempErrorNodeId, onError);
         resolve(payload);
       }
 
       function onError(payload: any) {
-        console.log('executeNode result', payload);
+        self.services.logMessage('executeNode result', payload);
         self.flowEventEmitter.removeListener(tempNodeId, onResult);
         self.flowEventEmitter.removeListener(tempErrorNodeId, onError);
         reject();
@@ -386,7 +386,7 @@ export class FlowEventRunner {
         };
         self.flowEventEmitter.emit(nodeId.toString(), payload, callStack);
       } catch (err) {
-        console.log('executeNode error', err);
+        this.services.logMessage('executeNode error', err);
         reject();
       }
     });
@@ -448,7 +448,7 @@ export class FlowEventRunner {
           reject();
         }
       } catch (err) {
-        console.log('executeFlowFunction error', err);
+        this.services.logMessage('executeFlowFunction error', err);
         reject();
       }
     });
@@ -459,7 +459,7 @@ export class FlowEventRunner {
       this.services = customServices;
     } else {
       this.services = {
-        logMessage: (message?: string) => {},
+        logMessage: (...args) => {},
         pluginClasses: {},
         registerModel: (modelName: string, definition: any) => {},
       };
@@ -486,7 +486,7 @@ export class FlowEventRunner {
 
         resolve(this.services);
       } catch (err) {
-        console.log('setup failed! error', err);
+        this.services.logMessage('setup failed! error', err);
         reject();
       }
     });

@@ -71,7 +71,10 @@ const ifConditionBasicFlow = async () => {
 
 	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
 	let value : boolean = false;
-	await flowEventRunner.start(flowPackage).then(async () => {
+	await flowEventRunner.start(flowPackage).then(async (services : any) => {
+		services.logMessage = (...args : any) => {
+			console.log(...args)
+		}
 		let result : any = await flowEventRunner.executeNode("assign", {});
 		value = (result.error === "test");
 	});

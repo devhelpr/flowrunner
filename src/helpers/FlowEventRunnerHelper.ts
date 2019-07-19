@@ -14,17 +14,11 @@ export class FlowEventRunnerHelper {
 
   public static getNodeInjections = (injections: any, nodeList: any) => {
     const nodeInjections: any = [];
-    if (injections.length > 0) {
-      console.log('INJECTIONS getNodeInjections', injections);
-    }
     injections.map((nodeRelation: any) => {
-      console.log('nodeRelation injection', nodeRelation.startshapeid);
 
       nodeList.map((node: any) => {
         if (node.id === nodeRelation.startshapeid) {
           nodeInjections.push(node);
-
-          console.log('getNodeInjections', node);
         }
       });
     });

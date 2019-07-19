@@ -49,7 +49,6 @@ export class EmitOutput {
         outputs: nodeInfo.outputs,
         returnNodeId: currentNodeInstance.id,
       };
-      console.log('calling function', currentNodeInstance.functionnodeid.toString());
 
       nodeEmitter.emit(currentNodeInstance.functionnodeid.toString(), currentNodeInstance.payload, newCallStack);
     } else {
@@ -73,12 +72,9 @@ export class EmitOutput {
 
       delete currentNodeInstance.payload.errors;
 
-      console.log('nodeEvent.outputs', nodeInfo.outputs.length);
-
       // CALL connected output nodes
       nodeInfo.outputs.map((nodeOutput: any) => {
         if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
-          console.log('before emit', nodeOutput.endshapeid.toString());
 
           nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
         }
@@ -125,7 +121,7 @@ export class EmitOutput {
       nodeInfo.error.map((currentNode: any) => {
         nodeEmitter.emit(currentNode.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
       });
-console.log(currentCallStack.error);
+      
       if (nodeInfo.error.length == 0 && typeof currentCallStack.error !== 'undefined') {
         const upperCallStack = currentCallStack.callStack;
         const newPayload = Object.assign({}, currentNodeInstance.payload);

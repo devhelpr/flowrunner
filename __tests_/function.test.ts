@@ -41,7 +41,6 @@ const functionTestFlow = async () => {
 	}
 
 	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
-	console.log(flowPackage);
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
 		let result : any = await flowEventRunner.executeNode("callFunction", {"testProperty" : 303});
@@ -111,7 +110,6 @@ const functionInFunctionTestFlow = async () => {
 	}
 
 	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
-	console.log(flowPackage);
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
 		let result : any = await flowEventRunner.executeNode("callFunction", {"testProperty" : 303});
@@ -180,7 +178,6 @@ const functionIfConditionFlow = async () => {
 	}
 
 	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
-	console.log(flowPackage);
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
 		let result : any = await flowEventRunner.executeNode("callFunction", {"testProperty" : 303});

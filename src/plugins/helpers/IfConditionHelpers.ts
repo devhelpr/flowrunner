@@ -2,10 +2,6 @@ import * as moment from 'moment';
 
 export function conditionCheck(field1: any, field2: any, condition: any, dataType: any) {
   try {
-    if (dataType === 'date') {
-      console.log('smaller-or-equal', moment(field1), moment(field2));
-    }
-
     let field2Values = [];
     if (
       typeof field2 !== 'undefined' &&
@@ -76,7 +72,6 @@ export function conditionCheck(field1: any, field2: any, condition: any, dataTyp
 
     if (condition === 'smaller-or-equal') {
       if (dataType === 'date') {
-        console.log('smaller-or-equal', moment(field1), moment(field2), moment(field1).isSameOrBefore(moment(field2)));
         return moment(field1).isSameOrBefore(moment(field2));
       } else if (dataType === 'number') {
         return parseFloat(field1) <= parseFloat(field2);
@@ -95,6 +90,6 @@ export function conditionCheck(field1: any, field2: any, condition: any, dataTyp
       }
     }
   } catch (err) {
-    console.log(err);
+    throw new Error(err);
   }
 }

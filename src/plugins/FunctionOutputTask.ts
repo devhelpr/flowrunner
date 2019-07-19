@@ -3,8 +3,8 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class FunctionOutputTask extends FlowTask {
-  public execute(node: any) {
-    console.log('RUNNING FunctionOutputTask: ' + node.id + ' - ' + node.name);
+  public execute(node: any, services: any) {
+    services.logMessage('RUNNING FunctionOutputTask: ' + node.id + ' - ' + node.name);
 
     return new Promise((resolve: any, reject: any) => {
       resolve(node.payload);
