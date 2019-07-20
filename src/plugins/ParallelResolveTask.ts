@@ -4,9 +4,9 @@ import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ParallelResolveTask extends FlowTask {
   public execute(node: any, services: any) {
-    services.logMessage('RUNNING ParallelGateTask: ' + node.id + ' - ' + node.name);
+    services.logMessage('RUNNING ParallelResolveTask: ' + node.id + ' - ' + node.name);
 
-    return Object.assign({}, node.payload);
+    return true;
   }
 
   public getName() {

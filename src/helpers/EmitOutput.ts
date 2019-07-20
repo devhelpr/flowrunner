@@ -78,11 +78,12 @@ export class EmitOutput {
       delete currentNodeInstance.payload.errors;
 
       // Handle parallel sessions
-      if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_NODE && nodeInfo.outputs.length() > 0) {
+      if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_NODE && nodeInfo.outputs.length > 0) {
         currentNodeInstance.payload._parallelSessionId = uuidV4();
-        currentNodeInstance.payload._parallelCount = nodeInfo.outputs.length();
+        currentNodeInstance.payload._parallelCount = nodeInfo.outputs.length;
 
-        parallelSessions[currentNodeInstance.payload._parallelSessionId] = nodeInfo.outputs.length();
+        parallelSessions[currentNodeInstance.payload._parallelSessionId] = nodeInfo.outputs.length;
+
       }
 
       if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_RESOLVE_NODE) {

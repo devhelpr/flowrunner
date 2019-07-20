@@ -22,7 +22,6 @@ import { ParallelTask } from './plugins/ParallelTask';
 import { TraceConsoleTask } from './plugins/TraceConsoleTask';
 
 const uuidV4 = uuid.v4;
-
 export interface IRegisteredObservable {
   nodeId: string;
   name: string;
