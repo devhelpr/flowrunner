@@ -7,6 +7,7 @@ import { EmitOutput } from './helpers/EmitOutput';
 import { FlowEventRunnerHelper } from './helpers/FlowEventRunnerHelper';
 import { InjectionHelper } from './helpers/InjectionHelper';
 import { ReactiveEventEmitter } from './helpers/ReactiveEventEmitter';
+import { IServicesInterface } from './interfaces/ServicesInterface';
 import { AssignTask } from './plugins/AssignTask';
 import { ClearTask } from './plugins/ClearTask';
 import { ForwardTask } from './plugins/ForwardTask';
@@ -16,18 +17,17 @@ import { FunctionOutputTask } from './plugins/FunctionOutputTask';
 import { IfConditionTask } from './plugins/IfConditionTask';
 import { ObservableTask } from './plugins/ObservableTask';
 import { ObserverTask } from './plugins/ObserverTask';
-import { ServicesInterface } from './interfaces/ServicesInterface';
 import { TraceConsoleTask } from './plugins/TraceConsoleTask';
 
 const uuidV4 = uuid.v4;
 
-export interface registeredObservable {
+export interface IRegisteredObservable {
   nodeId: string;
   name: string;
   observable: Rx.Observable<any>;
 }
 
-export interface TaskMetaData {
+export interface ITaskMetaData {
   configMetaData: string;
   fullName: string;
   name: string;
@@ -36,6 +36,20 @@ export interface TaskMetaData {
 }
 
 export class FlowEventRunner {
+  public services: IServicesInterface;
+
+  private nodes: any;
+  private nodeNames: any[] = [];
+  private flowEventEmitter: any;
+  private tasks: any = {};
+
+  private middleware: any = [];
+  private functionNodes: any = [];
+  private flowNodeTriggers: any = [];
+  private flowNodeRegisterHooks: any = [];
+  private flowNodeOverrideAttachHooks: any = [];
+  private observables: IRegisteredObservable[] = [];
+
   constructor() {
     this.services = {
       logMessage: (...args) => {},
@@ -44,19 +58,6 @@ export class FlowEventRunner {
     };
   }
 
-  services: ServicesInterface;
-
-  nodes: any;
-  nodeNames: any[] = [];
-  flowEventEmitter: any;
-  tasks: any = {};
-
-  middleware: any = [];
-  functionNodes: any = [];
-  flowNodeTriggers: any = [];
-  flowNodeRegisterHooks: any = [];
-  flowNodeOverrideAttachHooks: any = [];
-  observables: registeredObservable[] = [];
 
   // TODO : refactor .. this method does too much
   // - creating events foreach node
@@ -67,7 +68,7 @@ export class FlowEventRunner {
   //
   // split in multiple methods / classes
 
-  createNodes = (nodeList: any[]) => {
+  public createNodes = (nodeList: any[]) => {
     const nodeEmitter: any = new ReactiveEventEmitter();
 
     this.flowEventEmitter = nodeEmitter;
@@ -136,8 +137,8 @@ export class FlowEventRunner {
 
           if (nodePluginInfo.pluginInstance.getObservable !== undefined) {
             this.observables.push({
-              nodeId: node.id,
               name: node.name || node.title.replace(/ /g, ''),
+              nodeId: node.id,
               observable: nodePluginInfo.pluginInstance.getObservable(node),
             });
           }
@@ -216,8 +217,8 @@ export class FlowEventRunner {
                 if (result instanceof Rx.Observable || result instanceof Rx.Subject) {
                   if (nodePluginInfo.pluginInstance.getObservable === undefined) {
                     this.observables.push({
-                      nodeId: nodeInstance.id,
                       name: nodeInstance.name || nodeInstance.title.replace(/ /g, ''),
+                      nodeId: nodeInstance.id,
                       observable: result,
                     });
                   }
@@ -341,32 +342,32 @@ export class FlowEventRunner {
     });
   };
 
-  getFunctionNodeId = (title: any) => {
+  public getFunctionNodeId = (title: any) => {
     if (typeof this.functionNodes[title] !== 'undefined' && this.functionNodes[title] !== '') {
       return this.functionNodes[title];
     }
     return false;
   };
 
-  callNode = (nodeId: any, payload: any) => {
+  public callNode = (nodeId: any, payload: any) => {
     this.flowEventEmitter.emit(nodeId.toString(), payload, {});
   };
 
-  executeNode = (nodeName: any, payload: any) => {
-    let self = this;
+  public executeNode = (nodeName: any, payload: any) => {
+    const self = this;
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
       let tempErrorNodeId: any;
 
-      function onResult(payload: any) {
-        self.services.logMessage('executeNode result', payload);
+      function onResult(localPayload: any) {
+        self.services.logMessage('executeNode result', localPayload);
         self.flowEventEmitter.removeListener(tempNodeId, onResult);
         self.flowEventEmitter.removeListener(tempErrorNodeId, onError);
-        resolve(payload);
+        resolve(localPayload);
       }
 
-      function onError(payload: any) {
-        self.services.logMessage('executeNode result', payload);
+      function onError(localPayload: any) {
+        self.services.logMessage('executeNode result', localPayload);
         self.flowEventEmitter.removeListener(tempNodeId, onResult);
         self.flowEventEmitter.removeListener(tempErrorNodeId, onError);
         reject();
@@ -392,36 +393,36 @@ export class FlowEventRunner {
     });
   };
 
-  getFlowEventEmitter = () => {
+  public getFlowEventEmitter = () => {
     return this.flowEventEmitter;
   };
 
-  registerFlowNodeTrigger = (effect: any) => {
+  public registerFlowNodeTrigger = (effect: any) => {
     this.flowNodeTriggers.push(effect);
   };
 
-  registerFlowNodeRegisterHook = (hook: any) => {
+  public registerFlowNodeRegisterHook = (hook: any) => {
     this.flowNodeRegisterHooks.push(hook);
   };
 
-  registerFlowNodeOverrideAttachHook = (hook: any) => {
+  public registerFlowNodeOverrideAttachHook = (hook: any) => {
     this.flowNodeOverrideAttachHooks.push(hook);
   };
 
-  registerTask = (taskName: string, taskClass: any) => {
+  public registerTask = (taskName: string, taskClass: any) => {
     this.tasks[taskName] = taskClass;
     return true;
   };
 
-  getObservableNode = (nodeName: string) => {
-    let observables = this.observables.filter(observableNode => {
+  public getObservableNode = (nodeName: string) => {
+    const observables = this.observables.filter(observableNode => {
       return observableNode.name === nodeName;
     });
     return observables.length > 0 ? observables[0].observable : false;
   };
 
-  executeFlowFunction = (nodeName: any) => {
-    let self = this;
+  public executeFlowFunction = (nodeName: any) => {
+    const self = this;
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
 
@@ -454,7 +455,7 @@ export class FlowEventRunner {
     });
   };
 
-  start = (flowPackage: any, customServices?: ServicesInterface, mergeWithDefaultPlugins: boolean = true) => {
+  public start = (flowPackage: any, customServices?: IServicesInterface, mergeWithDefaultPlugins: boolean = true) => {
     if (customServices !== undefined) {
       this.services = customServices;
     } else {
@@ -492,18 +493,18 @@ export class FlowEventRunner {
     });
   };
 
-  getTaskMetaData = (): TaskMetaData[] => {
-    let metaData: TaskMetaData[] = [];
+  public getTaskMetaData = (): ITaskMetaData[] => {
+    const metaData: ITaskMetaData[] = [];
     for (const pluginClassName in this.services.pluginClasses) {
       if (this.services.pluginClasses.hasOwnProperty(pluginClassName)) {
         const pluginClass = this.services.pluginClasses[pluginClassName];
         const pluginInstance = new pluginClass();
 
         metaData.push({
+          className: pluginClassName,
           configMetaData: pluginInstance.getConfigMetaData(),
           fullName: pluginInstance.getFullName(),
           name: pluginInstance.getName(),
-          className: pluginClassName,
           shape: pluginInstance.getShape(),
         });
       }

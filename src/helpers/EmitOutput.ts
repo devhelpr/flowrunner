@@ -1,7 +1,7 @@
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class EmitOutput {
-  static emitToOutputs(
+  public static emitToOutputs(
     nodePluginInfo: any,
     nodeEmitter: any,
     nodeInfo: any,
@@ -81,7 +81,7 @@ export class EmitOutput {
       });
 
       // call output nodes on callstack if node has no outputs
-      if (nodeInfo.outputs.length == 0 && typeof currentCallStack.outputs !== 'undefined') {
+      if (nodeInfo.outputs.length === 0 && typeof currentCallStack.outputs !== 'undefined') {
         const upperCallStack = currentCallStack.callStack;
         const newPayload = Object.assign({}, currentNodeInstance.payload);
         delete newPayload.followFlow;
@@ -92,7 +92,7 @@ export class EmitOutput {
     }
   }
 
-  static emitToError(nodeType: any, nodeEmitter: any, nodeInfo: any, currentNodeInstance: any, currentCallStack: any) {
+  public static emitToError(nodeType: any, nodeEmitter: any, nodeInfo: any, currentNodeInstance: any, currentCallStack: any) {
     if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
       const newPayload = Object.assign({}, currentNodeInstance.payload);
 
@@ -122,7 +122,7 @@ export class EmitOutput {
         nodeEmitter.emit(currentNode.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
       });
       
-      if (nodeInfo.error.length == 0 && typeof currentCallStack.error !== 'undefined') {
+      if (nodeInfo.error.length === 0 && typeof currentCallStack.error !== 'undefined') {
         const upperCallStack = currentCallStack.callStack;
         const newPayload = Object.assign({}, currentNodeInstance.payload);
         delete newPayload.followFlow;

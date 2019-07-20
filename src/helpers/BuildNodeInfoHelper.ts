@@ -1,7 +1,7 @@
 import { FlowEventRunnerHelper } from './FlowEventRunnerHelper';
 
 export class BuildNodeInfoHelper {
-  static build(nodeList: any[], node: any, nodePluginInfoMap: any) {
+  public static build(nodeList: any[], node: any, nodePluginInfoMap: any) {
     return Object.assign(
       {},
       {
@@ -25,6 +25,7 @@ export class BuildNodeInfoHelper {
           ),
           nodeList,
         ),
+        name: node.name,
         nodeId: node.id,
         outputs: nodeList.filter(
           (o: any) =>
@@ -35,7 +36,6 @@ export class BuildNodeInfoHelper {
             o.followflow !== 'injectConfigIntoPayload',
         ),
         title: node.title,
-        name: node.name,
       },
     );
   }

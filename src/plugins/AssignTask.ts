@@ -2,12 +2,12 @@ import * as moment from 'moment';
 import * as uuid from 'uuid';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
-import { ServicesInterface } from '../interfaces/ServicesInterface';
+import { IServicesInterface } from '../interfaces/ServicesInterface';
 
 const uuidV4 = uuid.v4;
 
 export class AssignTask extends FlowTask {
-  public execute(node: any, services: ServicesInterface) {
+  public execute(node: any, services: IServicesInterface) {
     services.logMessage('RUNNING AssignTask: ' + node.id + ' - ' + node.name);
     try {
       node.payload = Object.assign({}, node.payload);

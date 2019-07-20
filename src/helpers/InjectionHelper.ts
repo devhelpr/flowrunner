@@ -1,7 +1,7 @@
 import { FlowEventRunnerHelper } from './FlowEventRunnerHelper';
 
 export class InjectionHelper {
-  static executeInjections(
+  public static executeInjections(
     node: any,
     nodeInfo: any,
     injectionValues: any,
