@@ -82,14 +82,18 @@ export class EmitOutput {
         currentNodeInstance.payload._parallelSessionId = uuidV4();
         currentNodeInstance.payload._parallelCount = nodeInfo.outputs.length;
 
-        parallelSessions[currentNodeInstance.payload._parallelSessionId] = nodeInfo.outputs.length;
+        parallelSessions[currentNodeInstance.payload._parallelSessionId] = {
+          nodeCount: nodeInfo.outputs.length
+        };
 
       }
 
       if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_RESOLVE_NODE) {
-        const parallelSessionCount = parallelSessions[currentNodeInstance.payload._parallelSessionId] - 1;
-        parallelSessions[currentNodeInstance.payload._parallelSessionId] = parallelSessionCount;
+        const parallelSessionCount = parallelSessions[currentNodeInstance.payload._parallelSessionId].nodeCount - 1;
+        parallelSessions[currentNodeInstance.payload._parallelSessionId].nodeCount = parallelSessionCount;
         
+        // TODO : merge payloads
+
         if (parallelSessionCount > 0) {
           return;
         }
