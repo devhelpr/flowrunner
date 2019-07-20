@@ -15,7 +15,6 @@ export class FlowEventRunnerHelper {
   public static getNodeInjections = (injections: any, nodeList: any) => {
     const nodeInjections: any = [];
     injections.map((nodeRelation: any) => {
-
       nodeList.map((node: any) => {
         if (node.id === nodeRelation.startshapeid) {
           nodeInjections.push(node);

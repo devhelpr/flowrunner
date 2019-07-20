@@ -3,7 +3,7 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ForwardTask extends FlowTask {
-  public execute(node: any, services : any) {
+  public execute(node: any, services: any) {
     services.logMessage('RUNNING ForwardTask: ' + node.id + ' - ' + node.name);
 
     return true;

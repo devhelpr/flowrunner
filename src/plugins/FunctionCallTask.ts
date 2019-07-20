@@ -3,7 +3,7 @@ import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class FunctionCallTask extends FlowTask {
-  public execute(node: any, services : any) {
+  public execute(node: any, services: any) {
     services.logMessage('RUNNING FunctionCallTask: ' + node.id + ' - ' + node.name);
 
     return new Promise((resolve: any, reject: any) => {

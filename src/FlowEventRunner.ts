@@ -58,7 +58,6 @@ export class FlowEventRunner {
     };
   }
 
-
   // TODO : refactor .. this method does too much
   // - creating events foreach node
   // - creating http get/post handlers
@@ -377,7 +376,7 @@ export class FlowEventRunner {
         tempNodeId = uuidV4().toString();
         tempErrorNodeId = uuidV4().toString();
         const nodeId = self.nodeNames[nodeName];
-        
+
         self.flowEventEmitter.on(tempNodeId, onResult);
         self.flowEventEmitter.on(tempErrorNodeId, onError);
 

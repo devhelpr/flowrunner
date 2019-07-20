@@ -1,5 +1,3 @@
 export const MachineFlowToHumanFlow = {
-	convert: (MachineFlow : any) => {
-
-	}
-}
+  convert: (MachineFlow: any) => {},
+};
