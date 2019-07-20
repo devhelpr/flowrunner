@@ -1,4 +1,8 @@
+import * as uuid from 'uuid';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
+
+const uuidV4 = uuid.v4;
+const parallelSessions : any = {};
 
 export class EmitOutput {
   public static emitToOutputs(
@@ -9,6 +13,7 @@ export class EmitOutput {
     currentCallStack: any,
   ) {
     let followFlow = '';
+
 
     if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
       currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
@@ -71,6 +76,27 @@ export class EmitOutput {
       }
 
       delete currentNodeInstance.payload.errors;
+
+      // Handle parallel sessions
+      if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_NODE && nodeInfo.outputs.length() > 0) {
+        currentNodeInstance.payload._parallelSessionId = uuidV4();
+        currentNodeInstance.payload._parallelCount = nodeInfo.outputs.length();
+
+        parallelSessions[currentNodeInstance.payload._parallelSessionId] = nodeInfo.outputs.length();
+      }
+
+      if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_RESOLVE_NODE) {
+        const parallelSessionCount = parallelSessions[currentNodeInstance.payload._parallelSessionId] - 1;
+        parallelSessions[currentNodeInstance.payload._parallelSessionId] = parallelSessionCount;
+        
+        if (parallelSessionCount > 0) {
+          return;
+        }
+
+        delete parallelSessions[currentNodeInstance.payload._parallelSessionId];
+        delete currentNodeInstance.payload._parallelSessionId;
+
+      }
 
       // CALL connected output nodes
       nodeInfo.outputs.map((nodeOutput: any) => {

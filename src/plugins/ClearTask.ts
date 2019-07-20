@@ -19,18 +19,7 @@ export class ClearTask extends FlowTask {
       });
     }
 
-    if (node.payload.response !== undefined) {
-      return Object.assign(
-        {},
-        {
-          request: node.payload.request,
-          response: node.payload.response,
-        },
-        properties,
-      );
-    } else {
-      return Object.assign({}, properties);
-    }
+    return Object.assign({}, properties);
   }
 
   public getName() {

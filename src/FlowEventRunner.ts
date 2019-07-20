@@ -17,6 +17,8 @@ import { FunctionOutputTask } from './plugins/FunctionOutputTask';
 import { IfConditionTask } from './plugins/IfConditionTask';
 import { ObservableTask } from './plugins/ObservableTask';
 import { ObserverTask } from './plugins/ObserverTask';
+import { ParallelResolveTask } from './plugins/ParallelResolveTask';
+import { ParallelTask } from './plugins/ParallelTask';
 import { TraceConsoleTask } from './plugins/TraceConsoleTask';
 
 const uuidV4 = uuid.v4;
@@ -476,6 +478,8 @@ export class FlowEventRunner {
       this.services.pluginClasses['FunctionCallTask'] = FunctionCallTask;
       this.services.pluginClasses['FunctionInputTask'] = FunctionInputTask;
       this.services.pluginClasses['FunctionOutputTask'] = FunctionOutputTask;
+      this.services.pluginClasses['ParallelTask'] = ParallelTask;
+      this.services.pluginClasses['ParallelResolveTask'] = ParallelResolveTask;
     }
 
     this.services.pluginClasses = Object.assign({}, this.services.pluginClasses, this.tasks);

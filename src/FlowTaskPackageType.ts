@@ -9,3 +9,5 @@ export const FUNCTION_INPUT_NODE = 6;
 export const FUNCTION_OUTPUT_NODE = 7;
 export const MODEL_NODE = 8;
 export const FORWARD_NODE = 9;
+export const PARALLEL_NODE = 10;
+export const PARALLEL_RESOLVE_NODE = 11;

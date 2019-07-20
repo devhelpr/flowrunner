@@ -1,0 +1,51 @@
+import * as Promise from 'promise';
+import { FlowTask } from '../FlowTask';
+import * as FlowTaskPackageType from '../FlowTaskPackageType';
+
+export class ParallelResolveTask extends FlowTask {
+  public execute(node: any, services: any) {
+    services.logMessage('RUNNING ParallelGateTask: ' + node.id + ' - ' + node.name);
+
+    return Object.assign({}, node.payload);
+  }
+
+  public getName() {
+    return 'ParallelResolveTask';
+  }
+
+  public getFullName() {
+    return 'Parallel';
+  }
+
+  public getDescription() {
+    return 'Node that waits unitil all parallel outputs resolved';
+  }
+
+  public getIcon() {
+    return 'clear';
+  }
+
+  public getShape() {
+    return 'rect';
+  }
+
+  public getTaskType() {
+    return 'both';
+  }
+
+  public getPackageType() {
+    return FlowTaskPackageType.PARALLEL_RESOLVE_NODE;
+  }
+
+  public getCategory() {
+    return 'FlowCanvas';
+  }
+
+  public getController() {
+    return 'FlowCanvasController';
+  }
+
+  public getConfigMetaData() {
+    return [];
+  }
+}
