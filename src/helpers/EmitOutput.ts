@@ -85,34 +85,35 @@ export class EmitOutput {
         parallelSessions[currentNodeInstance.payload._parallelSessionId] = {
           nodeCount: nodeInfo.outputs.length
         };
-
       }
 
       if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_RESOLVE_NODE) {
-        const parallelSessionCount = parallelSessions[currentNodeInstance.payload._parallelSessionId].nodeCount - 1;
-        parallelSessions[currentNodeInstance.payload._parallelSessionId].nodeCount = parallelSessionCount;
+        const parallelSessionId = currentNodeInstance.payload._parallelSessionId;
+
+        const parallelSessionCount = parallelSessions[parallelSessionId].nodeCount - 1;
+        parallelSessions[parallelSessionId].nodeCount = parallelSessionCount;
         
-        if (parallelSessions[currentNodeInstance.payload._parallelSessionId].payloads !== undefined) {
-          parallelSessions[currentNodeInstance.payload._parallelSessionId].payloads = [];
+        if (parallelSessions[parallelSessionId].payloads === undefined) {
+          parallelSessions[parallelSessionId].payloads = [];        
         }
-        parallelSessions[currentNodeInstance.payload._parallelSessionId].payloads.push(Object.assign({}, currentNodeInstance.payload));
+
+        delete currentNodeInstance.payload._parallelSessionId;
+        delete currentNodeInstance.payload._parallelCount;
+
+        parallelSessions[parallelSessionId].payloads.push(Object.assign({}, currentNodeInstance.payload));
 
         // TODO : test merge payloads
         // TODO : how handle emitError?
         // TODO : handle multiple parallel session (parallel session within parallel session)
         //        - use inputs as count instead of outputs?
-
         if (parallelSessionCount > 0) {
-          return;
-        
+          return;        
         }
 
         currentNodeInstance.payload = {};
-        currentNodeInstance.payload.payloads = parallelSessions[currentNodeInstance.payload._parallelSessionId].payloads;
+        currentNodeInstance.payload.payloads = parallelSessions[parallelSessionId].payloads;
 
-        delete parallelSessions[currentNodeInstance.payload._parallelSessionId];
-        delete currentNodeInstance.payload._parallelSessionId;
-
+        delete parallelSessions[parallelSessionId];
       }
 
       // CALL connected output nodes
