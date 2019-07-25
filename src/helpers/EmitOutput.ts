@@ -92,11 +92,23 @@ export class EmitOutput {
         const parallelSessionCount = parallelSessions[currentNodeInstance.payload._parallelSessionId].nodeCount - 1;
         parallelSessions[currentNodeInstance.payload._parallelSessionId].nodeCount = parallelSessionCount;
         
-        // TODO : merge payloads
+        if (parallelSessions[currentNodeInstance.payload._parallelSessionId].payloads !== undefined) {
+          parallelSessions[currentNodeInstance.payload._parallelSessionId].payloads = [];
+        }
+        parallelSessions[currentNodeInstance.payload._parallelSessionId].payloads.push(Object.assign({}, currentNodeInstance.payload));
+
+        // TODO : test merge payloads
+        // TODO : how handle emitError?
+        // TODO : handle multiple parallel session (parallel session within parallel session)
+        //        - use inputs as count instead of outputs?
 
         if (parallelSessionCount > 0) {
           return;
+        
         }
+
+        currentNodeInstance.payload = {};
+        currentNodeInstance.payload.payloads = parallelSessions[currentNodeInstance.payload._parallelSessionId].payloads;
 
         delete parallelSessions[currentNodeInstance.payload._parallelSessionId];
         delete currentNodeInstance.payload._parallelSessionId;
