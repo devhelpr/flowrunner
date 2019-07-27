@@ -2,7 +2,7 @@ import * as uuid from 'uuid';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 const uuidV4 = uuid.v4;
-const parallelSessions : any = {};
+const parallelSessions: any = {};
 
 export class EmitOutput {
   public static emitToOutputs(
@@ -13,7 +13,6 @@ export class EmitOutput {
     currentCallStack: any,
   ) {
     let followFlow = '';
-
 
     if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
       currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
@@ -78,12 +77,15 @@ export class EmitOutput {
       delete currentNodeInstance.payload.errors;
 
       // Handle parallel sessions
-      if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_NODE && nodeInfo.outputs.length > 0) {
+      if (
+        nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_NODE &&
+        nodeInfo.outputs.length > 0
+      ) {
         currentNodeInstance.payload._parallelSessionId = uuidV4();
         currentNodeInstance.payload._parallelCount = nodeInfo.outputs.length;
 
         parallelSessions[currentNodeInstance.payload._parallelSessionId] = {
-          nodeCount: nodeInfo.outputs.length
+          nodeCount: nodeInfo.outputs.length,
         };
       }
 
@@ -92,9 +94,9 @@ export class EmitOutput {
 
         const parallelSessionCount = parallelSessions[parallelSessionId].nodeCount - 1;
         parallelSessions[parallelSessionId].nodeCount = parallelSessionCount;
-        
+
         if (parallelSessions[parallelSessionId].payloads === undefined) {
-          parallelSessions[parallelSessionId].payloads = [];        
+          parallelSessions[parallelSessionId].payloads = [];
         }
 
         delete currentNodeInstance.payload._parallelSessionId;
@@ -107,7 +109,7 @@ export class EmitOutput {
         // TODO : handle multiple parallel session (parallel session within parallel session)
         //        - use inputs as count instead of outputs?
         if (parallelSessionCount > 0) {
-          return;        
+          return;
         }
 
         currentNodeInstance.payload = {};

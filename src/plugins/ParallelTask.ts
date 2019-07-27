@@ -4,7 +4,6 @@ import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ParallelTask extends FlowTask {
   public execute(node: any, services: any) {
-    
     services.logMessage('RUNNING ParallelTask: ' + node.id + ' - ' + node.name);
 
     return true;
