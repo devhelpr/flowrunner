@@ -16,12 +16,26 @@ const parallelBasicFlow = async () => {
 				"taskType": "TraceConsoleTask",
 				"name":"console1",
 				"message":"test",
+				"_outputs":["assign1"]
+			},
+			{
+				"taskType": "AssignTask",
+				"name":"assign1",
+				"assignToProperty":"test1",
+				"value":"test",
 				"_outputs":["parallelresolve"]
 			},
 			{
 				"taskType": "TraceConsoleTask",
 				"name":"console2",
 				"message":"test",
+				"_outputs":["assign2"]
+			},
+			{
+				"taskType": "AssignTask",
+				"name":"assign2",
+				"assignToProperty":"test2",
+				"value":"test",
 				"_outputs":["parallelresolve"]
 			},
 			{
@@ -36,7 +50,20 @@ const parallelBasicFlow = async () => {
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
 		let result : any = await flowEventRunner.executeNode("parallel", {});
-		value = true;
+		let counter = 0;
+		let test1 = false;
+		let test2 = false;
+		result.payloads.map((payload : any) => {
+			if (payload.test1 !== undefined && payload.test1 === "test" && !test1) {
+				test1 = true;
+				counter++;
+			}
+			if (payload.test2 !== undefined && payload.test2 === "test" && !test2) {
+				test2 = true;
+				counter++;
+			}
+		})
+		value = counter === 2 && !!test1 && !!test2;
 	});
 	return value;
 }
