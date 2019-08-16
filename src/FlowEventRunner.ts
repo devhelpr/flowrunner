@@ -39,7 +39,7 @@ export interface ITaskMetaData {
 export class FlowEventRunner {
   public services: IServicesInterface;
 
-  private nodeValues : any = {};
+  private nodeValues: any = {};
   private nodes: any;
   private nodeNames: string[] = [];
   private flowEventEmitter: any;
@@ -57,7 +57,7 @@ export class FlowEventRunner {
       flowEventRunner: this,
       logMessage: (...args) => {},
       pluginClasses: [],
-      registerModel: (modelName: string, definition: any) => {}
+      registerModel: (modelName: string, definition: any) => {},
     };
   }
 
@@ -102,7 +102,6 @@ export class FlowEventRunner {
     this.nodes = nodeList
       .filter((o: any) => o.shapeType !== 'line')
       .map((node: any) => {
-
         this.nodeValues[node.id] = node;
 
         // node is the actual node on flow-level (it contains just the basic properties defined in the flow)
@@ -154,8 +153,7 @@ export class FlowEventRunner {
           }
 
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
-
-            // TODO : 
+            // TODO :
             const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
 
             const injectionValues: any = {};
@@ -473,7 +471,7 @@ export class FlowEventRunner {
         flowEventRunner: this,
         logMessage: (...args) => {},
         pluginClasses: {},
-        registerModel: (modelName: string, definition: any) => {}
+        registerModel: (modelName: string, definition: any) => {},
       };
     }
 
@@ -526,24 +524,18 @@ export class FlowEventRunner {
     return metaData;
   };
 
-  public setPropertyOnNode = (nodeName : string,
-      propertyName : string,
-      value : any
-    ) => {
-      const nodeId : string = this.nodeNames[nodeName as any];      
-      if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
-        this.nodeValues[nodeId][propertyName] = value;
-      }
-  }
+  public setPropertyOnNode = (nodeName: string, propertyName: string, value: any) => {
+    const nodeId: string = this.nodeNames[nodeName as any];
+    if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
+      this.nodeValues[nodeId][propertyName] = value;
+    }
+  };
 
-  public getPropertyFromNode = (nodeName : string,
-      propertyName : string
-    ) => {
-      const nodeId : string = this.nodeNames[nodeName as any];      
-      if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
-        return this.nodeValues[nodeId][propertyName];
-      }
-      return undefined;
-  }
-
+  public getPropertyFromNode = (nodeName: string, propertyName: string) => {
+    const nodeId: string = this.nodeNames[nodeName as any];
+    if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
+      return this.nodeValues[nodeId][propertyName];
+    }
+    return undefined;
+  };
 }
