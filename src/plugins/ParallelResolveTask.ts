@@ -18,7 +18,7 @@ export class ParallelResolveTask extends FlowTask {
   }
 
   public getDescription() {
-    return 'Node that waits unitil all parallel outputs resolved';
+    return 'Node that waits until all parallel outputs resolved';
   }
 
   public getIcon() {

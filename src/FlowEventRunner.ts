@@ -39,8 +39,9 @@ export interface ITaskMetaData {
 export class FlowEventRunner {
   public services: IServicesInterface;
 
+  private nodeValues : any = {};
   private nodes: any;
-  private nodeNames: any[] = [];
+  private nodeNames: string[] = [];
   private flowEventEmitter: any;
   private tasks: any = {};
 
@@ -53,9 +54,10 @@ export class FlowEventRunner {
 
   constructor() {
     this.services = {
+      flowEventRunner: this,
       logMessage: (...args) => {},
       pluginClasses: [],
-      registerModel: (modelName: string, definition: any) => {},
+      registerModel: (modelName: string, definition: any) => {}
     };
   }
 
@@ -100,6 +102,9 @@ export class FlowEventRunner {
     this.nodes = nodeList
       .filter((o: any) => o.shapeType !== 'line')
       .map((node: any) => {
+
+        this.nodeValues[node.id] = node;
+
         // node is the actual node on flow-level (it contains just the basic properties defined in the flow)
         node.payload = {};
 
@@ -149,9 +154,13 @@ export class FlowEventRunner {
           }
 
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
+
+            // TODO : 
+            const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
+
             const injectionValues: any = {};
             const injectionPromises: any = InjectionHelper.executeInjections(
-              node,
+              currentNode,
               nodeInfo,
               injectionValues,
               payload,
@@ -163,7 +172,7 @@ export class FlowEventRunner {
             Promise.all(injectionPromises).then(() => {
               // nodeInstance contains the payload and is the current instance of the node which
               // is used to execute the plugin on.
-              const nodeInstance = Object.assign({}, node, { followNodes: nodeInfo.manuallyToFollowNodes });
+              const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
 
               nodeInstance.payload = Object.assign({}, payload, injectionValues);
 
@@ -458,11 +467,13 @@ export class FlowEventRunner {
   public start = (flowPackage: any, customServices?: IServicesInterface, mergeWithDefaultPlugins: boolean = true) => {
     if (customServices !== undefined) {
       this.services = customServices;
+      this.services.flowEventRunner = this;
     } else {
       this.services = {
+        flowEventRunner: this,
         logMessage: (...args) => {},
         pluginClasses: {},
-        registerModel: (modelName: string, definition: any) => {},
+        registerModel: (modelName: string, definition: any) => {}
       };
     }
 
@@ -514,4 +525,25 @@ export class FlowEventRunner {
 
     return metaData;
   };
+
+  public setPropertyOnNode = (nodeName : string,
+      propertyName : string,
+      value : any
+    ) => {
+      const nodeId : string = this.nodeNames[nodeName as any];      
+      if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
+        this.nodeValues[nodeId][propertyName] = value;
+      }
+  }
+
+  public getPropertyFromNode = (nodeName : string,
+      propertyName : string
+    ) => {
+      const nodeId : string = this.nodeNames[nodeName as any];      
+      if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
+        return this.nodeValues[nodeId][propertyName];
+      }
+      return undefined;
+  }
+
 }
