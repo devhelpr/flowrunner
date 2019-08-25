@@ -100,7 +100,7 @@ export class FlowEventRunner {
     }
 
     this.nodes = nodeList
-      .filter((o: any) => o.shapeType !== 'line')
+      .filter((o: any) => o.taskType !== 'connection')
       .map((node: any) => {
         this.nodeValues[node.id] = node;
 
@@ -119,7 +119,7 @@ export class FlowEventRunner {
         this.nodeNames[node.name] = node.id;
 
         // nodePluginInfo contains info about the the plugin such as the plugInstance, className and config metadata
-        const nodePluginInfo = nodePluginInfoMap[node.shapeType];
+        const nodePluginInfo = nodePluginInfoMap[node.taskType];
         if (typeof nodePluginInfo !== 'undefined' && typeof nodePluginInfo.pluginInstance !== 'undefined') {
           this.flowNodeTriggers.map((flowNodeTrigger: any) => {
             flowNodeTrigger(nodePluginInfo.pluginInstance.getPackageType(), node, (payload: any, callStack: any) => {
@@ -240,7 +240,7 @@ export class FlowEventRunner {
                         'error',
                         nodeInstance.id,
                         nodeInstance.name,
-                        node.shapeType,
+                        node.taskType,
                         payload,
                       );
 
@@ -253,7 +253,7 @@ export class FlowEventRunner {
                         'ok',
                         nodeInstance.id,
                         nodeInstance.name,
-                        node.shapeType,
+                        node.taskType,
                         incomingPayload,
                       );
 
@@ -272,7 +272,7 @@ export class FlowEventRunner {
                         'ok',
                         nodeInstance.id,
                         nodeInstance.name,
-                        node.shapeType,
+                        node.taskType,
                         incomingPayload,
                       );
 
@@ -287,7 +287,7 @@ export class FlowEventRunner {
                         'error',
                         nodeInstance.id,
                         nodeInstance.name,
-                        node.shapeType,
+                        node.taskType,
                         nodeInstance.payload,
                       );
 
@@ -300,7 +300,7 @@ export class FlowEventRunner {
                     'ok',
                     nodeInstance.id,
                     nodeInstance.name,
-                    node.shapeType,
+                    node.taskType,
                     result,
                   );
 
@@ -312,7 +312,7 @@ export class FlowEventRunner {
                     'ok',
                     nodeInstance.id,
                     nodeInstance.name,
-                    node.shapeType,
+                    node.taskType,
                     nodeInstance.payload,
                   );
 
@@ -323,7 +323,7 @@ export class FlowEventRunner {
                     'error',
                     nodeInstance.id,
                     nodeInstance.name,
-                    node.shapeType,
+                    node.taskType,
                     nodeInstance.payload,
                   );
 

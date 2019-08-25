@@ -8,12 +8,13 @@ export const HumanFlowToMachineFlow = {
     flowPackage.flow.map((flowNode: any) => {
       flowNode.title = flowNode.title || flowNode.name || flowNode.id;
       flowNode.name = flowNode.name || flowNode.title.replace(/ /g, '');
-      flowNode.shapeType = flowNode.shapeType || flowNode.taskType;
+      flowNode.shapeType = "Rect";
       flowNode.id = flowNode.name;
       flowNode._id = flowNode.name;
 
       if (flowNode.task !== undefined) {
         flowNode.shapeType = flowNode.task;
+        flowNode.taskType = flowNode.task;
       }
 
       if (typeof flowNode._outputs !== 'undefined') {
@@ -22,6 +23,7 @@ export const HumanFlowToMachineFlow = {
           connection.id = uuidV4();
           connection._id = connection.id;
           connection.shapeType = 'line';
+          connection.taskType = 'connection';
           connection.title = 'connection';
           connection.name = 'outputsFrom_' + flowNode.name + '_to_' + outputNodeName + '_' + connection.id;
           connection.startshapeid = flowNode.name;
@@ -35,6 +37,7 @@ export const HumanFlowToMachineFlow = {
           connection.id = uuidV4();
           connection._id = connection.id;
           connection.shapeType = 'line';
+          connection.taskType = 'connection';
           connection.title = 'connection';
           connection.name = 'sendsErrorFrom_' + flowNode.name + '_to_' + outputNodeName + '_' + connection.id;
           connection.startshapeid = flowNode.id;

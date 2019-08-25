@@ -28,7 +28,7 @@ export class InjectionHelper {
               'injection',
               nodeInstance.id,
               nodeInstance.name,
-              node.shapeType,
+              node.taskType,
               payloadResult,
             );
 
@@ -51,7 +51,7 @@ export class InjectionHelper {
           'injection',
           nodeInstance.id,
           nodeInstance.name,
-          node.shapeType,
+          node.taskType,
           payload,
         );
 

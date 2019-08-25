@@ -6,7 +6,7 @@ export class BuildNodeInfoHelper {
       {},
       {
         error: nodeList.filter(
-          (o: any) => o.startshapeid === node.id.toString() && o.shapeType === 'line' && o.followflow === 'onfailure',
+          (o: any) => o.startshapeid === node.id.toString() && o.taskType === 'connection' && o.followflow === 'onfailure',
         ),
         // TODO : hier direct de nodes uitlezen en de variabelen die geinjecteerd moeten
         // worden toevoegen
@@ -14,14 +14,14 @@ export class BuildNodeInfoHelper {
         inputs: nodeList.filter(
           (o: any) =>
             o.endshapeid === node.id.toString() &&
-            o.shapeType === 'line' &&
+            o.taskType === 'connection' &&
             o.followflow !== 'followManually' &&
             o.followflow !== 'injectConfigIntoPayload',
         ),
         manuallyToFollowNodes: FlowEventRunnerHelper.getManuallyToFollowNodes(
           nodeList.filter(
             (o: any) =>
-              o.startshapeid === node.id.toString() && o.shapeType === 'line' && o.followflow === 'followManually',
+              o.startshapeid === node.id.toString() && o.taskType === 'connection' && o.followflow === 'followManually',
           ),
           nodeList,
         ),
@@ -30,7 +30,7 @@ export class BuildNodeInfoHelper {
         outputs: nodeList.filter(
           (o: any) =>
             o.startshapeid === node.id.toString() &&
-            o.shapeType === 'line' &&
+            o.taskType === 'connection' &&
             o.followflow !== 'onfailure' &&
             o.followflow !== 'followManually' &&
             o.followflow !== 'injectConfigIntoPayload',

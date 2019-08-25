@@ -36,13 +36,13 @@ export class FlowEventRunnerHelper {
 
     const nodeInjections = nodeList.filter(
       (o: any) =>
-        o.endshapeid === injectIntoNodeId && o.shapeType === 'line' && o.followflow === 'injectConfigIntoPayload',
+        o.endshapeid === injectIntoNodeId && o.taskType === 'connection' && o.followflow === 'injectConfigIntoPayload',
     );
 
     nodeInjections.map((nodeRelation: any) => {
       nodeList.map((node: any) => {
         if (node.id === nodeRelation.startshapeid) {
-          const nodeType = nodeTypes[node.shapeType];
+          const nodeType = nodeTypes[node.taskType];
           if (typeof nodeType !== 'undefined') {
             const nodeInstance = Object.assign({}, node);
             nodeInstance.payload = {};
@@ -84,7 +84,7 @@ export class FlowEventRunnerHelper {
   public static registerNode(node: any, nodePluginInfoMap: any, services: any, flowNodeRegisterHooks: any) {
     services.logMessage('REGISTRATE ' + node.name);
 
-    const nodePluginInfo = nodePluginInfoMap[node.shapeType];
+    const nodePluginInfo = nodePluginInfoMap[node.taskType];
     const nodeInstance = Object.assign({}, node);
 
     if (typeof nodePluginInfo !== 'undefined') {
