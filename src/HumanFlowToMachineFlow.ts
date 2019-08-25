@@ -8,7 +8,7 @@ export const HumanFlowToMachineFlow = {
     flowPackage.flow.map((flowNode: any) => {
       flowNode.title = flowNode.title || flowNode.name || flowNode.id;
       flowNode.name = flowNode.name || flowNode.title.replace(/ /g, '');
-      flowNode.shapeType = "Rect";
+      flowNode.shapeType = 'Rect';
       flowNode.id = flowNode.name;
       flowNode._id = flowNode.name;
 

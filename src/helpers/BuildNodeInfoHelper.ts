@@ -6,7 +6,8 @@ export class BuildNodeInfoHelper {
       {},
       {
         error: nodeList.filter(
-          (o: any) => o.startshapeid === node.id.toString() && o.taskType === 'connection' && o.followflow === 'onfailure',
+          (o: any) =>
+            o.startshapeid === node.id.toString() && o.taskType === 'connection' && o.followflow === 'onfailure',
         ),
         // TODO : hier direct de nodes uitlezen en de variabelen die geinjecteerd moeten
         // worden toevoegen
