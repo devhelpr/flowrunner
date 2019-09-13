@@ -14,6 +14,7 @@ import { ForwardTask } from './plugins/ForwardTask';
 import { FunctionCallTask } from './plugins/FunctionCallTask';
 import { FunctionInputTask } from './plugins/FunctionInputTask';
 import { FunctionOutputTask } from './plugins/FunctionOutputTask';
+import { InjectIntoPayloadTask } from './plugins/InjectIntoPayloadTask';
 import { IfConditionTask } from './plugins/IfConditionTask';
 import { ObservableTask } from './plugins/ObservableTask';
 import { ObserverTask } from './plugins/ObserverTask';
@@ -479,6 +480,7 @@ export class FlowEventRunner {
       this.services.pluginClasses['AssignTask'] = AssignTask;
       this.services.pluginClasses['ClearTask'] = ClearTask;
       this.services.pluginClasses['ForwardTask'] = ForwardTask;
+      this.services.pluginClasses['InjectIntoPayloadTask'] = InjectIntoPayloadTask;
       this.services.pluginClasses['ObserverTask'] = ObserverTask;
       this.services.pluginClasses['ObservableTask'] = ObservableTask;
       this.services.pluginClasses['TraceConsoleTask'] = TraceConsoleTask;
@@ -487,7 +489,7 @@ export class FlowEventRunner {
       this.services.pluginClasses['FunctionInputTask'] = FunctionInputTask;
       this.services.pluginClasses['FunctionOutputTask'] = FunctionOutputTask;
       this.services.pluginClasses['ParallelTask'] = ParallelTask;
-      this.services.pluginClasses['ParallelResolveTask'] = ParallelResolveTask;
+      this.services.pluginClasses['ParallelResolveTask'] = ParallelResolveTask;      
     }
 
     this.services.pluginClasses = Object.assign({}, this.services.pluginClasses, this.tasks);

@@ -35,6 +35,37 @@ const testBasicFlow = async () => {
 	return value;
 }
 
+const testInjectFlow = async () => {
+	const flowEventRunner = new FlowEventRunner();
+
+	const humanFlowPackage = {
+		flow : [
+			{
+				"taskType": "TraceConsoleTask",
+				"name":"console",
+				"message":"test",
+				"subtype": "",
+				"_outputs":["inject"]
+			},
+			{
+				"taskType": "InjectIntoPayloadTask",
+				"name":"inject",
+				"object":{"test":"abc","test2":"def"},
+				"subtype": "",
+				"_outputs":[]
+			}
+		]
+	}
+
+	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
+	let value : boolean = false;
+	await flowEventRunner.start(flowPackage).then(async () => {
+		let result : any = await flowEventRunner.executeNode("console", {"testProperty" : 303});
+		value = (result.test === "abc") && (result.test2 === "def");
+	});
+	return value;
+}
+
 const ifConditionBasicFlow = async () => {
 	const flowEventRunner = new FlowEventRunner();
 
@@ -90,5 +121,11 @@ test('testBasicFlow', async () => {
 test('ifConditionBasicFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await ifConditionBasicFlow();
+	expect(value).toBe(true);
+})
+
+test('testInjectFlow', async () => {
+	// https://jestjs.io/docs/en/tutorial-async
+	let value : boolean = await testInjectFlow();
 	expect(value).toBe(true);
 })
