@@ -9,7 +9,7 @@ export class InjectIntoPayloadTask extends FlowTask {
       if (node.object !== undefined) {
         node.payload = Object.assign({}, node.payload, node.object);
       }
-      
+
       return node.payload;
     } catch (err) {
       services.logMessage(err);
@@ -53,8 +53,6 @@ export class InjectIntoPayloadTask extends FlowTask {
   }
 
   public getConfigMetaData() {
-    return [
-      { name: 'object', defaultValue: '', valueType: 'string', required: true }
-    ];
+    return [{ name: 'object', defaultValue: '', valueType: 'string', required: true }];
   }
 }

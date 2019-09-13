@@ -489,7 +489,7 @@ export class FlowEventRunner {
       this.services.pluginClasses['FunctionInputTask'] = FunctionInputTask;
       this.services.pluginClasses['FunctionOutputTask'] = FunctionOutputTask;
       this.services.pluginClasses['ParallelTask'] = ParallelTask;
-      this.services.pluginClasses['ParallelResolveTask'] = ParallelResolveTask;      
+      this.services.pluginClasses['ParallelResolveTask'] = ParallelResolveTask;
     }
 
     this.services.pluginClasses = Object.assign({}, this.services.pluginClasses, this.tasks);
