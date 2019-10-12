@@ -59,7 +59,7 @@ export class EmitOutput {
       if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
         // Handle error flow
         followFlow = currentNodeInstance.payload.followFlow;
-        
+
         if (followFlow === 'isError') {
           if (nodePluginInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE) {
             currentNodeInstance.payload.followFlow = undefined;
@@ -144,7 +144,6 @@ export class EmitOutput {
     currentNodeInstance: any,
     currentCallStack: any,
   ) {
-
     if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
       const newPayload = Object.assign({}, currentNodeInstance.payload);
 

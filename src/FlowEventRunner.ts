@@ -361,7 +361,7 @@ export class FlowEventRunner {
     this.flowEventEmitter.emit(nodeId.toString(), payload, {});
   };
 
-  public executeNode = (nodeName: any, payload: any, callStack : any) => {
+  public executeNode = (nodeName: any, payload: any, callStack: any) => {
     const self = this;
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
@@ -389,11 +389,15 @@ export class FlowEventRunner {
         self.flowEventEmitter.on(tempNodeId, onResult);
         self.flowEventEmitter.on(tempErrorNodeId, onError);
 
-        const newCallStack = Object.assign({}, {
-          error: [{ endshapeid: tempErrorNodeId }],
-          outputs: [{ endshapeid: tempNodeId }],
-        }, callStack);
-        
+        const newCallStack = Object.assign(
+          {},
+          {
+            error: [{ endshapeid: tempErrorNodeId }],
+            outputs: [{ endshapeid: tempNodeId }],
+          },
+          callStack,
+        );
+
         self.flowEventEmitter.emit(nodeId.toString(), payload, newCallStack);
       } catch (err) {
         this.services.logMessage('executeNode error', err);
