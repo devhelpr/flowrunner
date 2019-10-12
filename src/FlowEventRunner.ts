@@ -14,8 +14,8 @@ import { ForwardTask } from './plugins/ForwardTask';
 import { FunctionCallTask } from './plugins/FunctionCallTask';
 import { FunctionInputTask } from './plugins/FunctionInputTask';
 import { FunctionOutputTask } from './plugins/FunctionOutputTask';
-import { InjectIntoPayloadTask } from './plugins/InjectIntoPayloadTask';
 import { IfConditionTask } from './plugins/IfConditionTask';
+import { InjectIntoPayloadTask } from './plugins/InjectIntoPayloadTask';
 import { ObservableTask } from './plugins/ObservableTask';
 import { ObserverTask } from './plugins/ObserverTask';
 import { ParallelResolveTask } from './plugins/ParallelResolveTask';
@@ -361,7 +361,7 @@ export class FlowEventRunner {
     this.flowEventEmitter.emit(nodeId.toString(), payload, {});
   };
 
-  public executeNode = (nodeName: any, payload: any) => {
+  public executeNode = (nodeName: any, payload: any, callStack : any) => {
     const self = this;
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
@@ -389,11 +389,12 @@ export class FlowEventRunner {
         self.flowEventEmitter.on(tempNodeId, onResult);
         self.flowEventEmitter.on(tempErrorNodeId, onError);
 
-        const callStack = {
+        const newCallStack = Object.assign({}, {
           error: [{ endshapeid: tempErrorNodeId }],
           outputs: [{ endshapeid: tempNodeId }],
-        };
-        self.flowEventEmitter.emit(nodeId.toString(), payload, callStack);
+        }, callStack);
+        
+        self.flowEventEmitter.emit(nodeId.toString(), payload, newCallStack);
       } catch (err) {
         this.services.logMessage('executeNode error', err);
         reject();

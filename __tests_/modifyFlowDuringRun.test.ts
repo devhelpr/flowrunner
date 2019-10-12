@@ -52,9 +52,50 @@ const runFlow = async () => {
 	return value;
 }
 
+const runFlowUnknownNode = async () => {
+	const flowEventRunner = new FlowEventRunner();
+	flowEventRunner.registerTask("ModifyFlowTask", ModifyFlowTask);
+	const humanFlowPackage = {
+		flow : [
+			{
+				"taskType": "TraceConsoleTask",
+				"name":"console",
+				"message":"test",
+				"subtype": "",
+				"test":1,
+				"_outputs":["modify"]
+			},
+			{
+				"taskType": "ModifyFlowTask",
+				"name":"modify",
+				"nodeName":"console",
+				"modifyProperty":"test",
+				"value":303
+			}
+		]
+	}
+
+	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
+	let value : boolean = false;
+	await flowEventRunner.start(flowPackage).then(async () => {
+		let result : any = await flowEventRunner.executeNode("console", {});
+		value = (flowEventRunner.getPropertyFromNode("unknown","test") === undefined);
+	});
+	return value;
+}
+
 
 test('modifyFlowDuringRunBasicFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await runFlow();
 	expect(value).toBe(true);
 })
+
+
+test('modifyFlowDuringRunBasicFlowGetPropertyFromUnknownNode', async () => {
+	// https://jestjs.io/docs/en/tutorial-async
+	let value : boolean = await runFlowUnknownNode();
+	expect(value).toBe(true);
+})
+
+

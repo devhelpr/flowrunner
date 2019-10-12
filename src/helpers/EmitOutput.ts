@@ -59,12 +59,12 @@ export class EmitOutput {
       if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
         // Handle error flow
         followFlow = currentNodeInstance.payload.followFlow;
-
+        
         if (followFlow === 'isError') {
           if (nodePluginInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE) {
             currentNodeInstance.payload.followFlow = undefined;
+            delete currentNodeInstance.payload.followFlow;
           }
-
           EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack);
           return;
         }
@@ -144,6 +144,7 @@ export class EmitOutput {
     currentNodeInstance: any,
     currentCallStack: any,
   ) {
+
     if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
       const newPayload = Object.assign({}, currentNodeInstance.payload);
 
@@ -154,11 +155,6 @@ export class EmitOutput {
       // delete _payload._functionOutputs;
       // delete _payload._functionErrorOutputs;
       delete newPayload.followFlow;
-
-      /* nodeInstance.payload._functionErrorOutputs.map((node) => {
-		  nodeEmitter.emit(node.endshapeid.toString(), _payload, callStack)
-		})
-		*/
 
       const upperCallStack = currentCallStack.callStack;
       currentCallStack.error.map((currentNode: any) => {
