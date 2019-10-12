@@ -112,6 +112,29 @@ const ifConditionBasicFlow = async () => {
 	return value;
 }
 
+const testTaskMetaData = async () => {
+	const flowEventRunner = new FlowEventRunner();
+
+	const humanFlowPackage = {
+		flow : [
+			{
+				"taskType": "TraceConsoleTask",
+				"name":"console",
+				"message":"test",
+				"subtype": ""
+			}
+		]
+	}
+
+	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
+	let value : boolean = false;
+	await flowEventRunner.start(flowPackage).then(async () => {
+		const metaData = flowEventRunner.getTaskMetaData();
+		value =  metaData.filter((metaDataItem) => metaDataItem.className == "AssignTask").length > 0;
+	});
+	return value;
+}
+
 test('testBasicFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testBasicFlow();
@@ -127,5 +150,12 @@ test('ifConditionBasicFlow', async () => {
 test('testInjectFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testInjectFlow();
+	expect(value).toBe(true);
+})
+
+
+test('testTaskMetaData', async () => {
+	// https://jestjs.io/docs/en/tutorial-async
+	let value : boolean = await testTaskMetaData();
 	expect(value).toBe(true);
 })
