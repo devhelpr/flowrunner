@@ -361,7 +361,7 @@ export class FlowEventRunner {
     this.flowEventEmitter.emit(nodeId.toString(), payload, {});
   };
 
-  public executeNode = (nodeName: any, payload: any, callStack: any) => {
+  public executeNode = (nodeName: any, payload: any, callStack?: any) => {
     const self = this;
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;

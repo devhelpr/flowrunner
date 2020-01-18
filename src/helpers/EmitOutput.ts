@@ -1,8 +1,47 @@
 import * as uuid from 'uuid';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
+import { IConnectionNode } from '../interfaces/ConnectionNode';
+import { INode } from '../interfaces/Node';
+
 const uuidV4 = uuid.v4;
 const parallelSessions: any = {};
+
+export const doesConnectionEmit = (connectionNode : IConnectionNode, node: INode, payload : any) => {
+  let result : boolean = true;
+
+  if (connectionNode.tagPropertyFromPayload && connectionNode.tag) {
+    result = connectionNode.tag === payload[connectionNode.tagPropertyFromPayload];
+  }
+  if (connectionNode.tag && payload.tag) {
+    result = result && (connectionNode.tag === payload.tag);
+
+    // dont keep on passing tags via payload.. "oneshot"-only
+    // so also dont pass tags on payload to functions
+
+    delete payload.tag;
+  }
+  if (connectionNode.tag && node.tag) {
+    result = result && (connectionNode.tag === node.tag);
+  }  
+
+  // TODO : check flowPath ... compare also using callstack?
+
+  // QUESTION : instead of using flowPathPropertyFromPayload .. always use "flowPath" as name in payload?
+  // .. why not both .. this allows more flexibility .. see above using tags
+
+  // REQUIREMENT if a node.payload has a flowPath, then dont follow the 
+  //   connections without a flowPath when the payload contains a flowPath
+  //   ... dont pass flowPath to functions (remember it in the callstack)
+  if (connectionNode.flowPath) {
+    if (!payload.flowPath) {
+      return false;
+    }
+    result = result && (connectionNode.flowPath === payload.flowPath);
+  }
+  return result;
+}
+
 
 export class EmitOutput {
   public static emitToOutputs(
@@ -23,6 +62,14 @@ export class EmitOutput {
 
       const newPayload = Object.assign({}, currentNodeInstance.payload);
       delete newPayload.followFlow;
+      
+      if (currentCallStack.flowPath) {
+        newPayload.flowPath = currentCallStack.flowPath;
+      }
+      
+      if (currentCallStack.tag) {
+        newPayload.tag = currentCallStack.tag;
+      }
 
       if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
         followFlow = currentNodeInstance.payload.followFlow;
@@ -39,9 +86,22 @@ export class EmitOutput {
 
       if (typeof currentCallStack.outputs !== 'undefined') {
         const upperCallStack = currentCallStack.callStack;
-        currentCallStack.outputs.map((outputNode: any) => {
-          nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
+        let nodeWasEmitted = false;
+        currentCallStack.outputs.map((nodeOutput: any) => {
+          if (doesConnectionEmit(nodeOutput, currentNodeInstance, newPayload)) {
+            nodeWasEmitted = true;
+
+            nodeEmitter.emit(nodeOutput.endshapeid.toString(), newPayload, upperCallStack);
+          }
         });
+
+        if (!nodeWasEmitted || (currentCallStack.outputs.length === 0)) {
+          if (upperCallStack.outputs !== undefined) {
+            upperCallStack.outputs.map((outputNode: any) => {
+              nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack.callStack);
+            });
+          }
+        }
       }
     } else if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
       // CALL FUNCTION NODE
@@ -52,8 +112,19 @@ export class EmitOutput {
         error: nodeInfo.error,
         outputs: nodeInfo.outputs,
         returnNodeId: currentNodeInstance.id,
+        flowPath: currentNodeInstance.payload.flowPath,
+        tag: currentNodeInstance.payload.tag
       };
 
+      if (currentNodeInstance.payload.flowPath) {
+        delete currentNodeInstance.payload.flowPath;
+      }
+
+      if (currentNodeInstance.payload.tag) {
+        delete currentNodeInstance.payload.tag;
+      }
+
+      // TODO : check if functionnode needs "doesConnectionFire"
       nodeEmitter.emit(currentNodeInstance.functionnodeid.toString(), currentNodeInstance.payload, newCallStack);
     } else {
       if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
@@ -118,19 +189,25 @@ export class EmitOutput {
         delete parallelSessions[parallelSessionId];
       }
 
+      let nodeWasEmitted = false;
       // CALL connected output nodes
       nodeInfo.outputs.map((nodeOutput: any) => {
         if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
-          nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
+          if (doesConnectionEmit(nodeOutput, currentNodeInstance, currentNodeInstance.payload)) {
+            nodeWasEmitted = true;
+            nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
+          }
         }
       });
 
       // call output nodes on callstack if node has no outputs
-      if (nodeInfo.outputs.length === 0 && typeof currentCallStack.outputs !== 'undefined') {
+      if (!nodeWasEmitted || (nodeInfo.outputs.length === 0 && typeof currentCallStack.outputs !== 'undefined')) {
         const upperCallStack = currentCallStack.callStack;
         const newPayload = Object.assign({}, currentNodeInstance.payload);
         delete newPayload.followFlow;
+
         currentCallStack.outputs.map((outputNode: any) => {
+          // todo : double check if this needs doesConnectionEmit        
           nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
         });
       }
