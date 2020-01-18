@@ -7,14 +7,14 @@ import { INode } from '../interfaces/Node';
 const uuidV4 = uuid.v4;
 const parallelSessions: any = {};
 
-export const doesConnectionEmit = (connectionNode : IConnectionNode, node: INode, payload : any) => {
-  let result : boolean = true;
+export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode, payload: any) => {
+  let result: boolean = true;
 
   if (connectionNode.tagPropertyFromPayload && connectionNode.tag) {
     result = connectionNode.tag === payload[connectionNode.tagPropertyFromPayload];
   }
   if (connectionNode.tag && payload.tag) {
-    result = result && (connectionNode.tag === payload.tag);
+    result = result && connectionNode.tag === payload.tag;
 
     // dont keep on passing tags via payload.. "oneshot"-only
     // so also dont pass tags on payload to functions
@@ -22,26 +22,25 @@ export const doesConnectionEmit = (connectionNode : IConnectionNode, node: INode
     delete payload.tag;
   }
   if (connectionNode.tag && node.tag) {
-    result = result && (connectionNode.tag === node.tag);
-  }  
+    result = result && connectionNode.tag === node.tag;
+  }
 
   // TODO : check flowPath ... compare also using callstack?
 
   // QUESTION : instead of using flowPathPropertyFromPayload .. always use "flowPath" as name in payload?
   // .. why not both .. this allows more flexibility .. see above using tags
 
-  // REQUIREMENT if a node.payload has a flowPath, then dont follow the 
+  // REQUIREMENT if a node.payload has a flowPath, then dont follow the
   //   connections without a flowPath when the payload contains a flowPath
   //   ... dont pass flowPath to functions (remember it in the callstack)
   if (connectionNode.flowPath) {
     if (!payload.flowPath) {
       return false;
     }
-    result = result && (connectionNode.flowPath === payload.flowPath);
+    result = result && connectionNode.flowPath === payload.flowPath;
   }
   return result;
-}
-
+};
 
 export class EmitOutput {
   public static emitToOutputs(
@@ -62,11 +61,11 @@ export class EmitOutput {
 
       const newPayload = Object.assign({}, currentNodeInstance.payload);
       delete newPayload.followFlow;
-      
+
       if (currentCallStack.flowPath) {
         newPayload.flowPath = currentCallStack.flowPath;
       }
-      
+
       if (currentCallStack.tag) {
         newPayload.tag = currentCallStack.tag;
       }
@@ -95,7 +94,7 @@ export class EmitOutput {
           }
         });
 
-        if (!nodeWasEmitted || (currentCallStack.outputs.length === 0)) {
+        if (!nodeWasEmitted || currentCallStack.outputs.length === 0) {
           if (upperCallStack.outputs !== undefined) {
             upperCallStack.outputs.map((outputNode: any) => {
               nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack.callStack);
@@ -113,7 +112,7 @@ export class EmitOutput {
         outputs: nodeInfo.outputs,
         returnNodeId: currentNodeInstance.id,
         flowPath: currentNodeInstance.payload.flowPath,
-        tag: currentNodeInstance.payload.tag
+        tag: currentNodeInstance.payload.tag,
       };
 
       if (currentNodeInstance.payload.flowPath) {
@@ -207,7 +206,7 @@ export class EmitOutput {
         delete newPayload.followFlow;
 
         currentCallStack.outputs.map((outputNode: any) => {
-          // todo : double check if this needs doesConnectionEmit        
+          // todo : double check if this needs doesConnectionEmit
           nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
         });
       }
