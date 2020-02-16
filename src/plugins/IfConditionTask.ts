@@ -48,6 +48,9 @@ export class IfConditionTask extends FlowTask {
         field2 = objectToCheck;
       }
 
+      if (node.usingCondition == "isNonEmptyProperty" && field1 !== undefined && field1 !== "") {
+        resolve(node.payload);
+      } else
       if (conditionCheck(field1, field2, node.usingCondition, node.dataType)) {
         // console.log("conditionCheck: true", field1,field2,node.compareProperty,node.withProperty);
         resolve(node.payload);
