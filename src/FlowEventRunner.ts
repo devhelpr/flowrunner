@@ -71,15 +71,16 @@ export class FlowEventRunner {
   //
   // split in multiple methods / classes
 
+  private errorListener = (err: any) => {
+    console.error('error in FlowEventRunner EventEmitter');
+    console.log(err);
+  };
+
   public createNodes = (nodeList: any[]) => {
-    const nodeEmitter: any = new ReactiveEventEmitter();
+    this.flowEventEmitter = new ReactiveEventEmitter();
+    const nodeEmitter = this.flowEventEmitter;
 
-    this.flowEventEmitter = nodeEmitter;
-
-    nodeEmitter.on('error', (err: any) => {
-      console.error('error in FlowEventRunner EventEmitter');
-      console.log(err);
-    });
+    nodeEmitter.on('error', this.errorListener);
 
     const nodePluginInfoMap: any = {};
     const autostarters: any = [];
@@ -349,6 +350,17 @@ export class FlowEventRunner {
       nodeEmitter.emit(nodeId.toString(), {}, {});
     });
   };
+
+  public destroyFlow = () => {
+    this.flowEventEmitter.removeListener("error");
+    this.nodes.map((nodeInfo : any) => {
+      this.flowEventEmitter.removeListener(nodeInfo.nodeId);
+    });
+    this.nodes = [];
+    this.observables = [];
+    this.nodeValues = {};
+    this.nodeNames = [];
+  }
 
   public getFunctionNodeId = (title: any) => {
     if (typeof this.functionNodes[title] !== 'undefined' && this.functionNodes[title] !== '') {
