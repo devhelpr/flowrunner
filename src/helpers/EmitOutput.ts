@@ -204,11 +204,12 @@ export class EmitOutput {
         const upperCallStack = currentCallStack.callStack;
         const newPayload = Object.assign({}, currentNodeInstance.payload);
         delete newPayload.followFlow;
-
-        currentCallStack.outputs.map((outputNode: any) => {
-          // todo : double check if this needs doesConnectionEmit
-          nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
-        });
+        if (currentCallStack.outputs) {
+          currentCallStack.outputs.map((outputNode: any) => {
+            // todo : double check if this needs doesConnectionEmit
+            nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
+          });
+        }
       }
     }
   }
