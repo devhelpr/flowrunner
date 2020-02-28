@@ -4,6 +4,7 @@ import { indexOf } from './IndexOf';
 export class ReactiveEventEmitter {
   private events: any = {};
   private subjects: any = {};
+  private subscriptions : any = {};
 
   public on = (event: any, listener: any) => {
     if (typeof this.events[event] !== 'object') {
@@ -15,7 +16,7 @@ export class ReactiveEventEmitter {
     if (typeof this.subjects[event] !== 'object') {
       this.subjects[event] = new Rx.Subject();
       const self: any = this;
-      this.subjects[event].subscribe({
+      this.subscriptions[event] = this.subjects[event].subscribe({
         next: (data: any) => {
           if (typeof self.events[event] === 'object') {
             const length = self.events[event].length;
@@ -33,10 +34,13 @@ export class ReactiveEventEmitter {
   public removeListener = (event: any) => {
     // let idx;
 
-    if (this.subjects[event]) {
-      this.subjects[event].unsubscribe();
+    if (this.subjects[event] && this.subscriptions[event]) {
+      this.subscriptions[event].unsubscribe();
+      this.subscriptions[event] = undefined;
+
       this.subjects[event].complete();
       this.subjects[event] = undefined;
+      
       delete this.subjects[event];
     }
 

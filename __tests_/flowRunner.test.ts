@@ -35,6 +35,42 @@ const testBasicFlow = async () => {
 	return value;
 }
 
+const testDestroyFlow = async () => {
+	const flowEventRunner = new FlowEventRunner();
+
+	const humanFlowPackage = {
+		flow : [
+			{
+				"taskType": "TraceConsoleTask",
+				"name":"console",
+				"message":"test",
+				"subtype": "",
+				"_outputs":["assign"]
+			},
+			{
+				"taskType": "AssignTask",
+				"name":"assign",
+				"assignToProperty":"test",
+				"value":"test",
+				"subtype": "",
+				"_outputs":[]
+			}
+		]
+	}
+
+	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
+	let value : boolean = false;
+	await flowEventRunner.start(flowPackage).then(async () => {
+		let result : any = await flowEventRunner.executeNode("console", {"testProperty" : 303});
+		value = (result.testProperty === 303) && (result.test === "test");
+		if (value) {
+			flowEventRunner.destroyFlow();
+		}
+		
+	});
+	return value;
+}
+
 const testInjectFlow = async () => {
 	const flowEventRunner = new FlowEventRunner();
 
@@ -136,6 +172,13 @@ const testTaskMetaData = async () => {
 }
 
 test('testBasicFlow', async () => {
+	// https://jestjs.io/docs/en/tutorial-async
+	let value : boolean = await testBasicFlow();
+	expect(value).toBe(true);
+})
+
+
+test('testDestroyFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testBasicFlow();
 	expect(value).toBe(true);
