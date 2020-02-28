@@ -51,6 +51,7 @@ export class FlowEventRunner {
   private flowNodeTriggers: any = [];
   private flowNodeRegisterHooks: any = [];
   private flowNodeOverrideAttachHooks: any = [];
+  private nodePluginInfoMap : any = {};
   private observables: IRegisteredObservable[] = [];
 
   constructor() {
@@ -95,6 +96,7 @@ export class FlowEventRunner {
         };
       }
     }
+    this.nodePluginInfoMap = nodePluginInfoMap;
 
     this.nodes = nodeList
       .filter((o: any) => o.taskType !== 'connection')
@@ -354,7 +356,7 @@ export class FlowEventRunner {
     this.nodes = [];
     this.observables.map(observableHelper => {
       if (observableHelper && observableHelper.observable) {
-        (observableHelper.observable as any).unsubscribe();
+        (observableHelper.observable as any).complete();
       }
     });
     this.observables = [];
