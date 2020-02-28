@@ -31,7 +31,7 @@ export class ReactiveEventEmitter {
 
   // public removeListener = (event: any, listener: any) => {
   public removeListener = (event: any) => {
-    //let idx;
+    // let idx;
     
     if (this.subjects[event]) {      
       this.subjects[event].unsubscribe();
