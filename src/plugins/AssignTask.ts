@@ -18,7 +18,8 @@ export class AssignTask extends FlowTask {
         }
       }
 
-      if (node.value !== undefined && node.value !== '') {
+      if (node.value !== undefined && 
+          (node.valueFromProperty === undefined || node.valueFromProperty == "")) {
         let value = node.value;
         if (value === '[UUID]') {
           value = uuidV4().toString();

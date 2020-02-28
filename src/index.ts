@@ -3,4 +3,5 @@ import { FlowTask } from './FlowTask';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
 import { HumanFlowToMachineFlow } from './HumanFlowToMachineFlow';
 
-export { FlowEventRunner, FlowTask, FlowTaskPackageType, HumanFlowToMachineFlow };
+import { ObservableTask } from './plugins/ObservableTask';
+export { FlowEventRunner, FlowTask, FlowTaskPackageType, HumanFlowToMachineFlow, ObservableTask};

@@ -1,6 +1,6 @@
 # FlowEventRunner
 
-Library to run a flow-graph defined in json, expandable by plugins.
+Library to run a flow-graph defined in json, expandable by plugins and hooks.
 
 The reason for the existence of this library is reusability. 
 When talking about reusability, this usually is from code perspective. 
@@ -11,7 +11,7 @@ The question that I asked myself is: can this be avoided if we represent these r
 This graph should be executed by generic and extendable code.
 
 That is what this package is the starting point for : run a flow of node's where every node has a specific task attached. A set of basic tasks already exists and can be further extended.
-Offcourse this implementation is in Javascript (written in typescript), but the same principle should be transferable to other programming languages like C#, PHP, Swift and/or Kotlin.
+Offcourse this implementation is in Javascript (written in typescript), but the same principle should be transferable to other programming languages like C#, PHP, Rust, ReasonML, Swift and/or Kotlin.
 
 Currently the focus is on building the core set of packages and getting the right set of functionality with correct naming of api methods and properties and testing it with real life use-cases.
 
