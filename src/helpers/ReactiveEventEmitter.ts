@@ -4,7 +4,7 @@ import { indexOf } from './IndexOf';
 export class ReactiveEventEmitter {
   private events: any = {};
   private subjects: any = {};
-  private subscriptions : any = {};
+  private subscriptions: any = {};
 
   public on = (event: any, listener: any) => {
     if (typeof this.events[event] !== 'object') {
@@ -40,7 +40,7 @@ export class ReactiveEventEmitter {
 
       this.subjects[event].complete();
       this.subjects[event] = undefined;
-      
+
       delete this.subjects[event];
     }
 
