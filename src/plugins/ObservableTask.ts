@@ -9,9 +9,9 @@ export class ObservableTask extends FlowTask {
       if (!node.observeProperty || (node.observeProperty && node.payload[node.observeProperty])) {
         if (!!node.sendNodeName) {
           node.observable.next({
-              nodeName: node.name,
-              payload: Object.assign({}, node.payload)
-            });
+            nodeName: node.name,
+            payload: Object.assign({}, node.payload),
+          });
         } else {
           node.observable.next(Object.assign({}, node.payload));
         }

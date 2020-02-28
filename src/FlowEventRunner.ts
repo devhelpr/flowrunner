@@ -51,7 +51,7 @@ export class FlowEventRunner {
   private flowNodeTriggers: any = [];
   private flowNodeRegisterHooks: any = [];
   private flowNodeOverrideAttachHooks: any = [];
-  private nodePluginInfoMap : any = {};
+  private nodePluginInfoMap: any = {};
   private observables: IRegisteredObservable[] = [];
 
   constructor() {
