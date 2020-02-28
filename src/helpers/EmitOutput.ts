@@ -109,9 +109,9 @@ export class EmitOutput {
         callStack: currentCallStack,
         callStackType: 'FUNCTION',
         error: nodeInfo.error,
+        flowPath: currentNodeInstance.payload.flowPath,
         outputs: nodeInfo.outputs,
         returnNodeId: currentNodeInstance.id,
-        flowPath: currentNodeInstance.payload.flowPath,
         tag: currentNodeInstance.payload.tag,
       };
 

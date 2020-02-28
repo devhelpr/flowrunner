@@ -69,12 +69,7 @@ export class FlowEventRunner {
   // - emit events to output nodes
   // - calling plugin execute or executeAsHTTPEndpoint
   //
-  // split in multiple methods / classes
-
-  private errorListener = (err: any) => {
-    console.error('error in FlowEventRunner EventEmitter');
-    console.log(err);
-  };
+  // split in multiple methods / classes  
 
   public createNodes = (nodeList: any[]) => {
     this.flowEventEmitter = new ReactiveEventEmitter();
@@ -556,5 +551,10 @@ export class FlowEventRunner {
       return this.nodeValues[nodeId][propertyName];
     }
     return undefined;
+  };
+
+  private errorListener = (err: any) => {
+    console.error('error in FlowEventRunner EventEmitter');
+    console.log(err);
   };
 }
