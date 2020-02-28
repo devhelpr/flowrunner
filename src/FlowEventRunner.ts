@@ -352,7 +352,7 @@ export class FlowEventRunner {
       this.flowEventEmitter.removeListener(nodeInfo.nodeId);
     });
     this.nodes = [];
-    this.observables.map((observableHelper) => {
+    this.observables.map(observableHelper => {
       if (observableHelper && observableHelper.observable) {
         (observableHelper.observable as any).unsubscribe();
       }
