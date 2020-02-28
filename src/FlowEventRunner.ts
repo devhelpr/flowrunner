@@ -69,7 +69,7 @@ export class FlowEventRunner {
   // - emit events to output nodes
   // - calling plugin execute or executeAsHTTPEndpoint
   //
-  // split in multiple methods / classes  
+  // split in multiple methods / classes
 
   public createNodes = (nodeList: any[]) => {
     this.flowEventEmitter = new ReactiveEventEmitter();
@@ -347,15 +347,15 @@ export class FlowEventRunner {
   };
 
   public destroyFlow = () => {
-    this.flowEventEmitter.removeListener("error");
-    this.nodes.map((nodeInfo : any) => {
+    this.flowEventEmitter.removeListener('error');
+    this.nodes.map((nodeInfo: any) => {
       this.flowEventEmitter.removeListener(nodeInfo.nodeId);
     });
     this.nodes = [];
     this.observables = [];
     this.nodeValues = {};
     this.nodeNames = [];
-  }
+  };
 
   public getFunctionNodeId = (title: any) => {
     if (typeof this.functionNodes[title] !== 'undefined' && this.functionNodes[title] !== '') {

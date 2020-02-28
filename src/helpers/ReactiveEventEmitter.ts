@@ -32,15 +32,15 @@ export class ReactiveEventEmitter {
   // public removeListener = (event: any, listener: any) => {
   public removeListener = (event: any) => {
     // let idx;
-    
-    if (this.subjects[event]) {      
+
+    if (this.subjects[event]) {
       this.subjects[event].unsubscribe();
       this.subjects[event].complete();
       this.subjects[event] = undefined;
       delete this.subjects[event];
     }
 
-    if (typeof this.events[event] === 'object') { 
+    if (typeof this.events[event] === 'object') {
       this.events[event] = [];
       /*     
       idx = indexOf(this.events[event], listener);
