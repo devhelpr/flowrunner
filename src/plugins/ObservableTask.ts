@@ -25,7 +25,7 @@ export class ObservableTask extends FlowTask {
   public getObservable(node: any) {
     if (node.observable === undefined) {
       if (!!node.sendNodeName) {
-        node.observable = new BehaviorSubject<any>({nodeName: node.name, payload: {}});
+        node.observable = new BehaviorSubject<any>({ nodeName: node.name, payload: {} });
       } else {
         node.observable = new BehaviorSubject<any>({});
       }
