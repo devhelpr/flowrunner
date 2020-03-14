@@ -350,9 +350,13 @@ export class FlowEventRunner {
 
   public destroyFlow = () => {
     this.flowEventEmitter.removeListener('error');
-    this.nodes.map((nodeInfo: any) => {
-      this.flowEventEmitter.removeListener(nodeInfo.nodeId);
-    });
+    if (this.nodes) {
+      this.nodes.map((nodeInfo: any) => {
+        if (nodeInfo && nodeInfo.nodeId) {
+          this.flowEventEmitter.removeListener(nodeInfo.nodeId);
+        }
+      });
+    }
     this.nodes = [];
     this.observables.map(observableHelper => {
       if (observableHelper && observableHelper.observable) {
