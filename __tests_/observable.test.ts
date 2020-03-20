@@ -35,8 +35,11 @@ test('testObservableFlow', done => {
 			try {
 				(observable as unknown as Rx.Observable<string>).subscribe({
 					next: (data: any) => {
-						expect(data.test).toBe("test1234");
-						done();
+						console.log(data);
+						if (data.test) {
+							expect(data.test).toBe("test1234");
+							done();
+						}
 					},
 				});
 				console.log("is subscribed to observable");

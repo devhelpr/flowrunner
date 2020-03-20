@@ -59,8 +59,12 @@ export class EmitOutput {
     if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
       // HANDLE FUNCTION OUTPUT/RESULT
 
-      const newPayload = Object.assign({}, currentNodeInstance.payload);
+      let newPayload = Object.assign({}, currentNodeInstance.payload);
       delete newPayload.followFlow;
+
+      if (currentNodeInstance.resultProperty) {
+          newPayload = {[currentNodeInstance.resultProperty] : newPayload[currentNodeInstance.resultProperty]};
+      }
 
       if (currentCallStack.flowPath) {
         newPayload.flowPath = currentCallStack.flowPath;
@@ -70,13 +74,14 @@ export class EmitOutput {
         newPayload.tag = currentCallStack.tag;
       }
 
+      
       if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
         followFlow = currentNodeInstance.payload.followFlow;
         if (followFlow === 'isError') {
           if (typeof currentCallStack.error !== 'undefined') {
             const upperCallStack = currentCallStack.callStack;
             currentCallStack.error.map((outputNode: any) => {
-              nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
+              nodeEmitter.emit(outputNode.endshapeid.toString(), {...upperCallStack.newPayload, ...newPayload}, upperCallStack);
             });
           }
           return;
@@ -97,7 +102,7 @@ export class EmitOutput {
         if (!nodeWasEmitted || currentCallStack.outputs.length === 0) {
           if (upperCallStack.outputs !== undefined) {
             upperCallStack.outputs.map((outputNode: any) => {
-              nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack.callStack);
+              nodeEmitter.emit(outputNode.endshapeid.toString(), {...upperCallStack.newPayload, ...newPayload}, upperCallStack.callStack);
             });
           }
         }
@@ -113,6 +118,7 @@ export class EmitOutput {
         outputs: nodeInfo.outputs,
         returnNodeId: currentNodeInstance.id,
         tag: currentNodeInstance.payload.tag,
+        payload: currentNodeInstance.payload
       };
 
       if (currentNodeInstance.payload.flowPath) {
