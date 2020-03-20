@@ -61,7 +61,7 @@ export class EmitOutput {
 
       let newPayload = Object.assign({}, currentNodeInstance.payload);
       delete newPayload.followFlow;
-console.log("function out", newPayload);
+      console.log('function out', newPayload);
       if (currentNodeInstance.resultProperty) {
         newPayload = { [currentNodeInstance.resultProperty]: newPayload[currentNodeInstance.resultProperty] };
       } else {
@@ -100,7 +100,11 @@ console.log("function out", newPayload);
           if (doesConnectionEmit(nodeOutput, currentNodeInstance, newPayload)) {
             nodeWasEmitted = true;
 
-            nodeEmitter.emit(nodeOutput.endshapeid.toString(), { ...currentCallStack.payload, ...newPayload }, upperCallStack);
+            nodeEmitter.emit(
+              nodeOutput.endshapeid.toString(),
+              { ...currentCallStack.payload, ...newPayload },
+              upperCallStack,
+            );
           }
         });
 
