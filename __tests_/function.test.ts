@@ -35,7 +35,8 @@ const functionTestFlow = async () => {
 			},
 			{
 				"taskType": "FunctionOutputTask",
-				"name": "testFunctionResult"
+				"name": "testFunctionResult",
+				"resultProperty": "test"
 			},
 		]
 	}
@@ -87,7 +88,8 @@ const functionInFunctionTestFlow = async () => {
 			},
 			{
 				"taskType": "FunctionOutputTask",
-				"name": "testFunctionResult"
+				"name": "testFunctionResult",
+				"resultProperty": "test"
 			},
 			{
 				"taskType": "FunctionInputTask",
@@ -104,7 +106,8 @@ const functionInFunctionTestFlow = async () => {
 			},
 			{
 				"taskType": "FunctionOutputTask",
-				"name": "testFunctionInFunctionResult"
+				"name": "testFunctionInFunctionResult",
+				"resultProperty": "testInsideFunction"
 			}
 		]
 	}
@@ -115,7 +118,7 @@ const functionInFunctionTestFlow = async () => {
 		let result : any = await flowEventRunner.executeNode("callFunction", {"testProperty" : 303});
 		value = (result.testProperty === 303) && 
 			(result.test === "test") &&
-			(result.testInsideFunction === "test1234");
+			(result.testInsideFunction !== "test1234");
 	});
 	return value;
 }

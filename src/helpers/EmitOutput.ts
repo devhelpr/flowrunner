@@ -61,9 +61,11 @@ export class EmitOutput {
 
       let newPayload = Object.assign({}, currentNodeInstance.payload);
       delete newPayload.followFlow;
-
+console.log("function out", newPayload);
       if (currentNodeInstance.resultProperty) {
         newPayload = { [currentNodeInstance.resultProperty]: newPayload[currentNodeInstance.resultProperty] };
+      } else {
+        newPayload = {};
       }
 
       if (currentCallStack.flowPath) {
@@ -98,7 +100,7 @@ export class EmitOutput {
           if (doesConnectionEmit(nodeOutput, currentNodeInstance, newPayload)) {
             nodeWasEmitted = true;
 
-            nodeEmitter.emit(nodeOutput.endshapeid.toString(), newPayload, upperCallStack);
+            nodeEmitter.emit(nodeOutput.endshapeid.toString(), { ...currentCallStack.payload, ...newPayload }, upperCallStack);
           }
         });
 
@@ -107,7 +109,7 @@ export class EmitOutput {
             upperCallStack.outputs.map((outputNode: any) => {
               nodeEmitter.emit(
                 outputNode.endshapeid.toString(),
-                { ...upperCallStack.newPayload, ...newPayload },
+                { ...upperCallStack.payload, ...newPayload },
                 upperCallStack.callStack,
               );
             });
