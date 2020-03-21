@@ -191,6 +191,10 @@ export class FlowEventRunner {
                 const newCallStack = callStack;
 
                 if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
+
+                  emitToOutputs(nodeInstance, newCallStack);
+                  return;
+
                   if (typeof nodeInstance.payload.followFlow !== 'undefined') {
                     if (nodeInstance.payload.followFlow === 'isError') {
                       emitToOutputs(nodeInstance, newCallStack);
