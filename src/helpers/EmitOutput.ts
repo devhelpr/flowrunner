@@ -61,7 +61,7 @@ export class EmitOutput {
 
       let newPayload = Object.assign({}, currentNodeInstance.payload);
       delete newPayload.followFlow;
-      
+
       if (currentNodeInstance.resultProperty) {
         newPayload = { [currentNodeInstance.resultProperty]: newPayload[currentNodeInstance.resultProperty] };
       } else {

@@ -191,7 +191,6 @@ export class FlowEventRunner {
                 const newCallStack = callStack;
 
                 if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
-
                   emitToOutputs(nodeInstance, newCallStack);
                   return;
 
