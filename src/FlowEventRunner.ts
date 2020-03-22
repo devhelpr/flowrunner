@@ -106,7 +106,7 @@ export class FlowEventRunner {
         // node is the actual node on flow-level (it contains just the basic properties defined in the flow)
         node.payload = {};
 
-        if (node.subtype === 'registrate') {
+        if (node.subtype === 'registrate' || node.subtype === 'register') {
           FlowEventRunnerHelper.registerNode(node, nodePluginInfoMap, this.services, this.flowNodeRegisterHooks);
           return;
         }
@@ -193,13 +193,14 @@ export class FlowEventRunner {
                 if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
                   emitToOutputs(nodeInstance, newCallStack);
                   return;
-
+                  /*
                   if (typeof nodeInstance.payload.followFlow !== 'undefined') {
                     if (nodeInstance.payload.followFlow === 'isError') {
                       emitToOutputs(nodeInstance, newCallStack);
                       return;
                     }
                   }
+                  */
                 }
 
                 if (

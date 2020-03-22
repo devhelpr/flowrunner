@@ -170,7 +170,7 @@ const functionIfConditionFlow = async () => {
 				"withValue":"test",
 				"usingCondition": "equals",
 				"dataType":"string",
-				"_outputs":[],
+				"_outputs":["testFunctionResult"],
 				"_errors":["testFunctionResult"]
 			},
 			{
@@ -184,6 +184,7 @@ const functionIfConditionFlow = async () => {
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
 		let result : any = await flowEventRunner.executeNode("callFunction", {"testProperty" : 303});
+		console.log("functionIfConditionFlow result", result);
 		value = (result.result === "test");	
 	});
 	return value;

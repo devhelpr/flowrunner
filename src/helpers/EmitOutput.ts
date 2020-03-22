@@ -76,7 +76,18 @@ export class EmitOutput {
         newPayload.tag = currentCallStack.tag;
       }
 
-      if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+      /*
+        DONT FIRE error nodes .. only return with resultProperty
+        
+        TODO : think if we need this under some circumstances
+              .. it can have a need..
+
+      */
+
+      if (!currentNodeInstance.resultProperty &&
+          typeof currentNodeInstance.payload.followFlow !== 'undefined' && 
+          currentNodeInstance.payload.followFlow) {
+            
         followFlow = currentNodeInstance.payload.followFlow;
         if (followFlow === 'isError') {
           if (typeof currentCallStack.error !== 'undefined') {
@@ -92,6 +103,8 @@ export class EmitOutput {
           return;
         }
       }
+
+      
 
       if (typeof currentCallStack.outputs !== 'undefined') {
         const upperCallStack = currentCallStack.callStack;
@@ -220,6 +233,11 @@ export class EmitOutput {
 
       // call output nodes on callstack if node has no outputs
       if (!nodeWasEmitted || (nodeInfo.outputs.length === 0 && typeof currentCallStack.outputs !== 'undefined')) {
+
+        if (currentCallStack.callStackType == "FUNCTION") {
+          // DONT call output node if in function... only fire function output node
+          return;
+      }
         const upperCallStack = currentCallStack.callStack;
         const newPayload = Object.assign({}, currentNodeInstance.payload);
         delete newPayload.followFlow;
