@@ -30,7 +30,7 @@ export class InjectionHelper {
               nodeInstance.name,
               node.taskType,
               payloadResult,
-              new Date()
+              new Date(),
             );
 
             for (const property in payloadResult) {
@@ -54,7 +54,7 @@ export class InjectionHelper {
           nodeInstance.name,
           node.taskType,
           payload,
-          new Date()
+          new Date(),
         );
 
         for (const property in result) {

@@ -1,5 +1,13 @@
 export class FlowEventRunnerHelper {
-  public static callMiddleware = (middleware: any, result: any, id: any, title: any, nodeType: any, payload: any, dateTime : Date) => {
+  public static callMiddleware = (
+    middleware: any,
+    result: any,
+    id: any,
+    title: any,
+    nodeType: any,
+    payload: any,
+    dateTime: Date,
+  ) => {
     const cleanPayload = Object.assign({}, payload);
 
     cleanPayload.request = undefined;

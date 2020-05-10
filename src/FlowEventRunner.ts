@@ -37,7 +37,7 @@ export interface ITaskMetaData {
   shape: string;
 }
 
-type middlewareFunc = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime : Date) => void;
+type middlewareFunc = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: Date) => void;
 
 export class FlowEventRunner {
   public services: IServicesInterface;
@@ -138,8 +138,7 @@ export class FlowEventRunner {
 
           if (node.subtype === 'autostart') {
             autostarters.push(node.id.toString());
-          } else 
-          if (nodePluginInfo.pluginInstance.isStartingOnInitFlow !== undefined) {
+          } else if (nodePluginInfo.pluginInstance.isStartingOnInitFlow !== undefined) {
             if (nodePluginInfo.pluginInstance.isStartingOnInitFlow()) {
               autostarters.push(node.id.toString());
             }
@@ -252,7 +251,7 @@ export class FlowEventRunner {
                         nodeInstance.name,
                         node.taskType,
                         payload,
-                        new Date()
+                        new Date(),
                       );
 
                       nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
@@ -266,7 +265,7 @@ export class FlowEventRunner {
                         nodeInstance.name,
                         node.taskType,
                         incomingPayload,
-                        new Date()
+                        new Date(),
                       );
 
                       nodeInstance.payload = incomingPayload;
@@ -286,7 +285,7 @@ export class FlowEventRunner {
                         nodeInstance.name,
                         node.taskType,
                         incomingPayload,
-                        new Date()
+                        new Date(),
                       );
 
                       nodeInstance.payload = incomingPayload;
@@ -302,7 +301,7 @@ export class FlowEventRunner {
                         nodeInstance.name,
                         node.taskType,
                         nodeInstance.payload,
-                        new Date()
+                        new Date(),
                       );
 
                       nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
@@ -316,7 +315,7 @@ export class FlowEventRunner {
                     nodeInstance.name,
                     node.taskType,
                     result,
-                    new Date()
+                    new Date(),
                   );
 
                   nodeInstance.payload = result;
@@ -329,7 +328,7 @@ export class FlowEventRunner {
                     nodeInstance.name,
                     node.taskType,
                     nodeInstance.payload,
-                    new Date()
+                    new Date(),
                   );
 
                   emitToOutputs(nodeInstance, newCallStack);
@@ -341,7 +340,7 @@ export class FlowEventRunner {
                     nodeInstance.name,
                     node.taskType,
                     nodeInstance.payload,
-                    new Date()
+                    new Date(),
                   );
 
                   emitToError(nodeInstance, newCallStack);
@@ -463,9 +462,9 @@ export class FlowEventRunner {
     return true;
   };
 
-  public registerMiddleware = (middleware : middlewareFunc) => {
+  public registerMiddleware = (middleware: middlewareFunc) => {
     this.middleware.push(middleware);
-  }
+  };
 
   public getObservableNode = (nodeName: string) => {
     const observables = this.observables.filter(observableNode => {
