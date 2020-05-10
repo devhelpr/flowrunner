@@ -14,7 +14,7 @@ export class ParallelResolveTask extends FlowTask {
   }
 
   public getFullName() {
-    return 'Parallel';
+    return 'ParallelResolve';
   }
 
   public getDescription() {
