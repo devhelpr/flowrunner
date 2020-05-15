@@ -53,16 +53,16 @@ const parallelBasicFlow = async () => {
 		let counter = 0;
 		let test1 = false;
 		let test2 = false;
-		result.payloads.map((payload : any) => {
-			if (payload.test1 !== undefined && payload.test1 === "test" && !test1) {
+		//result.payloads.map((payload : any) => {
+			if (result.test1 !== undefined && result.test1 === "test" && !test1) {
 				test1 = true;
 				counter++;
 			}
-			if (payload.test2 !== undefined && payload.test2 === "test" && !test2) {
+			if (result.test2 !== undefined && result.test2 === "test" && !test2) {
 				test2 = true;
 				counter++;
 			}
-		})
+		//})
 		value = counter === 2 && !!test1 && !!test2;
 	});
 	return value;

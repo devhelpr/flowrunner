@@ -214,8 +214,8 @@ export class EmitOutput {
         }
 
         currentNodeInstance.payload = {};
-        currentNodeInstance.payload.payloads = parallelSessions[parallelSessionId].payloads;
-
+        //currentNodeInstance.payload.payloads = parallelSessions[parallelSessionId].payloads;
+        currentNodeInstance.payload = Object.assign({}, ...parallelSessions[parallelSessionId].payloads);
         delete parallelSessions[parallelSessionId];
       }
 
