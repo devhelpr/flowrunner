@@ -126,8 +126,6 @@ export class FlowEventRunner {
 
         this.nodeNames[node.name] = node.id;
 
-
-
         if (pluginInstance !== undefined) {
           this.flowNodeTriggers.map((flowNodeTrigger: any) => {
             flowNodeTrigger(pluginInstance.getPackageType(), node, (payload: any, callStack: any) => {
@@ -172,12 +170,12 @@ export class FlowEventRunner {
             const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
 
             if (node.controllers) {
-              node.controllers.map((controller : any) => {
+              node.controllers.map((controller: any) => {
                 let value = nodeEmitter.getNodeControllerValue(node.name, controller.name);
                 if (value || value === 0) {
                   payload[controller.name] = value;
                 }
-              })              
+              });
             }
 
             const injectionValues: any = {};
@@ -217,7 +215,7 @@ export class FlowEventRunner {
 
                 if (pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
                   emitToOutputs(nodeInstance, newCallStack);
-                  return;                  
+                  return;
                 }
 
                 if (

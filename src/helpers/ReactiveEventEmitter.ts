@@ -5,7 +5,7 @@ export class ReactiveEventEmitter {
   private subjects: any = {};
   private subscriptions: any = {};
 
-  private nodesControllers : any = {};
+  private nodesControllers: any = {};
 
   public on = (nodeName: any, listener: any) => {
     if (typeof this.nodesListeners[nodeName] !== 'object') {
@@ -55,28 +55,27 @@ export class ReactiveEventEmitter {
     }
   };
 
-  public emitToController = (nodeName: any, controllerName : string, payload : any, currentCallstack : any) => {
-
+  public emitToController = (nodeName: any, controllerName: string, payload: any, currentCallstack: any) => {
     if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
       this.nodesControllers[nodeName][controllerName].subject.next({
-        value : payload[controllerName],
-        currentCallstack: currentCallstack
-      })
+        value: payload[controllerName],
+        currentCallstack: currentCallstack,
+      });
     }
   };
 
-  public registerNodeControllers(node : any) {
-    let controllerObservables : any = {};
+  public registerNodeControllers(node: any) {
+    let controllerObservables: any = {};
 
-    node.controllers.map((controller : any) => {
+    node.controllers.map((controller: any) => {
       if (controller.name) {
         const subject = new BehaviorSubject<any>({
-          value : controller.defaultValue || 0,
-          name: controller.name
+          value: controller.defaultValue || 0,
+          name: controller.name,
         });
         controllerObservables[controller.name] = {
           subject: subject,
-          value : controller.defaultValue || 0
+          value: controller.defaultValue || 0,
         };
         const observerSubscription: any = {
           complete: () => {
@@ -87,8 +86,8 @@ export class ReactiveEventEmitter {
           },
           next: (payload: any) => {
             controllerObservables[controller.name].value = payload.value;
-            this.emit(node.id.toString(), {[controller.name] : payload[controller.name]}, payload.currentCallstack);
-          }
+            this.emit(node.id.toString(), { [controller.name]: payload[controller.name] }, payload.currentCallstack);
+          },
         };
 
         subject.subscribe(observerSubscription);
@@ -100,11 +99,10 @@ export class ReactiveEventEmitter {
     }
   }
 
-  public getNodeControllerValue(nodeName : string, controllerName: string) {
+  public getNodeControllerValue(nodeName: string, controllerName: string) {
     if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
       return this.nodesControllers[nodeName][controllerName].value;
     }
     return;
   }
-
 }

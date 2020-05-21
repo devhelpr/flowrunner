@@ -229,12 +229,15 @@ export class EmitOutput {
             // check if connection has controller
             // - controllers are only supported on direct connections from node to node
             //   ... so not yet on functions (although that would be useful as well)
-            // - 
+            // -
             //
             if (nodeOutput.controllerName) {
-              nodeEmitter.emitToController(nodeOutput.endshapeid.toString(),
+              nodeEmitter.emitToController(
+                nodeOutput.endshapeid.toString(),
                 nodeOutput.controllerName,
-                currentNodeInstance.payload, currentCallStack);
+                currentNodeInstance.payload,
+                currentCallStack,
+              );
             } else {
               nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
             }

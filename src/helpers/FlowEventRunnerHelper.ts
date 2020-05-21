@@ -54,7 +54,7 @@ export class FlowEventRunnerHelper {
           if (typeof nodeType !== 'undefined') {
             const nodeInstance = Object.assign({}, node);
             nodeInstance.payload = {};
-            
+
             const pluginInstance = new nodeType.pluginClass();
 
             injections.push({ pluginInstance: pluginInstance, node });
