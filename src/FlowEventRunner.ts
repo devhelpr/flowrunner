@@ -1,4 +1,4 @@
-import * as Rx from '@reactivex/rxjs';
+import { Observable, Subject } from '@reactivex/rxjs';
 import * as Promise from 'promise';
 import * as uuid from 'uuid';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
@@ -26,7 +26,7 @@ const uuidV4 = uuid.v4;
 export interface IRegisteredObservable {
   nodeId: string;
   name: string;
-  observable: Rx.Observable<any>;
+  observable: Observable<any>;
 }
 
 export interface ITaskMetaData {
@@ -94,6 +94,7 @@ export class FlowEventRunner {
           name: pluginInstance.getName(),
           pluginClassName,
           pluginInstance,
+          pluginClass: pluginClass,
           shape: pluginInstance.getShape(),
         };
       }
@@ -105,11 +106,17 @@ export class FlowEventRunner {
       .map((node: any) => {
         this.nodeValues[node.id] = node;
 
+        // nodePluginInfo contains info about the the plugin such as the plugInstance, className and config metadata
+        const nodePluginInfo = nodePluginInfoMap[node.taskType];
+
+        const pluginClass = this.services.pluginClasses[node.taskType];
+        const pluginInstance = new pluginClass();
+
         // node is the actual node on flow-level (it contains just the basic properties defined in the flow)
         node.payload = {};
 
         if (node.subtype === 'registrate' || node.subtype === 'register') {
-          FlowEventRunnerHelper.registerNode(node, nodePluginInfoMap, this.services, this.flowNodeRegisterHooks);
+          FlowEventRunnerHelper.registerNode(node, pluginInstance, this.services, this.flowNodeRegisterHooks);
           return;
         }
 
@@ -119,11 +126,11 @@ export class FlowEventRunner {
 
         this.nodeNames[node.name] = node.id;
 
-        // nodePluginInfo contains info about the the plugin such as the plugInstance, className and config metadata
-        const nodePluginInfo = nodePluginInfoMap[node.taskType];
-        if (typeof nodePluginInfo !== 'undefined' && typeof nodePluginInfo.pluginInstance !== 'undefined') {
+
+
+        if (pluginInstance !== undefined) {
           this.flowNodeTriggers.map((flowNodeTrigger: any) => {
-            flowNodeTrigger(nodePluginInfo.pluginInstance.getPackageType(), node, (payload: any, callStack: any) => {
+            flowNodeTrigger(pluginInstance.getPackageType(), node, (payload: any, callStack: any) => {
               nodeEmitter.emit(node.id.toString(), payload, callStack);
             });
           });
@@ -131,35 +138,47 @@ export class FlowEventRunner {
 
         if (typeof nodePluginInfo !== 'undefined') {
           this.flowNodeOverrideAttachHooks.map((hook: any) => {
-            if (hook(node, nodePluginInfo.pluginInstance, this.flowEventEmitter, nodeInfo)) {
+            if (hook(node, pluginInstance, this.flowEventEmitter, nodeInfo)) {
               return;
             }
           });
 
           if (node.subtype === 'autostart') {
             autostarters.push(node.id.toString());
-          } else if (nodePluginInfo.pluginInstance.isStartingOnInitFlow !== undefined) {
-            if (nodePluginInfo.pluginInstance.isStartingOnInitFlow()) {
+          } else if (pluginInstance.isStartingOnInitFlow !== undefined) {
+            if (pluginInstance.isStartingOnInitFlow()) {
               autostarters.push(node.id.toString());
             }
           }
 
-          if (nodePluginInfo.pluginInstance.getObservable !== undefined) {
+          if (pluginInstance.getObservable !== undefined) {
             this.observables.push({
               name: node.name || node.title.replace(/ /g, ''),
               nodeId: node.id,
-              observable: nodePluginInfo.pluginInstance.getObservable(node),
+              observable: pluginInstance.getObservable(node),
             });
           }
 
-          if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_INPUT_NODE) {
+          if (pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_INPUT_NODE) {
             this.functionNodes[node.name] = node.id.toString();
             this.services.logMessage(this.functionNodes);
           }
 
+          if (node.controllers) {
+            nodeEmitter.registerNodeControllers(node);
+          }
+
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
-            // TODO :
             const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
+
+            if (node.controllers) {
+              node.controllers.map((controller : any) => {
+                let value = nodeEmitter.getNodeControllerValue(node.name, controller.name);
+                if (value || value === 0) {
+                  payload[controller.name] = value;
+                }
+              })              
+            }
 
             const injectionValues: any = {};
             const injectionPromises: any = InjectionHelper.executeInjections(
@@ -196,22 +215,14 @@ export class FlowEventRunner {
               try {
                 const newCallStack = callStack;
 
-                if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
+                if (pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
                   emitToOutputs(nodeInstance, newCallStack);
-                  return;
-                  /*
-                  if (typeof nodeInstance.payload.followFlow !== 'undefined') {
-                    if (nodeInstance.payload.followFlow === 'isError') {
-                      emitToOutputs(nodeInstance, newCallStack);
-                      return;
-                    }
-                  }
-                  */
+                  return;                  
                 }
 
                 if (
-                  nodePluginInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE &&
-                  nodePluginInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_OUTPUT_NODE
+                  pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE &&
+                  pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_OUTPUT_NODE
                 ) {
                   if (typeof nodeInstance.payload.followFlow !== 'undefined') {
                     delete nodeInstance.payload.followFlow;
@@ -228,10 +239,10 @@ export class FlowEventRunner {
                 }
                 nodeInstance.payload._forwardFollowFlow = undefined;
 
-                const result = nodePluginInfo.pluginInstance.execute(nodeInstance, this.services, newCallStack);
+                const result = pluginInstance.execute(nodeInstance, this.services, newCallStack);
 
-                if (result instanceof Rx.Observable || result instanceof Rx.Subject) {
-                  if (nodePluginInfo.pluginInstance.getObservable === undefined) {
+                if (result instanceof Observable || result instanceof Subject) {
+                  if (pluginInstance.getObservable === undefined) {
                     this.observables.push({
                       name: nodeInstance.name || nodeInstance.title.replace(/ /g, ''),
                       nodeId: nodeInstance.id,

@@ -1,28 +1,29 @@
-import * as Rx from '@reactivex/rxjs';
-import { indexOf } from './IndexOf';
+import { BehaviorSubject, Subject } from '@reactivex/rxjs';
 
 export class ReactiveEventEmitter {
-  private events: any = {};
+  private nodesListeners: any = {};
   private subjects: any = {};
   private subscriptions: any = {};
 
-  public on = (event: any, listener: any) => {
-    if (typeof this.events[event] !== 'object') {
-      this.events[event] = [];
+  private nodesControllers : any = {};
+
+  public on = (nodeName: any, listener: any) => {
+    if (typeof this.nodesListeners[nodeName] !== 'object') {
+      this.nodesListeners[nodeName] = [];
     }
 
-    this.events[event].push(listener);
+    this.nodesListeners[nodeName].push(listener);
 
-    if (typeof this.subjects[event] !== 'object') {
-      this.subjects[event] = new Rx.Subject();
+    if (typeof this.subjects[nodeName] !== 'object') {
+      this.subjects[nodeName] = new Subject();
       const self: any = this;
-      this.subscriptions[event] = this.subjects[event].subscribe({
+      this.subscriptions[nodeName] = this.subjects[nodeName].subscribe({
         next: (data: any) => {
-          if (typeof self.events[event] === 'object') {
-            const length = self.events[event].length;
+          if (typeof self.nodesListeners[nodeName] === 'object') {
+            const length = self.nodesListeners[nodeName].length;
 
             for (let i = 0; i < length; i++) {
-              self.events[event][i](...data);
+              self.nodesListeners[nodeName][i](...data);
             }
           }
         },
@@ -30,37 +31,80 @@ export class ReactiveEventEmitter {
     }
   };
 
-  // public removeListener = (event: any, listener: any) => {
-  public removeListener = (event: any) => {
-    // let idx;
+  public removeListener = (nodeName: any) => {
+    if (this.subjects[nodeName] && this.subscriptions[nodeName]) {
+      this.subscriptions[nodeName].unsubscribe();
+      this.subscriptions[nodeName] = undefined;
 
-    if (this.subjects[event] && this.subscriptions[event]) {
-      this.subscriptions[event].unsubscribe();
-      this.subscriptions[event] = undefined;
+      this.subjects[nodeName].complete();
+      this.subjects[nodeName] = undefined;
 
-      this.subjects[event].complete();
-      this.subjects[event] = undefined;
-
-      delete this.subjects[event];
+      delete this.subjects[nodeName];
     }
 
-    if (typeof this.events[event] === 'object') {
-      this.events[event] = [];
-      /*     
-      idx = indexOf(this.events[event], listener);
-
-      if (idx > -1) {
-        this.events[event].splice(idx, 1);
-      }
-      */
+    if (typeof this.nodesListeners[nodeName] === 'object') {
+      this.nodesListeners[nodeName] = [];
     }
   };
 
-  public emit = (event: any, ...args: any) => {
-    if (typeof this.subjects[event] === 'object') {
-      const subject$ = this.subjects[event];
+  public emit = (nodeName: any, ...args: any) => {
+    if (typeof this.subjects[nodeName] === 'object') {
+      const subject$ = this.subjects[nodeName];
 
       subject$.next(args);
     }
   };
+
+  public emitToController = (nodeName: any, controllerName : string, payload : any, currentCallstack : any) => {
+
+    if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
+      this.nodesControllers[nodeName][controllerName].subject.next({
+        value : payload[controllerName],
+        currentCallstack: currentCallstack
+      })
+    }
+  };
+
+  public registerNodeControllers(node : any) {
+    let controllerObservables : any = {};
+
+    node.controllers.map((controller : any) => {
+      if (controller.name) {
+        const subject = new BehaviorSubject<any>({
+          value : controller.defaultValue || 0,
+          name: controller.name
+        });
+        controllerObservables[controller.name] = {
+          subject: subject,
+          value : controller.defaultValue || 0
+        };
+        const observerSubscription: any = {
+          complete: () => {
+            //this.services.logMessage('Controller: Completed for ', node.name, controller.name);
+          },
+          error: (err: any) => {
+            //this.services.logMessage('Controller: Error', node.name, controller.name, err);
+          },
+          next: (payload: any) => {
+            controllerObservables[controller.name].value = payload.value;
+            this.emit(node.id.toString(), {[controller.name] : payload[controller.name]}, payload.currentCallstack);
+          }
+        };
+
+        subject.subscribe(observerSubscription);
+      }
+    });
+
+    if (node.controllers.length > 0) {
+      this.nodesControllers[node.name] = controllerObservables;
+    }
+  }
+
+  public getNodeControllerValue(nodeName : string, controllerName: string) {
+    if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
+      return this.nodesControllers[nodeName][controllerName].value;
+    }
+    return;
+  }
+
 }

@@ -225,7 +225,19 @@ export class EmitOutput {
         if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
           if (doesConnectionEmit(nodeOutput, currentNodeInstance, currentNodeInstance.payload)) {
             nodeWasEmitted = true;
-            nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
+
+            // check if connection has controller
+            // - controllers are only supported on direct connections from node to node
+            //   ... so not yet on functions (although that would be useful as well)
+            // - 
+            //
+            if (nodeOutput.controllerName) {
+              nodeEmitter.emitToController(nodeOutput.endshapeid.toString(),
+                nodeOutput.controllerName,
+                currentNodeInstance.payload, currentCallStack);
+            } else {
+              nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
+            }
           }
         }
       });

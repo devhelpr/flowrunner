@@ -54,8 +54,10 @@ export class FlowEventRunnerHelper {
           if (typeof nodeType !== 'undefined') {
             const nodeInstance = Object.assign({}, node);
             nodeInstance.payload = {};
+            
+            const pluginInstance = new nodeType.pluginClass();
 
-            injections.push({ pluginInstance: nodeType.pluginInstance, node });
+            injections.push({ pluginInstance: pluginInstance, node });
             /*
 						  let result = nodeType.pluginInstance.execute(nodeInstance, _services);
 	  
@@ -89,20 +91,19 @@ export class FlowEventRunnerHelper {
     return injections;
   };
 
-  public static registerNode(node: any, nodePluginInfoMap: any, services: any, flowNodeRegisterHooks: any) {
+  public static registerNode(node: any, pluginInstance: any, services: any, flowNodeRegisterHooks: any) {
     services.logMessage('REGISTRATE ' + node.name);
 
-    const nodePluginInfo = nodePluginInfoMap[node.taskType];
     const nodeInstance = Object.assign({}, node);
 
-    if (typeof nodePluginInfo !== 'undefined') {
+    if (pluginInstance !== undefined) {
       flowNodeRegisterHooks.map((hook: any) => {
-        if (hook(node, nodePluginInfo.pluginInstance)) {
+        if (hook(node, pluginInstance)) {
           return;
         }
       });
 
-      const result = nodePluginInfo.pluginInstance.execute(nodeInstance, services, {});
+      const result = pluginInstance.execute(nodeInstance, services, {});
       if (typeof result === 'object' && typeof result.then === 'function') {
         result.then((payload: any) => {
           services.registerModel(node.modelname, payload.modelDefinition);
