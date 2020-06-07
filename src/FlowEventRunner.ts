@@ -166,6 +166,17 @@ export class FlowEventRunner {
             nodeEmitter.registerNodeControllers(node);
           }
 
+          if (node.events) {
+            node.events.map((event : any) => {
+              nodeEmitter.on(node.id.toString() + "_" + event.eventName, (payload: any, callStack: any) => {
+
+                const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
+                const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
+                EmitOutput.emitToOutputs(nodePluginInfo, nodeEmitter, nodeInfo, nodeInstance, callStack, event.eventName);
+              });
+            })
+          }
+
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
             const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
 
@@ -405,7 +416,11 @@ export class FlowEventRunner {
     this.flowEventEmitter.emit(nodeId.toString(), payload, {});
   };
 
-  public executeNode = (nodeName: any, payload: any, callStack?: any) => {
+  public triggerEventOnNode = (nodeName: any,  eventName : string, payload : any) => {
+    return this.executeNode(nodeName, payload, undefined, eventName);
+  }
+
+  public executeNode = (nodeName: any, payload: any, callStack?: any, eventName? : string) => {
     const self = this;
     return new Promise((resolve: any, reject: any) => {
       let tempNodeId: any;
@@ -442,7 +457,7 @@ export class FlowEventRunner {
           callStack,
         );
 
-        self.flowEventEmitter.emit(nodeId.toString(), payload, newCallStack);
+        self.flowEventEmitter.emit(nodeId.toString() + (eventName !== undefined ? "_" + eventName : ""), payload, newCallStack);
       } catch (err) {
         this.services.logMessage('executeNode error', err);
         reject();

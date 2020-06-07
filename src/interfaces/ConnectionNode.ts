@@ -8,4 +8,6 @@ export interface IConnectionNode {
 
   flowPath?: string;
   flowPathPropertyFromPayload?: string;
+
+  event? : string;
 }

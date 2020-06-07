@@ -7,9 +7,15 @@ import { INode } from '../interfaces/Node';
 const uuidV4 = uuid.v4;
 const parallelSessions: any = {};
 
-export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode, payload: any) => {
+export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode, payload: any, eventName? :string) => {
   let result: boolean = true;
 
+  if (connectionNode.event !== undefined && connectionNode.event !== "") {
+    if (eventName !== undefined && connectionNode.event === eventName) {
+      return true;
+    }
+    return false;
+  } else
   if (connectionNode.tagPropertyFromPayload && connectionNode.tag) {
     result = connectionNode.tag === payload[connectionNode.tagPropertyFromPayload];
   }
@@ -49,6 +55,7 @@ export class EmitOutput {
     nodeInfo: any,
     currentNodeInstance: any,
     currentCallStack: any,
+    eventName? : string
   ) {
     let followFlow = '';
 
@@ -109,7 +116,7 @@ export class EmitOutput {
         const upperCallStack = currentCallStack.callStack;
         let nodeWasEmitted = false;
         currentCallStack.outputs.map((nodeOutput: any) => {
-          if (doesConnectionEmit(nodeOutput, currentNodeInstance, newPayload)) {
+          if (doesConnectionEmit(nodeOutput, currentNodeInstance, newPayload, eventName)) {
             nodeWasEmitted = true;
 
             nodeEmitter.emit(
@@ -223,7 +230,7 @@ export class EmitOutput {
       // CALL connected output nodes
       nodeInfo.outputs.map((nodeOutput: any) => {
         if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
-          if (doesConnectionEmit(nodeOutput, currentNodeInstance, currentNodeInstance.payload)) {
+          if (doesConnectionEmit(nodeOutput, currentNodeInstance, currentNodeInstance.payload, eventName)) {
             nodeWasEmitted = true;
 
             // check if connection has controller
