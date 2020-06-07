@@ -6,7 +6,7 @@ import { conditionCheck } from './helpers/IfConditionHelpers';
 
 export class IfConditionTask extends FlowTask {
   public execute(node: any) {
-    return new Promise((resolve: any, reject: any) => {
+   // return new Promise((resolve: any, reject: any) => {
       const splitField1 = node.compareProperty.split('.');
       const splitField2 = node.withProperty.split('.');
       const errors = [];
@@ -49,10 +49,10 @@ export class IfConditionTask extends FlowTask {
       }
 
       if (node.usingCondition == 'isNonEmptyProperty' && field1 !== undefined && field1 !== '') {
-        resolve(node.payload);
+        return node.payload;
       } else if (conditionCheck(field1, field2, node.usingCondition, node.dataType)) {
         // console.log("conditionCheck: true", field1,field2,node.compareProperty,node.withProperty);
-        resolve(node.payload);
+        return node.payload;
       } else {
         // console.log("conditionCheck: false", field1,field2,node.compareProperty,node.withProperty);
 
@@ -61,13 +61,14 @@ export class IfConditionTask extends FlowTask {
           name: node.compareProperty,
         });
 
-        node.payload = Object.assign({}, node.payload, {
+        const payload = Object.assign({}, node.payload, {
           errors,
           followFlow: 'isError',
         });
-        resolve(node.payload);
+        //resolve(node.payload);
+        return payload;
       }
-    });
+    //});
   }
 
   public getName() {
