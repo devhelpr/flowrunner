@@ -171,6 +171,7 @@ export class FlowEventRunner {
               nodeEmitter.on(node.id.toString() + '_' + event.eventName, (payload: any, callStack: any) => {
                 const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
                 const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
+                nodeInstance.payload = Object.assign({}, payload);
                 EmitOutput.emitToOutputs(
                   nodePluginInfo,
                   nodeEmitter,
