@@ -6,68 +6,68 @@ import { conditionCheck } from './helpers/IfConditionHelpers';
 
 export class IfConditionTask extends FlowTask {
   public execute(node: any) {
-   // return new Promise((resolve: any, reject: any) => {
-      const splitField1 = node.compareProperty.split('.');
-      const splitField2 = node.withProperty.split('.');
-      const errors = [];
+    // return new Promise((resolve: any, reject: any) => {
+    const splitField1 = node.compareProperty.split('.');
+    const splitField2 = node.withProperty.split('.');
+    const errors = [];
 
-      // console.log("splitField1", splitField1);
-      // console.log("splitField2", splitField2);
+    // console.log("splitField1", splitField1);
+    // console.log("splitField2", splitField2);
 
-      let field1 = node.payload[node.compareProperty];
+    let field1 = node.payload[node.compareProperty];
 
-      if (field1 === '[NOW]') {
-        field1 = moment().toISOString();
+    if (field1 === '[NOW]') {
+      field1 = moment().toISOString();
+    }
+
+    let field2;
+
+    if (splitField2.length <= 1) {
+      if (node.withValue !== undefined && node.withValue !== '') {
+        field2 = node.withValue;
+      } else if (node.withProperty === '__TRUE__') {
+        field2 = true;
+      } else if (node.withProperty === '__EMPTY__') {
+        field2 = '';
+      } else if (node.withProperty === '[NOW]') {
+        field2 = moment().toISOString();
+      } else if (node.withProperty === '__ISISODATE__') {
+        field2 = '__ISISODATE__';
+      } else {
+        field2 = node.payload[node.withProperty];
       }
-
-      let field2;
-
-      if (splitField2.length <= 1) {
-        if (node.withValue !== undefined && node.withValue !== '') {
-          field2 = node.withValue;
-        } else if (node.withProperty === '__TRUE__') {
-          field2 = true;
-        } else if (node.withProperty === '__EMPTY__') {
-          field2 = '';
-        } else if (node.withProperty === '[NOW]') {
-          field2 = moment().toISOString();
-        } else if (node.withProperty === '__ISISODATE__') {
-          field2 = '__ISISODATE__';
+    } else {
+      let objectToCheck: any = null;
+      splitField2.map((fieldName: any) => {
+        if (objectToCheck) {
+          objectToCheck = objectToCheck[fieldName];
         } else {
-          field2 = node.payload[node.withProperty];
+          objectToCheck = node.payload[fieldName];
         }
-      } else {
-        let objectToCheck: any = null;
-        splitField2.map((fieldName: any) => {
-          if (objectToCheck) {
-            objectToCheck = objectToCheck[fieldName];
-          } else {
-            objectToCheck = node.payload[fieldName];
-          }
-        });
-        field2 = objectToCheck;
-      }
+      });
+      field2 = objectToCheck;
+    }
 
-      if (node.usingCondition == 'isNonEmptyProperty' && field1 !== undefined && field1 !== '') {
-        return node.payload;
-      } else if (conditionCheck(field1, field2, node.usingCondition, node.dataType)) {
-        // console.log("conditionCheck: true", field1,field2,node.compareProperty,node.withProperty);
-        return node.payload;
-      } else {
-        // console.log("conditionCheck: false", field1,field2,node.compareProperty,node.withProperty);
+    if (node.usingCondition == 'isNonEmptyProperty' && field1 !== undefined && field1 !== '') {
+      return node.payload;
+    } else if (conditionCheck(field1, field2, node.usingCondition, node.dataType)) {
+      // console.log("conditionCheck: true", field1,field2,node.compareProperty,node.withProperty);
+      return node.payload;
+    } else {
+      // console.log("conditionCheck: false", field1,field2,node.compareProperty,node.withProperty);
 
-        errors.push({
-          error: node.compareProperty + ' is not correct',
-          name: node.compareProperty,
-        });
+      errors.push({
+        error: node.compareProperty + ' is not correct',
+        name: node.compareProperty,
+      });
 
-        const payload = Object.assign({}, node.payload, {
-          errors,
-          followFlow: 'isError',
-        });
-        //resolve(node.payload);
-        return payload;
-      }
+      const payload = Object.assign({}, node.payload, {
+        errors,
+        followFlow: 'isError',
+      });
+      //resolve(node.payload);
+      return payload;
+    }
     //});
   }
 
