@@ -7,16 +7,15 @@ import { INode } from '../interfaces/Node';
 const uuidV4 = uuid.v4;
 const parallelSessions: any = {};
 
-export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode, payload: any, eventName? :string) => {
+export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode, payload: any, eventName?: string) => {
   let result: boolean = true;
 
-  if (connectionNode.event !== undefined && connectionNode.event !== "") {
+  if (connectionNode.event !== undefined && connectionNode.event !== '') {
     if (eventName !== undefined && connectionNode.event === eventName) {
       return true;
     }
     return false;
-  } else
-  if (connectionNode.tagPropertyFromPayload && connectionNode.tag) {
+  } else if (connectionNode.tagPropertyFromPayload && connectionNode.tag) {
     result = connectionNode.tag === payload[connectionNode.tagPropertyFromPayload];
   }
   if (connectionNode.tag && payload.tag) {
@@ -55,7 +54,7 @@ export class EmitOutput {
     nodeInfo: any,
     currentNodeInstance: any,
     currentCallStack: any,
-    eventName? : string
+    eventName?: string,
   ) {
     let followFlow = '';
 
