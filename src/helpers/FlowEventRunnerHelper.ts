@@ -57,7 +57,7 @@ export class FlowEventRunnerHelper {
 
             const pluginInstance = new nodeType.pluginClass();
 
-            injections.push({ pluginInstance: pluginInstance, node });
+            injections.push({ pluginInstance, node });
             /*
 						  let result = nodeType.pluginInstance.execute(nodeInstance, _services);
 	  

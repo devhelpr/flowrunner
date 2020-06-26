@@ -58,31 +58,31 @@ export class ReactiveEventEmitter {
   public emitToController = (nodeName: any, controllerName: string, payload: any, currentCallstack: any) => {
     if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
       this.nodesControllers[nodeName][controllerName].subject.next({
+        currentCallstack,
         value: payload[controllerName],
-        currentCallstack: currentCallstack,
       });
     }
   };
 
   public registerNodeControllers(node: any) {
-    let controllerObservables: any = {};
+    const controllerObservables: any = {};
 
     node.controllers.map((controller: any) => {
       if (controller.name) {
         const subject = new BehaviorSubject<any>({
-          value: controller.defaultValue || 0,
           name: controller.name,
+          value: controller.defaultValue || 0,
         });
         controllerObservables[controller.name] = {
-          subject: subject,
+          subject,
           value: controller.defaultValue || 0,
         };
         const observerSubscription: any = {
           complete: () => {
-            //this.services.logMessage('Controller: Completed for ', node.name, controller.name);
+            // this.services.logMessage('Controller: Completed for ', node.name, controller.name);
           },
           error: (err: any) => {
-            //this.services.logMessage('Controller: Error', node.name, controller.name, err);
+            // this.services.logMessage('Controller: Error', node.name, controller.name, err);
           },
           next: (payload: any) => {
             controllerObservables[controller.name].value = payload.value;

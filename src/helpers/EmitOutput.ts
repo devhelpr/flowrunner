@@ -147,9 +147,9 @@ export class EmitOutput {
         error: nodeInfo.error,
         flowPath: currentNodeInstance.payload.flowPath,
         outputs: nodeInfo.outputs,
+        payload: currentNodeInstance.payload,
         returnNodeId: currentNodeInstance.id,
         tag: currentNodeInstance.payload.tag,
-        payload: currentNodeInstance.payload,
       };
 
       if (currentNodeInstance.payload.flowPath) {
@@ -220,7 +220,7 @@ export class EmitOutput {
         }
 
         currentNodeInstance.payload = {};
-        //currentNodeInstance.payload.payloads = parallelSessions[parallelSessionId].payloads;
+        // currentNodeInstance.payload.payloads = parallelSessions[parallelSessionId].payloads;
         currentNodeInstance.payload = Object.assign({}, ...parallelSessions[parallelSessionId].payloads);
         delete parallelSessions[parallelSessionId];
       }
@@ -253,7 +253,7 @@ export class EmitOutput {
 
       // call output nodes on callstack if node has no outputs
       if (!nodeWasEmitted || (nodeInfo.outputs.length === 0 && typeof currentCallStack.outputs !== 'undefined')) {
-        if (currentCallStack.callStackType == 'FUNCTION') {
+        if (currentCallStack.callStackType === 'FUNCTION') {
           // DONT call output node if in function... only fire function output node
           return;
         }

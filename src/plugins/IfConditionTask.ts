@@ -48,7 +48,7 @@ export class IfConditionTask extends FlowTask {
       field2 = objectToCheck;
     }
 
-    if (node.usingCondition == 'isNonEmptyProperty' && field1 !== undefined && field1 !== '') {
+    if (node.usingCondition === 'isNonEmptyProperty' && field1 !== undefined && field1 !== '') {
       return node.payload;
     } else if (conditionCheck(field1, field2, node.usingCondition, node.dataType)) {
       // console.log("conditionCheck: true", field1,field2,node.compareProperty,node.withProperty);
@@ -65,10 +65,10 @@ export class IfConditionTask extends FlowTask {
         errors,
         followFlow: 'isError',
       });
-      //resolve(node.payload);
+      // resolve(node.payload);
       return payload;
     }
-    //});
+    // });
   }
 
   public getName() {

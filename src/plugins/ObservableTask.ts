@@ -1,4 +1,4 @@
-import { Observable, Subject, BehaviorSubject } from '@reactivex/rxjs';
+import { BehaviorSubject, Observable, Subject } from '@reactivex/rxjs';
 import * as Promise from 'promise';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
@@ -29,7 +29,7 @@ export class ObservableTask extends FlowTask {
       } else {
         node.observable = new BehaviorSubject<any>({});
       }
-      //node.observable = new Subject<string>();
+      // node.observable = new Subject<string>();
     }
     return node.observable;
   }
