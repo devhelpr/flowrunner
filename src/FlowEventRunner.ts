@@ -92,9 +92,9 @@ export class FlowEventRunner {
           configMetaData: pluginInstance.getConfigMetaData(),
           fullName: pluginInstance.getFullName(),
           name: pluginInstance.getName(),
+          pluginClass,
           pluginClassName,
           pluginInstance,
-          pluginClass: pluginClass,
           shape: pluginInstance.getShape(),
         };
       }
@@ -189,7 +189,7 @@ export class FlowEventRunner {
 
             if (node.controllers) {
               node.controllers.map((controller: any) => {
-                let value = nodeEmitter.getNodeControllerValue(node.name, controller.name);
+                const value = nodeEmitter.getNodeControllerValue(node.name, controller.name);
                 if (value || value === 0) {
                   payload[controller.name] = value;
                 }
@@ -266,6 +266,11 @@ export class FlowEventRunner {
                     });
                   }
 
+                  if (node.isNodeObserved) {
+                    return;
+                  }
+                  node.isNodeObserved = true;
+
                   const observer = {
                     complete: () => {
                       this.services.logMessage('Completed observable for ', nodeInstance.name);
@@ -295,12 +300,15 @@ export class FlowEventRunner {
                         new Date(),
                       );
 
-                      nodeInstance.payload = incomingPayload;
+                      nodeInstance.payload = incomingPayload.payload ? incomingPayload.payload : incomingPayload;;
                       emitToOutputs(nodeInstance, newCallStack);
                     },
                   };
 
-                  result.subscribe(observer);
+                  if (node.subscription) {
+                    node.subscription.unsubscribe();
+                  }
+                  node.subscription = result.subscribe(observer);
                 } else if (typeof result === 'object' && typeof result.then === 'function') {
                   // Promise
                   result
@@ -398,6 +406,10 @@ export class FlowEventRunner {
       this.nodes.map((nodeInfo: any) => {
         if (nodeInfo && nodeInfo.nodeId) {
           this.flowEventEmitter.removeListener(nodeInfo.nodeId);
+        }
+        if (nodeInfo.subscription) {
+          nodeInfo.subscription.unsubscribe();
+          nodeInfo.subscription = undefined;
         }
       });
     }
