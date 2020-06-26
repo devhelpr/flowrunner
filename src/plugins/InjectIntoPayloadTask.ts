@@ -30,41 +30,40 @@ export class InjectIntoPayloadTask extends FlowTask {
     }
   }
 
-  public replaceObjectVariables = (template : string, data : any) => {
+  public replaceObjectVariables = (template: string, data: any) => {
     const matches = template.match(/"{.+?}"/g);
-		if (matches) {
-			matches.map((match : string) => {
-				const matchValue = match.slice(2, -2);
+    if (matches) {
+      matches.map((match: string) => {
+        const matchValue = match.slice(2, -2);
         let value = data[matchValue];
         if (value === undefined) {
-          value = "";
+          value = '';
         }
-        if (typeof value === "string") {
-          value = "\"" + value + "\"";
-        } else 
-        if (Array.isArray(value)) {
-          let newValue = "";
-          
-          value.map((item) => {
-            if (newValue !== "") {
-              newValue += ",";
+        if (typeof value === 'string') {
+          value = '"' + value + '"';
+        } else if (Array.isArray(value)) {
+          let newValue = '';
+
+          value.map(item => {
+            if (newValue !== '') {
+              newValue += ',';
             }
-            if (typeof item === "string") {
-              newValue += "\"" + item + "\"";
+            if (typeof item === 'string') {
+              newValue += '"' + item + '"';
             } else {
               newValue += item;
             }
           });
 
-          value = "[" + newValue + "]";
+          value = '[' + newValue + ']';
         }
 
-				const allOccurancesOfMatchRegex = new RegExp(match, 'g');
-				template = template.replace(allOccurancesOfMatchRegex, value);
-			});
+        const allOccurancesOfMatchRegex = new RegExp(match, 'g');
+        template = template.replace(allOccurancesOfMatchRegex, value);
+      });
     }
     return template;
-  }
+  };
 
   public getName() {
     return 'InjectIntoPayloadTask';

@@ -300,7 +300,7 @@ export class FlowEventRunner {
                         new Date(),
                       );
 
-                      nodeInstance.payload = incomingPayload.payload ? incomingPayload.payload : incomingPayload;;
+                      nodeInstance.payload = incomingPayload.payload ? incomingPayload.payload : incomingPayload;
                       emitToOutputs(nodeInstance, newCallStack);
                     },
                   };
