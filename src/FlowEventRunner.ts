@@ -74,7 +74,7 @@ export class FlowEventRunner {
   //
   // split in multiple methods / classes
 
-  public createNodes = (nodeList: any[], autoStartNodes : boolean = false) => {
+  public createNodes = (nodeList: any[], autoStartNodes: boolean = false) => {
     this.flowEventEmitter = new ReactiveEventEmitter();
     const nodeEmitter = this.flowEventEmitter;
 
@@ -124,7 +124,7 @@ export class FlowEventRunner {
         // which nodes are used for injection on each run of a plugin
         const nodeInfo = BuildNodeInfoHelper.build(nodeList, node, nodePluginInfoMap);
         nodeInfo.pluginInstance = pluginInstance;
-        
+
         this.nodeNames[node.name] = node.id;
 
         if (pluginInstance !== undefined) {
@@ -399,7 +399,7 @@ export class FlowEventRunner {
     autostarters.map((nodeId: any) => {
       nodeEmitter.emit(nodeId.toString(), {}, {});
     });
-    
+
     if (!!autoStartNodes) {
       this.nodes.map((nodeInfo: any) => {
         if (nodeInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_INPUT_NODE) {
@@ -565,11 +565,12 @@ export class FlowEventRunner {
     });
   };
 
-  public start = (flowPackage: any, 
-      customServices?: IServicesInterface, 
-      mergeWithDefaultPlugins: boolean = true, 
-      autoStartNodes = false  
-      ) => {
+  public start = (
+    flowPackage: any,
+    customServices?: IServicesInterface,
+    mergeWithDefaultPlugins: boolean = true,
+    autoStartNodes = false,
+  ) => {
     if (customServices !== undefined) {
       this.services = customServices;
       this.services.flowEventRunner = this;

@@ -37,7 +37,7 @@ export class BuildNodeInfoHelper {
             o.followflow !== 'injectConfigIntoPayload',
         ),
         pluginInstance: undefined,
-        title: node.title
+        title: node.title,
       },
     );
   }
