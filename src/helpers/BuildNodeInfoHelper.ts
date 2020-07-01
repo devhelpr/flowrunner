@@ -36,7 +36,8 @@ export class BuildNodeInfoHelper {
             o.followflow !== 'followManually' &&
             o.followflow !== 'injectConfigIntoPayload',
         ),
-        title: node.title,
+        pluginInstance: undefined,
+        title: node.title
       },
     );
   }

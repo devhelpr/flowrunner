@@ -74,8 +74,9 @@ export class ReactiveEventEmitter {
           value: controller.defaultValue || 0,
         });
         controllerObservables[controller.name] = {
+          hasValue : false,
           subject,
-          value: controller.defaultValue || 0,
+          value: controller.defaultValue || 0
         };
         const observerSubscription: any = {
           complete: () => {
@@ -85,8 +86,24 @@ export class ReactiveEventEmitter {
             // this.services.logMessage('Controller: Error', node.name, controller.name, err);
           },
           next: (payload: any) => {
-            controllerObservables[controller.name].value = payload.value;
-            this.emit(node.id.toString(), { [controller.name]: payload[controller.name] }, payload.currentCallstack);
+            if (payload.value !== undefined) {
+              controllerObservables[controller.name].value = payload.value;
+              controllerObservables[controller.name].hasValue = true;
+              /*
+                only emit .. 
+                  - if all controllerObservables have a value
+                then emit all value of all controllerObservables at once in a single payload
+              */
+              const sendPayload : any = {};
+              let emitToNode = true;
+              Object.keys(controllerObservables).map((key) => {
+                emitToNode = emitToNode && controllerObservables[key].hasValue;
+                sendPayload[key] = payload[key];
+              });
+              if (!!emitToNode) {
+                this.emit(node.id.toString(), sendPayload, payload.currentCallstack);
+              }
+            }
           },
         };
 
