@@ -44,7 +44,7 @@ const functionTestFlow = async () => {
 	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
-		let result : any = await flowEventRunner.executeNode("callFunction", {"testProperty" : 303});
+		let result : any = await flowEventRunner.executeNode("callFunction", {"testProperty" : 303});		
 		value = (result.testProperty === 303) && (result.test === "test");
 	});
 	return value;

@@ -18,13 +18,26 @@ export class ReactiveEventEmitter {
       this.subjects[nodeName] = new Subject();
       const self: any = this;
       this.subscriptions[nodeName] = this.subjects[nodeName].subscribe({
-        next: (data: any) => {
+        next: (data : any) => {
           if (typeof self.nodesListeners[nodeName] === 'object') {
-            const length = self.nodesListeners[nodeName].length;
+            const length = self.nodesListeners[nodeName].length; 
+            
+            // TODO: fix this... feels hacky and not "as expected"
+            //  .. see the emit method with its ...args parameter
+            //  .. make that "as expected"
+
+            //let payload = data.length > 0 && {...data[0]};
+            //let callStack =  data.length > 1 && {...data[1]};
+            //console.log("DATA:" , data, "PAYLOAD:", payload, "CALLSTACK: " , callStack);
+
+            let _payload = {...data.payload};
+            let _callstack = {...data.callstack};
 
             for (let i = 0; i < length; i++) {
-              self.nodesListeners[nodeName][i](...data);
+              self.nodesListeners[nodeName][i](_payload, _callstack);
             }
+            (_payload as any) = null;
+            (_callstack as any) = null;
           }
         },
       });
@@ -34,33 +47,48 @@ export class ReactiveEventEmitter {
   public removeListener = (nodeName: any) => {
     if (this.subjects[nodeName] && this.subscriptions[nodeName]) {
       this.subscriptions[nodeName].unsubscribe();
-      this.subscriptions[nodeName] = undefined;
+      this.subscriptions[nodeName] = null;
+      delete this.subscriptions[nodeName];
 
       this.subjects[nodeName].complete();
-      this.subjects[nodeName] = undefined;
+      this.subjects[nodeName] = null;
 
       delete this.subjects[nodeName];
     }
 
-    if (typeof this.nodesListeners[nodeName] === 'object') {
-      this.nodesListeners[nodeName] = [];
-    }
+    //if (typeof this.nodesListeners[nodeName] === 'object') {
+    //  this.nodesListeners[nodeName] = [];
+    //}
+    this.nodesListeners[nodeName] = null;
+    delete this.nodesListeners[nodeName];
   };
 
-  public emit = (nodeName: any, ...args: any) => {
+  public emit = (nodeName: any, payload: any, callstack : any) => {
     if (typeof this.subjects[nodeName] === 'object') {
-      const subject$ = this.subjects[nodeName];
+      let subject$ = this.subjects[nodeName];
+      let _payload = {...payload};
+      let _callstack = {...callstack};
 
-      subject$.next(args);
+      subject$.next({payload: _payload, callstack: _callstack});
+
+      subject$ = null;
+      _payload = null;
+      _callstack = null;
+
     }
   };
 
   public emitToController = (nodeName: any, controllerName: string, payload: any, currentCallstack: any) => {
     if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
+      let value = payload[controllerName];
+      let callStack = {...currentCallstack};
+      //console.log ("callStack:", callStack, "currentCallstack", currentCallstack);
       this.nodesControllers[nodeName][controllerName].subject.next({
-        currentCallstack,
-        value: payload[controllerName],
+        currentCallstack: callStack,
+        value: value,
       });
+      callStack = null;
+      value = null;
     }
   };
 
@@ -86,8 +114,10 @@ export class ReactiveEventEmitter {
             // this.services.logMessage('Controller: Error', node.name, controller.name, err);
           },
           next: (payload: any) => {
-            if (payload.value !== undefined) {
-              controllerObservables[controller.name].value = payload.value;
+            let _payload = payload;
+            let _callstack = _payload.currentCallstack;
+            if (_payload.value !== undefined) {
+              controllerObservables[controller.name].value = _payload.value;
               controllerObservables[controller.name].hasValue = true;
               /*
                 only emit .. 
@@ -98,12 +128,15 @@ export class ReactiveEventEmitter {
               let emitToNode = true;
               Object.keys(controllerObservables).map(key => {
                 emitToNode = emitToNode && controllerObservables[key].hasValue;
-                sendPayload[key] = payload[key];
+                sendPayload[key] = _payload[key];
               });
               if (!!emitToNode) {
-                this.emit(node.id.toString(), sendPayload, payload.currentCallstack);
+                this.emit(node.id.toString(), sendPayload, _callstack);
               }
             }
+
+            _payload = null;
+            _callstack = null;
           },
         };
 
