@@ -1,11 +1,41 @@
 import { BehaviorSubject, Subject } from '@reactivex/rxjs';
 
+/*
+
+  TODO :
+    - add support for blocking flow until condition is met
+    - only run node's within lock Context
+
+    - use special rxjs observable which should be used together with buffer or something similar
+          https://www.learnrxjs.io/learn-rxjs/operators/transformation/buffer
+
+
+*/
 export class ReactiveEventEmitter {
   private nodesListeners: any = {};
   private subjects: any = {};
   private subscriptions: any = {};
 
   private nodesControllers: any = {};
+
+  public isPaused : boolean = false;
+
+  public suspendUntilLock = (lockID : string) => {
+
+  }
+
+  public liftLock = (lockID : string) => {
+
+  }
+
+  public pauseFlowrunner = () => {
+    this.isPaused = true;
+  }
+
+  public resumeFlowrunner = () => {
+    this.isPaused = false;
+  }
+
 
   public on = (nodeName: any, listener: any) => {
     if (typeof this.nodesListeners[nodeName] !== 'object') {
@@ -64,6 +94,15 @@ export class ReactiveEventEmitter {
   };
 
   public emit = (nodeName: any, payload: any, callstack : any) => {
+
+    if (!!this.isPaused && callstack["_executeNode"] === undefined) {
+      // if in executeNode.. then finish that run of the flow before pausing
+
+      // naive solution to pause the flow
+      // .. should we also pause observables?
+      return;
+    }
+
     if (typeof this.subjects[nodeName] === 'object') {
       let subject$ = this.subjects[nodeName];
       let _payload = {...payload};

@@ -257,7 +257,15 @@ export class EmitOutput {
           // DONT call output node if in function... only fire function output node
           return;
         }
-        const upperCallStack = currentCallStack.callStack;
+        let upperCallStack = currentCallStack.callStack;
+
+        if (upperCallStack == undefined) {
+          upperCallStack = {};
+        }
+        if (!!currentCallStack["_executeNode"]) {
+          upperCallStack["_executeNode"] = true;
+        }
+
         const newPayload = Object.assign({}, currentNodeInstance.payload);
         delete newPayload.followFlow;
         if (currentCallStack.outputs) {
@@ -302,7 +310,13 @@ export class EmitOutput {
       });
 
       if (nodeInfo.error.length === 0 && typeof currentCallStack.error !== 'undefined') {
-        const upperCallStack = currentCallStack.callStack;
+        let upperCallStack = currentCallStack.callStack;
+        if (upperCallStack == undefined) {
+          upperCallStack = {};
+        }
+        if (!!currentCallStack["_executeNode"]) {
+          upperCallStack["_executeNode"] = true;
+        }
         const newPayload = Object.assign({}, currentNodeInstance.payload);
         delete newPayload.followFlow;
         currentCallStack.error.map((outputNode: any) => {

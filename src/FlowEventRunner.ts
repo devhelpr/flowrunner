@@ -545,9 +545,26 @@ export class FlowEventRunner {
   public executeNode = (nodeName: any, payload: any, callStack?: any, eventName?: string) => {
     let self = this;
     let _payload = {...payload};
-    let _callstack = callStack ? {...callStack} : {};
+    let _callstack = callStack ? {...callStack} : {};    
     let tempNodeId: any;
     let tempErrorNodeId: any;
+
+
+    /*
+
+      problem with pausing the flow is that this can happen during handling of
+      executeNode internal emits, and then the executeNode/triggerEventOnNode never finished
+      
+      TODO : figure out how to prevent that?
+
+    */
+    _callstack["_executeNode"] = true;
+
+    if (!!this.flowEventEmitter.isPaused) {
+      return new Promise((resolve , reject) => {
+        resolve({});
+      });
+    }
 
     tempNodeId = uuidV4().toString();
     tempErrorNodeId = uuidV4().toString();
@@ -775,4 +792,13 @@ export class FlowEventRunner {
     console.error('error in FlowEventRunner EventEmitter');
     console.log(err);
   };
+
+
+  public pauseFlowrunner = () => {
+    this.flowEventEmitter.pauseFlowrunner();
+  }
+
+  public resumeFlowrunner = () => {
+    this.flowEventEmitter.resumeFlowrunner();
+  }
 }
