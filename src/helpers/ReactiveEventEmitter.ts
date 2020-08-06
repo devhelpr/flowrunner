@@ -18,24 +18,19 @@ export class ReactiveEventEmitter {
 
   private nodesControllers: any = {};
 
-  public isPaused : boolean = false;
+  public isPaused: boolean = false;
 
-  public suspendUntilLock = (lockID : string) => {
+  public suspendUntilLock = (lockID: string) => {};
 
-  }
-
-  public liftLock = (lockID : string) => {
-
-  }
+  public liftLock = (lockID: string) => {};
 
   public pauseFlowrunner = () => {
     this.isPaused = true;
-  }
+  };
 
   public resumeFlowrunner = () => {
     this.isPaused = false;
-  }
-
+  };
 
   public on = (nodeName: any, listener: any) => {
     if (typeof this.nodesListeners[nodeName] !== 'object') {
@@ -48,10 +43,10 @@ export class ReactiveEventEmitter {
       this.subjects[nodeName] = new Subject();
       const self: any = this;
       this.subscriptions[nodeName] = this.subjects[nodeName].subscribe({
-        next: (data : any) => {
+        next: (data: any) => {
           if (typeof self.nodesListeners[nodeName] === 'object') {
-            const length = self.nodesListeners[nodeName].length; 
-            
+            const length = self.nodesListeners[nodeName].length;
+
             // TODO: fix this... feels hacky and not "as expected"
             //  .. see the emit method with its ...args parameter
             //  .. make that "as expected"
@@ -60,8 +55,8 @@ export class ReactiveEventEmitter {
             //let callStack =  data.length > 1 && {...data[1]};
             //console.log("DATA:" , data, "PAYLOAD:", payload, "CALLSTACK: " , callStack);
 
-            let _payload = {...data.payload};
-            let _callstack = {...data.callstack};
+            let _payload = { ...data.payload };
+            let _callstack = { ...data.callstack };
 
             for (let i = 0; i < length; i++) {
               self.nodesListeners[nodeName][i](_payload, _callstack);
@@ -93,9 +88,8 @@ export class ReactiveEventEmitter {
     delete this.nodesListeners[nodeName];
   };
 
-  public emit = (nodeName: any, payload: any, callstack : any) => {
-
-    if (!!this.isPaused && callstack["_executeNode"] === undefined) {
+  public emit = (nodeName: any, payload: any, callstack: any) => {
+    if (!!this.isPaused && callstack['_executeNode'] === undefined) {
       // if in executeNode.. then finish that run of the flow before pausing
 
       // naive solution to pause the flow
@@ -105,22 +99,21 @@ export class ReactiveEventEmitter {
 
     if (typeof this.subjects[nodeName] === 'object') {
       let subject$ = this.subjects[nodeName];
-      let _payload = {...payload};
-      let _callstack = {...callstack};
+      let _payload = { ...payload };
+      let _callstack = { ...callstack };
 
-      subject$.next({payload: _payload, callstack: _callstack});
+      subject$.next({ payload: _payload, callstack: _callstack });
 
       subject$ = null;
       _payload = null;
       _callstack = null;
-
     }
   };
 
   public emitToController = (nodeName: any, controllerName: string, payload: any, currentCallstack: any) => {
     if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
       let value = payload[controllerName];
-      let callStack = {...currentCallstack};
+      let callStack = { ...currentCallstack };
       //console.log ("callStack:", callStack, "currentCallstack", currentCallstack);
       this.nodesControllers[nodeName][controllerName].subject.next({
         currentCallstack: callStack,

@@ -172,9 +172,9 @@ export class FlowEventRunner {
               nodeEmitter.on(node.id.toString() + '_' + event.eventName, (payload: any, callStack: any) => {
                 const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
                 const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
-                
+
                 // copy the current node info but DONT include its outputs...
-                let eventNodeInfo = {...nodeInfo};
+                let eventNodeInfo = { ...nodeInfo };
                 if (eventNodeInfo.outputs) {
                   delete eventNodeInfo.outputs;
                 }
@@ -189,7 +189,7 @@ export class FlowEventRunner {
                     o.followflow !== 'onfailure' &&
                     o.followflow !== 'followManually' &&
                     o.followflow !== 'injectConfigIntoPayload' &&
-                    o.event == event.eventName
+                    o.event == event.eventName,
                 );
 
                 eventNodeInfo.error = [];
@@ -209,15 +209,14 @@ export class FlowEventRunner {
 
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
             const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
-            let _payload = {...payload};
-            
-            if (!!node["_setPerformanceMarker"] && typeof performance !== "undefined") {
-              _payload["_performance"] = performance.now();
-            }           
+            let _payload = { ...payload };
 
-            if (!!node["_getPerformanceMeasure"] && _payload["_performance"] &&
-                typeof performance !== "undefined") {
-                _payload["_performanceDuration"] = performance.now() - _payload["_performance"];
+            if (!!node['_setPerformanceMarker'] && typeof performance !== 'undefined') {
+              _payload['_performance'] = performance.now();
+            }
+
+            if (!!node['_getPerformanceMeasure'] && _payload['_performance'] && typeof performance !== 'undefined') {
+              _payload['_performanceDuration'] = performance.now() - _payload['_performance'];
             }
 
             if (node.controllers) {
@@ -244,8 +243,8 @@ export class FlowEventRunner {
               // nodeInstance contains the payload and is the current instance of the node which
               // is used to execute the plugin on.
 
-              let __payload = {..._payload};
-              let _callstack = {...callStack};
+              let __payload = { ..._payload };
+              let _callstack = { ...callStack };
               const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
 
               nodeInstance.payload = Object.assign({}, __payload, injectionValues);
@@ -345,7 +344,7 @@ export class FlowEventRunner {
                         nodeInstance.id,
                         nodeInstance.name,
                         node.taskType,
-                        {...incomingPayload},
+                        { ...incomingPayload },
                         new Date(),
                       );
 
@@ -366,18 +365,19 @@ export class FlowEventRunner {
                   node.subscription = result.subscribe(observer);
                 } else if (typeof result === 'object' && typeof result.then === 'function') {
                   // Promise
-                  result.then((incomingPayload: any) => {
+                  result
+                    .then((incomingPayload: any) => {
                       FlowEventRunnerHelper.callMiddleware(
                         this.middleware,
                         'ok',
                         nodeInstance.id,
                         nodeInstance.name,
                         node.taskType,
-                        {...incomingPayload},
+                        { ...incomingPayload },
                         new Date(),
                       );
 
-                      nodeInstance.payload = {...incomingPayload};
+                      nodeInstance.payload = { ...incomingPayload };
                       emitToOutputs(nodeInstance, newCallStack);
 
                       __payload = null;
@@ -415,7 +415,7 @@ export class FlowEventRunner {
                     new Date(),
                   );
 
-                  nodeInstance.payload = {...result};
+                  nodeInstance.payload = { ...result };
                   emitToOutputs(nodeInstance, newCallStack);
 
                   __payload = null;
@@ -436,7 +436,6 @@ export class FlowEventRunner {
                   __payload = null;
                   _callstack = null;
                   newCallStack = null;
-
                 } else if (typeof result === 'boolean' && result === false) {
                   FlowEventRunnerHelper.callMiddleware(
                     this.middleware,
@@ -453,9 +452,7 @@ export class FlowEventRunner {
                   newCallStack = null;
                   __payload = null;
                   _callstack = null;
-
                 }
-                
               } catch (err) {
                 this.services.logMessage(err);
                 const payloadForNotification = Object.assign({}, nodeInstance.payload);
@@ -468,13 +465,8 @@ export class FlowEventRunner {
                 _callstack = null;
               }
 
-              
-              
               _payload = null;
-              
             });
-
-            
           });
 
           return nodeInfo;
@@ -544,11 +536,10 @@ export class FlowEventRunner {
 
   public executeNode = (nodeName: any, payload: any, callStack?: any, eventName?: string) => {
     let self = this;
-    let _payload = {...payload};
-    let _callstack = callStack ? {...callStack} : {};    
+    let _payload = { ...payload };
+    let _callstack = callStack ? { ...callStack } : {};
     let tempNodeId: any;
     let tempErrorNodeId: any;
-
 
     /*
 
@@ -558,10 +549,10 @@ export class FlowEventRunner {
       TODO : figure out how to prevent that?
 
     */
-    _callstack["_executeNode"] = true;
+    _callstack['_executeNode'] = true;
 
     if (!!this.flowEventEmitter.isPaused) {
-      return new Promise((resolve , reject) => {
+      return new Promise((resolve, reject) => {
         resolve({});
       });
     }
@@ -570,21 +561,18 @@ export class FlowEventRunner {
     tempErrorNodeId = uuidV4().toString();
 
     return new Promise((resolve: any, reject: any) => {
-
-      let innerPromise = new Promise((innerresolve: any, innerreject: any) => {    
-
+      let innerPromise = new Promise((innerresolve: any, innerreject: any) => {
         function onResult(localPayload: any) {
-          //self.services.logMessage('executeNode result', localPayload);        
+          //self.services.logMessage('executeNode result', localPayload);
           innerresolve(localPayload);
         }
 
         function onError() {
-          //self.services.logMessage('executeNode result', localPayload);      
+          //self.services.logMessage('executeNode result', localPayload);
           innerreject();
         }
 
         try {
-          
           const nodeId = self.nodeNames[nodeName];
 
           self.flowEventEmitter.on(tempNodeId, onResult);
@@ -607,35 +595,33 @@ export class FlowEventRunner {
 
           _payload = null;
           _callstack = null;
-
         } catch (err) {
           this.services.logMessage('executeNode error', err);
           _payload = null;
           _callstack = null;
           innerreject();
         }
+      })
+        .then(localPayload => {
+          self.flowEventEmitter.removeListener(tempNodeId);
+          self.flowEventEmitter.removeListener(tempErrorNodeId);
 
-      }).then((localPayload) => {
-        
-        self.flowEventEmitter.removeListener(tempNodeId);
-        self.flowEventEmitter.removeListener(tempErrorNodeId);
+          (self as any) = null;
+          tempNodeId = null;
+          tempErrorNodeId = null;
 
-        (self as any) = null;
-        tempNodeId = null;
-        tempErrorNodeId = null;
+          resolve(localPayload);
+        })
+        .catch(() => {
+          self.flowEventEmitter.removeListener(tempNodeId);
+          self.flowEventEmitter.removeListener(tempErrorNodeId);
 
-        resolve(localPayload);
-      }).catch(() => {
-        
-        self.flowEventEmitter.removeListener(tempNodeId);
-        self.flowEventEmitter.removeListener(tempErrorNodeId);
+          (self as any) = null;
+          tempNodeId = null;
+          tempErrorNodeId = null;
 
-        (self as any) = null;
-        tempNodeId = null;
-        tempErrorNodeId = null;
-
-        reject();
-      });
+          reject();
+        });
     });
   };
 
@@ -793,12 +779,11 @@ export class FlowEventRunner {
     console.log(err);
   };
 
-
   public pauseFlowrunner = () => {
     this.flowEventEmitter.pauseFlowrunner();
-  }
+  };
 
   public resumeFlowrunner = () => {
     this.flowEventEmitter.resumeFlowrunner();
-  }
+  };
 }

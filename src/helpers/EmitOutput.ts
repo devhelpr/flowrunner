@@ -262,8 +262,8 @@ export class EmitOutput {
         if (upperCallStack == undefined) {
           upperCallStack = {};
         }
-        if (!!currentCallStack["_executeNode"]) {
-          upperCallStack["_executeNode"] = true;
+        if (!!currentCallStack['_executeNode']) {
+          upperCallStack['_executeNode'] = true;
         }
 
         const newPayload = Object.assign({}, currentNodeInstance.payload);
@@ -314,8 +314,8 @@ export class EmitOutput {
         if (upperCallStack == undefined) {
           upperCallStack = {};
         }
-        if (!!currentCallStack["_executeNode"]) {
-          upperCallStack["_executeNode"] = true;
+        if (!!currentCallStack['_executeNode']) {
+          upperCallStack['_executeNode'] = true;
         }
         const newPayload = Object.assign({}, currentNodeInstance.payload);
         delete newPayload.followFlow;
