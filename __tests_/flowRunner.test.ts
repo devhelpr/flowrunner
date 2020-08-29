@@ -211,6 +211,37 @@ const testInjectTemplateIntoPayloadFlow = async () => {
 	return value;
 }
 
+
+const testInjectTemplateWithValuesRangeIntoPayloadFlow = async () => {
+	const flowEventRunner = new FlowEventRunner();
+
+	const humanFlowPackage = {
+		flow : [
+			{
+				"taskType": "InjectIntoPayloadTask",
+				"name":"injectObject",
+				"object":{
+					"test":"{values:A1:B1}"
+				},
+				"hasObjectVariables": true,
+				"subtype": "",
+				"_outputs":[]			
+			}
+		]
+	}
+
+	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
+	let value : boolean = false;
+	await flowEventRunner.start(flowPackage).then(async () => {
+		let result : any = await flowEventRunner.executeNode("injectObject", 
+			{
+				"values" : [["abc"],["def"],["ghi"]]
+			});
+		value = (result.test.length === 2);
+	});
+	return value;
+}
+
 test('testBasicFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testBasicFlow();
@@ -223,6 +254,10 @@ test('testInjectTemplateIntoPayloadFlow', async () => {
 	expect(value).toBe(true);
 })
 
+test('testInjectTemplateWithValuesRangeIntoPayloadFlow', async () => {
+	let value : boolean = await testInjectTemplateWithValuesRangeIntoPayloadFlow();
+	expect(value).toBe(true);
+})
 
 test('testDestroyFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async
@@ -248,3 +283,4 @@ test('testTaskMetaData', async () => {
 	let value : boolean = await testTaskMetaData();
 	expect(value).toBe(true);
 })
+

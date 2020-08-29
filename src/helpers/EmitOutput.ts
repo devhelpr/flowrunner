@@ -253,26 +253,28 @@ export class EmitOutput {
 
       // call output nodes on callstack if node has no outputs
       if (!nodeWasEmitted || (nodeInfo.outputs.length === 0 && typeof currentCallStack.outputs !== 'undefined')) {
-        if (currentCallStack.callStackType === 'FUNCTION') {
+        if (currentCallStack && currentCallStack.callStackType === 'FUNCTION') {
           // DONT call output node if in function... only fire function output node
           return;
         }
-        let upperCallStack = currentCallStack.callStack;
+        if (currentCallStack) {
+          let upperCallStack = currentCallStack.callStack;
 
-        if (upperCallStack == undefined) {
-          upperCallStack = {};
-        }
-        if (!!currentCallStack['_executeNode']) {
-          upperCallStack['_executeNode'] = true;
-        }
+          if (upperCallStack === undefined) {
+            upperCallStack = {};
+          }
+          if (!!currentCallStack['_executeNode']) {
+            upperCallStack['_executeNode'] = true;
+          }
 
-        const newPayload = Object.assign({}, currentNodeInstance.payload);
-        delete newPayload.followFlow;
-        if (currentCallStack.outputs) {
-          currentCallStack.outputs.map((outputNode: any) => {
-            // todo : double check if this needs doesConnectionEmit
-            nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
-          });
+          const newPayload = Object.assign({}, currentNodeInstance.payload);
+          delete newPayload.followFlow;
+          if (currentCallStack.outputs) {
+            currentCallStack.outputs.map((outputNode: any) => {
+              // todo : double check if this needs doesConnectionEmit
+              nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
+            });
+          }
         }
       }
     }
@@ -311,7 +313,7 @@ export class EmitOutput {
 
       if (nodeInfo.error.length === 0 && typeof currentCallStack.error !== 'undefined') {
         let upperCallStack = currentCallStack.callStack;
-        if (upperCallStack == undefined) {
+        if (upperCallStack === undefined) {
           upperCallStack = {};
         }
         if (!!currentCallStack['_executeNode']) {

@@ -12,13 +12,14 @@ import { BehaviorSubject, Subject } from '@reactivex/rxjs';
 
 */
 export class ReactiveEventEmitter {
+
+  public isPaused: boolean = false;
+
   private nodesListeners: any = {};
   private subjects: any = {};
   private subscriptions: any = {};
 
   private nodesControllers: any = {};
-
-  public isPaused: boolean = false;
 
   public suspendUntilLock = (lockID: string) => {};
 
@@ -51,18 +52,18 @@ export class ReactiveEventEmitter {
             //  .. see the emit method with its ...args parameter
             //  .. make that "as expected"
 
-            //let payload = data.length > 0 && {...data[0]};
-            //let callStack =  data.length > 1 && {...data[1]};
-            //console.log("DATA:" , data, "PAYLOAD:", payload, "CALLSTACK: " , callStack);
+            // let payload = data.length > 0 && {...data[0]};
+            // let callStack =  data.length > 1 && {...data[1]};
+            // console.log("DATA:" , data, "PAYLOAD:", payload, "CALLSTACK: " , callStack);
 
-            let _payload = { ...data.payload };
-            let _callstack = { ...data.callstack };
+            const payloadInstance = { ...data.payload };
+            const callstackInstance = { ...data.callstack };
 
             for (let i = 0; i < length; i++) {
-              self.nodesListeners[nodeName][i](_payload, _callstack);
+              self.nodesListeners[nodeName][i](payloadInstance, callstackInstance);
             }
-            (_payload as any) = null;
-            (_callstack as any) = null;
+            (payloadInstance as any) = null;
+            (callstackInstance as any) = null;
           }
         },
       });
@@ -81,9 +82,9 @@ export class ReactiveEventEmitter {
       delete this.subjects[nodeName];
     }
 
-    //if (typeof this.nodesListeners[nodeName] === 'object') {
+    // if (typeof this.nodesListeners[nodeName] === 'object') {
     //  this.nodesListeners[nodeName] = [];
-    //}
+    // }
     this.nodesListeners[nodeName] = null;
     delete this.nodesListeners[nodeName];
   };
@@ -99,14 +100,14 @@ export class ReactiveEventEmitter {
 
     if (typeof this.subjects[nodeName] === 'object') {
       let subject$ = this.subjects[nodeName];
-      let _payload = { ...payload };
-      let _callstack = { ...callstack };
+      let payloadInstance = { ...payload };
+      let callstackInstance = { ...callstack };
 
-      subject$.next({ payload: _payload, callstack: _callstack });
+      subject$.next({ payload: payloadInstance, callstack: callstackInstance });
 
       subject$ = null;
-      _payload = null;
-      _callstack = null;
+      payloadInstance = null;
+      callstackInstance = null;
     }
   };
 
@@ -114,10 +115,10 @@ export class ReactiveEventEmitter {
     if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
       let value = payload[controllerName];
       let callStack = { ...currentCallstack };
-      //console.log ("callStack:", callStack, "currentCallstack", currentCallstack);
+      // console.log ("callStack:", callStack, "currentCallstack", currentCallstack);
       this.nodesControllers[nodeName][controllerName].subject.next({
         currentCallstack: callStack,
-        value: value,
+        value,
       });
       callStack = null;
       value = null;
@@ -146,10 +147,10 @@ export class ReactiveEventEmitter {
             // this.services.logMessage('Controller: Error', node.name, controller.name, err);
           },
           next: (payload: any) => {
-            let _payload = payload;
-            let _callstack = _payload.currentCallstack;
-            if (_payload.value !== undefined) {
-              controllerObservables[controller.name].value = _payload.value;
+            let payloadInstance = payload;
+            let callstackInstance = payloadInstance.currentCallstack;
+            if (payloadInstance.value !== undefined) {
+              controllerObservables[controller.name].value = payloadInstance.value;
               controllerObservables[controller.name].hasValue = true;
               /*
                 only emit .. 
@@ -160,15 +161,15 @@ export class ReactiveEventEmitter {
               let emitToNode = true;
               Object.keys(controllerObservables).map(key => {
                 emitToNode = emitToNode && controllerObservables[key].hasValue;
-                sendPayload[key] = _payload[key];
+                sendPayload[key] = payloadInstance[key];
               });
               if (!!emitToNode) {
-                this.emit(node.id.toString(), sendPayload, _callstack);
+                this.emit(node.id.toString(), sendPayload, callstackInstance);
               }
             }
 
-            _payload = null;
-            _callstack = null;
+            payloadInstance = null;
+            callstackInstance = null;
           },
         };
 

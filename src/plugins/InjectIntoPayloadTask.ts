@@ -15,6 +15,8 @@ export class InjectIntoPayloadTask extends FlowTask {
               - ?? [PROPERTYNAME] is an array property either as a string "a","b",... or as an array ["a","b",...]
 
               Is the above really necessary ? .. can this be done with only {} and typeof?
+
+              - {values:A1:B1} .. extract range A1 to B1 from values property and replace as array
         */
         if (!!node.hasObjectVariables) {
           const data = this.replaceObjectVariables(JSON.stringify(node.object), node.payload);
@@ -35,27 +37,70 @@ export class InjectIntoPayloadTask extends FlowTask {
     if (matches) {
       matches.map((match: string) => {
         const matchValue = match.slice(2, -2);
-        let value = data[matchValue];
-        if (value === undefined) {
-          value = '';
-        }
-        if (typeof value === 'string') {
-          value = '"' + value + '"';
-        } else if (Array.isArray(value)) {
-          let newValue = '';
+        let value = "";
 
-          value.map(item => {
-            if (newValue !== '') {
-              newValue += ',';
-            }
-            if (typeof item === 'string') {
-              newValue += '"' + item + '"';
-            } else {
-              newValue += item;
-            }
-          });
+        const splitted = matchValue.split(":");
+        if (splitted.length > 0 && splitted[0] === "values") {
+          if (splitted.length === 3) {
+            const minRange = splitted[1].split(/(\d+)/);
+            const maxRange = splitted[2].split(/(\d+)/);
+            if (minRange.length >= 2 && maxRange.length >= 2) {
+              let newValue = '';
 
-          value = '[' + newValue + ']';
+              let loop = (minRange[0] || "A").charCodeAt(0)-65;
+              const max = (maxRange[0] || "A").charCodeAt(0)-65;
+
+              while (loop <= max) {
+
+                let loopCell = parseInt(minRange[1], 10) - 1;
+                const maxCell = parseInt(maxRange[1], 10) - 1;
+
+                while (loopCell <= maxCell) {
+                  
+                  if (newValue !== '') {
+                    newValue += ',';
+                  }
+                  if (loop < data["values"].length && 
+                    loopCell < data["values"][loop].length) {
+                    const item = data["values"][loop][loopCell];
+                    if (typeof item === 'string') {
+                      newValue += '"' + item + '"';
+                    } else {
+                      newValue += item;
+                    }
+                  }
+                  
+                  loopCell++;
+                }
+                loop++;
+              }
+
+              value = '[' + newValue + ']';
+            }
+          }
+        } else {
+          value = data[matchValue];
+          if (value === undefined) {
+            value = '';
+          }
+          if (typeof value === 'string') {
+            value = '"' + value + '"';
+          } else if (Array.isArray(value)) {
+            let newValue = '';
+
+            (value as string[]).map(item => {
+              if (newValue !== '') {
+                newValue += ',';
+              }
+              if (typeof item === 'string') {
+                newValue += '"' + item + '"';
+              } else {
+                newValue += item;
+              }
+            });
+
+            value = '[' + newValue + ']';
+          }
         }
 
         const allOccurancesOfMatchRegex = new RegExp(match, 'g');
