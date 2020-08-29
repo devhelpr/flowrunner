@@ -37,39 +37,36 @@ export class InjectIntoPayloadTask extends FlowTask {
     if (matches) {
       matches.map((match: string) => {
         const matchValue = match.slice(2, -2);
-        let value = "";
+        let value = '';
 
-        const splitted = matchValue.split(":");
-        if (splitted.length > 0 && splitted[0] === "values") {
+        const splitted = matchValue.split(':');
+        if (splitted.length > 0 && splitted[0] === 'values') {
           if (splitted.length === 3) {
             const minRange = splitted[1].split(/(\d+)/);
             const maxRange = splitted[2].split(/(\d+)/);
             if (minRange.length >= 2 && maxRange.length >= 2) {
               let newValue = '';
 
-              let loop = (minRange[0] || "A").charCodeAt(0)-65;
-              const max = (maxRange[0] || "A").charCodeAt(0)-65;
+              let loop = (minRange[0] || 'A').charCodeAt(0) - 65;
+              const max = (maxRange[0] || 'A').charCodeAt(0) - 65;
 
               while (loop <= max) {
-
                 let loopCell = parseInt(minRange[1], 10) - 1;
                 const maxCell = parseInt(maxRange[1], 10) - 1;
 
                 while (loopCell <= maxCell) {
-                  
                   if (newValue !== '') {
                     newValue += ',';
                   }
-                  if (loop < data["values"].length && 
-                    loopCell < data["values"][loop].length) {
-                    const item = data["values"][loop][loopCell];
+                  if (loop < data['values'].length && loopCell < data['values'][loop].length) {
+                    const item = data['values'][loop][loopCell];
                     if (typeof item === 'string') {
                       newValue += '"' + item + '"';
                     } else {
                       newValue += item;
                     }
                   }
-                  
+
                   loopCell++;
                 }
                 loop++;

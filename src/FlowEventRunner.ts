@@ -94,8 +94,8 @@ export class FlowEventRunner {
           throw new Error(`Task ${pluginClassName} has no getName() method`);
         }
 
-        const name = pluginInstance.getName() || "";
-        if (!name || name === "" || name === "FlowTask") {
+        const name = pluginInstance.getName() || '';
+        if (!name || name === '' || name === 'FlowTask') {
           throw new Error(`Task ${pluginClassName} has no valid getName() method`);
         }
 
@@ -230,7 +230,11 @@ export class FlowEventRunner {
               payloadInstance['_performance'] = performance.now();
             }
 
-            if (!!node['_getPerformanceMeasure'] && payloadInstance['_performance'] && typeof performance !== 'undefined') {
+            if (
+              !!node['_getPerformanceMeasure'] &&
+              payloadInstance['_performance'] &&
+              typeof performance !== 'undefined'
+            ) {
               payloadInstance['_performanceDuration'] = performance.now() - payloadInstance['_performance'];
             }
 

@@ -12,7 +12,6 @@ import { BehaviorSubject, Subject } from '@reactivex/rxjs';
 
 */
 export class ReactiveEventEmitter {
-
   public isPaused: boolean = false;
 
   private nodesListeners: any = {};
