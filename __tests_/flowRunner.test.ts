@@ -223,6 +223,12 @@ const testInjectTemplateWithValuesRangeIntoPayloadFlow = async () => {
 				"object":{
 					"test":"{values:A1:B1}"
 				},
+				"transformObject": {
+					"values" : {
+						"name": "{name}",
+						"value" : "{value}"
+					}
+				},
 				"hasObjectVariables": true,
 				"subtype": "",
 				"_outputs":[]			
@@ -237,6 +243,7 @@ const testInjectTemplateWithValuesRangeIntoPayloadFlow = async () => {
 			{
 				"values" : [["abc"],["def"],["ghi"]]
 			});
+		console.log("testInjectTemplateWithValuesRangeIntoPayloadFlow", result);
 		value = (result.test.length === 2);
 	});
 	return value;

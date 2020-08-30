@@ -19,8 +19,12 @@ export class InjectIntoPayloadTask extends FlowTask {
               - {values:A1:B1} .. extract range A1 to B1 from values property and replace as array
         */
         if (!!node.hasObjectVariables) {
-          const data = this.replaceObjectVariables(JSON.stringify(node.object), node.payload);
-          node.payload = Object.assign({}, node.payload, JSON.parse(data));
+          try {
+            const data = this.replaceObjectVariables(node, JSON.stringify(node.object), node.payload);
+            node.payload = Object.assign({}, node.payload, JSON.parse(data));
+          } catch (err) {
+            services.logMessage("InjectIntoPayloadTask inner exception", err);
+          }
         } else {
           node.payload = Object.assign({}, node.payload, node.object);
         }
@@ -32,7 +36,7 @@ export class InjectIntoPayloadTask extends FlowTask {
     }
   }
 
-  public replaceObjectVariables = (template: string, data: any) => {
+  public replaceObjectVariables = (node: any, template: string, data: any) => {
     const matches = template.match(/"{.+?}"/g);
     if (matches) {
       matches.map((match: string) => {
@@ -44,6 +48,11 @@ export class InjectIntoPayloadTask extends FlowTask {
           if (splitted.length === 3) {
             const minRange = splitted[1].split(/(\d+)/);
             const maxRange = splitted[2].split(/(\d+)/);
+            let transformObject : any;
+            if (node.transformObject && node.transformObject.values) {
+              transformObject = node.transformObject.values;
+            }
+
             if (minRange.length >= 2 && maxRange.length >= 2) {
               let newValue = '';
 
@@ -59,7 +68,19 @@ export class InjectIntoPayloadTask extends FlowTask {
                     newValue += ',';
                   }
                   if (loop < data['values'].length && loopCell < data['values'][loop].length) {
-                    const item = data['values'][loop][loopCell];
+                    let item = data['values'][loop][loopCell];
+
+                    if (transformObject) {
+                      item = JSON.parse(this.replaceObjectVariables(node, JSON.stringify(transformObject), 
+                        {
+                          name: String.fromCharCode((loop % 26) + 65) + (loopCell + 1),
+                          value: item
+                        }));
+                    }
+
+                    if (typeof item === 'object') {
+                      newValue += JSON.stringify(item);
+                    } else
                     if (typeof item === 'string') {
                       newValue += '"' + item + '"';
                     } else {
