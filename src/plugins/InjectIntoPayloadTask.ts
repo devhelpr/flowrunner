@@ -23,7 +23,7 @@ export class InjectIntoPayloadTask extends FlowTask {
             const data = this.replaceObjectVariables(node, JSON.stringify(node.object), node.payload);
             node.payload = Object.assign({}, node.payload, JSON.parse(data));
           } catch (err) {
-            services.logMessage("InjectIntoPayloadTask inner exception", err);
+            services.logMessage('InjectIntoPayloadTask inner exception', err);
           }
         } else {
           node.payload = Object.assign({}, node.payload, node.object);
@@ -48,7 +48,7 @@ export class InjectIntoPayloadTask extends FlowTask {
           if (splitted.length === 3) {
             const minRange = splitted[1].split(/(\d+)/);
             const maxRange = splitted[2].split(/(\d+)/);
-            let transformObject : any;
+            let transformObject: any;
             if (node.transformObject && node.transformObject.values) {
               transformObject = node.transformObject.values;
             }
@@ -71,17 +71,17 @@ export class InjectIntoPayloadTask extends FlowTask {
                     let item = data['values'][loop][loopCell];
 
                     if (transformObject) {
-                      item = JSON.parse(this.replaceObjectVariables(node, JSON.stringify(transformObject), 
-                        {
+                      item = JSON.parse(
+                        this.replaceObjectVariables(node, JSON.stringify(transformObject), {
                           name: String.fromCharCode((loop % 26) + 65) + (loopCell + 1),
-                          value: item
-                        }));
+                          value: item,
+                        }),
+                      );
                     }
 
                     if (typeof item === 'object') {
                       newValue += JSON.stringify(item);
-                    } else
-                    if (typeof item === 'string') {
+                    } else if (typeof item === 'string') {
                       newValue += '"' + item + '"';
                     } else {
                       newValue += item;
