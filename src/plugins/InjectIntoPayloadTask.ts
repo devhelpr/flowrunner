@@ -75,7 +75,7 @@ export class InjectIntoPayloadTask extends FlowTask {
                     if (isNaN(item)) {
                       item = cellValue;
                     }
-              
+
                     if (transformObject) {
                       item = JSON.parse(
                         this.replaceObjectVariables(node, JSON.stringify(transformObject), {
