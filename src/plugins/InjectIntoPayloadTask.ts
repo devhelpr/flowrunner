@@ -68,8 +68,14 @@ export class InjectIntoPayloadTask extends FlowTask {
                     newValue += ',';
                   }
                   if (loop < data['values'].length && loopCell < data['values'][loop].length) {
-                    let item = data['values'][loop][loopCell];
+                    let item;
+                    const cellValue = data['values'][loop][loopCell];
 
+                    item = parseFloat(cellValue);
+                    if (isNaN(item)) {
+                      item = cellValue;
+                    }
+              
                     if (transformObject) {
                       item = JSON.parse(
                         this.replaceObjectVariables(node, JSON.stringify(transformObject), {
