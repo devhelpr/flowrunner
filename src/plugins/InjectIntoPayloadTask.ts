@@ -56,12 +56,12 @@ export class InjectIntoPayloadTask extends FlowTask {
             if (minRange.length >= 2 && maxRange.length >= 2) {
               let newValue = '';
 
-              let loop = (minRange[0] || 'A').charCodeAt(0) - 65;
-              const max = (maxRange[0] || 'A').charCodeAt(0) - 65;
+              let loop = parseInt(minRange[1], 10) - 1;
+              const max = parseInt(maxRange[1], 10) - 1;
 
               while (loop <= max) {
-                let loopCell = parseInt(minRange[1], 10) - 1;
-                const maxCell = parseInt(maxRange[1], 10) - 1;
+                let loopCell = (minRange[0] || 'A').charCodeAt(0) - 65;
+                const maxCell = (maxRange[0] || 'A').charCodeAt(0) - 65;
 
                 while (loopCell <= maxCell) {
                   if (newValue !== '') {
@@ -71,7 +71,7 @@ export class InjectIntoPayloadTask extends FlowTask {
                     let item;
                     const cellValue = data['values'][loop][loopCell];
 
-                    item = parseFloat(cellValue);
+                    item = Number(cellValue);
                     if (isNaN(item)) {
                       item = cellValue;
                     }
@@ -79,7 +79,7 @@ export class InjectIntoPayloadTask extends FlowTask {
                     if (transformObject) {
                       item = JSON.parse(
                         this.replaceObjectVariables(node, JSON.stringify(transformObject), {
-                          name: String.fromCharCode((loop % 26) + 65) + (loopCell + 1),
+                          name: String.fromCharCode((loopCell % 26) + 65) + (loop + 1),
                           value: item,
                         }),
                       );

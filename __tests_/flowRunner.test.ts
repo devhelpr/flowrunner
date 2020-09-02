@@ -241,7 +241,7 @@ const testInjectTemplateWithValuesRangeIntoPayloadFlow = async () => {
 	await flowEventRunner.start(flowPackage).then(async () => {
 		let result : any = await flowEventRunner.executeNode("injectObject", 
 			{
-				"values" : [["abc"],["def"],["ghi"]]
+				"values" : [["abc","def"],["ghi","jkl"],["mno","pqr"]]
 			});
 		console.log("testInjectTemplateWithValuesRangeIntoPayloadFlow", result);
 		value = (result.test.length === 2);
