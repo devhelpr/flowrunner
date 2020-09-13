@@ -66,8 +66,7 @@ export class InjectIntoPayloadTask extends FlowTask {
                     newValue += ',';
                   }
 
-                  if (loop < data['values'].length && 
-                    loopCell < data['values'][loop].length) {
+                  if (loop < data['values'].length && loopCell < data['values'][loop].length) {
                     let item;
                     const cellValue = data['values'][loop][loopCell];
                     item = Number(cellValue);
@@ -80,10 +79,7 @@ export class InjectIntoPayloadTask extends FlowTask {
                         name: String.fromCharCode((loopCell % 26) + 65) + (loop + 1),
                         value: item,
                       });
-                      item = JSON.parse(
-                        parse
-                      );
-                      
+                      item = JSON.parse(parse);
                     }
 
                     if (typeof item === 'object') {
@@ -120,8 +116,7 @@ export class InjectIntoPayloadTask extends FlowTask {
               if (newValue !== '') {
                 newValue += ',';
               }
-              if (rowCell < data['values'].length && 
-                columnCell < data['values'][rowCell].length) {
+              if (rowCell < data['values'].length && columnCell < data['values'][rowCell].length) {
                 let item;
                 const cellValue = data['values'][rowCell][columnCell];
 
