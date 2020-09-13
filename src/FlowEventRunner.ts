@@ -565,6 +565,11 @@ export class FlowEventRunner {
   };
 
   public executeNode = (nodeName: any, payload: any, callStack?: any, eventName?: string) => {
+    if (!this.nodeNames[nodeName]) {
+      return new Promise((resolve, reject) => {
+          reject();
+      });
+    }
     const self = this;
     let payloadInstance = { ...payload };
     let callstackInstance = callStack ? { ...callStack } : {};

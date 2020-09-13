@@ -243,8 +243,39 @@ const testInjectTemplateWithValuesRangeIntoPayloadFlow = async () => {
 			{
 				"values" : [["abc","def"],["ghi","jkl"],["mno","pqr"]]
 			});
-		console.log("testInjectTemplateWithValuesRangeIntoPayloadFlow", result);
+		console.log("testInjectTemplateWithValuesRangeIntoPayloadFlow", JSON.stringify(humanFlowPackage), result);
 		value = (result.test.length === 2);
+	});
+	return value;
+}
+
+const testInjectTemplateWithValueIntoPayloadFlow = async () => {
+	const flowEventRunner = new FlowEventRunner();
+
+	const humanFlowPackage = {
+		flow : [
+			{
+				"taskType": "InjectIntoPayloadTask",
+				"name":"injectObject",
+				"object":{
+					"test":"{value:B3}"
+				},				
+				"hasObjectVariables": true,
+				"subtype": "",
+				"_outputs":[]			
+			}
+		]
+	}
+
+	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
+	let value : boolean = false;
+	await flowEventRunner.start(flowPackage).then(async () => {
+		let result : any = await flowEventRunner.executeNode("injectObject", 
+			{
+				"values" : [["abc","def"],["ghi","jkl"],["mno","pqr"]]
+			});
+		console.log("testInjectTemplateWithValueIntoPayloadFlow", JSON.stringify(humanFlowPackage), result);
+		value = (result.test == "pqr");
 	});
 	return value;
 }
@@ -290,4 +321,10 @@ test('testTaskMetaData', async () => {
 	let value : boolean = await testTaskMetaData();
 	expect(value).toBe(true);
 })
+
+test('testInjectTemplateWithValueIntoPayloadFlow', async () => {
+	let value : boolean = await testInjectTemplateWithValueIntoPayloadFlow();
+	expect(value).toBe(true);
+})
+
 
