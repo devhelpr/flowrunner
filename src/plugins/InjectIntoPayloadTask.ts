@@ -114,8 +114,8 @@ export class InjectIntoPayloadTask extends FlowTask {
             if (cellId.length >= 2 && cellId.length >= 2) {
               let newValue = '';
 
-              let rowCell = parseInt(cellId[1], 10) - 1;
-              let columnCell = (cellId[0] || 'A').charCodeAt(0) - 65;
+              const rowCell = parseInt(cellId[1], 10) - 1;
+              const columnCell = (cellId[0] || 'A').charCodeAt(0) - 65;
 
               if (newValue !== '') {
                 newValue += ',';
