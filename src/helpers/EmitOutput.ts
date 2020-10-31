@@ -55,8 +55,8 @@ export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode,
   }
 
   if (connectionNode.activationFunction) {
-    console.log("connectionNode.activationFunction", connectionNode.activationFunction);
-    if (typeof connectionNode.activationFunction !== "function") {
+    console.log('connectionNode.activationFunction', connectionNode.activationFunction);
+    if (typeof connectionNode.activationFunction !== 'function') {
       return false;
     }
     return (connectionNode.activationFunction as ActivationFunction)(connectionNode, payload);

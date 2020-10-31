@@ -56,7 +56,7 @@ export class FlowEventRunner {
   private flowNodeOverrideAttachHooks: any = [];
   private nodePluginInfoMap: any = {};
   private observables: IRegisteredObservable[] = [];
-  private activationFunctions : any;
+  private activationFunctions: any;
 
   constructor() {
     this.activationFunctions = [];
@@ -744,7 +744,7 @@ export class FlowEventRunner {
         flowEventRunner: this,
         logMessage: (...args) => {},
         pluginClasses: {},
-        registerModel: (modelName: string, definition: any) => {}
+        registerModel: (modelName: string, definition: any) => {},
       };
     }
 
@@ -819,9 +819,9 @@ export class FlowEventRunner {
     this.flowEventEmitter.pauseFlowrunner();
   };
 
-  public registerActivationFuncion = (name: string, activationFunction : ActivationFunction) => {
-    this.activationFunctions[name] = activationFunction;  
-  }
+  public registerActivationFuncion = (name: string, activationFunction: ActivationFunction) => {
+    this.activationFunctions[name] = activationFunction;
+  };
 
   public resumeFlowrunner = () => {
     this.flowEventEmitter.resumeFlowrunner();
@@ -837,5 +837,5 @@ export class FlowEventRunner {
       return this.activationFunctions[name];
     }
     return false;
-  }
+  };
 }
