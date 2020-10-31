@@ -1,10 +1,21 @@
+import { IServicesInterface } from '../interfaces/ServicesInterface';
 import { FlowEventRunnerHelper } from './FlowEventRunnerHelper';
 
+export interface INodeInfo {
+  error? : any[];
+  injections : any;
+  inputs : any[];
+  manuallyToFollowNodes: any;
+  name: string;
+  nodeId: string;
+  outputs?: any[];
+  pluginInstance: any;
+  title: string;
+}
+
 export class BuildNodeInfoHelper {
-  public static build(nodeList: any[], node: any, nodePluginInfoMap: any) {
-    return Object.assign(
-      {},
-      {
+  public static build(nodeList: any[], node: any, nodePluginInfoMap: any, services: IServicesInterface) :INodeInfo {
+    return {
         error: nodeList.filter(
           (o: any) =>
             o.startshapeid === node.id.toString() && o.taskType === 'connection' && o.followflow === 'onfailure',
@@ -35,10 +46,15 @@ export class BuildNodeInfoHelper {
             o.followflow !== 'onfailure' &&
             o.followflow !== 'followManually' &&
             o.followflow !== 'injectConfigIntoPayload',
-        ),
+        ).map((connection) => {
+          // todo check activationFunction and attach it here
+          if (connection.activationFunction && services.getActivationFunction) {
+            connection.activationFunction = services.getActivationFunction(connection.activationFunction);
+          }
+          return connection;
+        }),
         pluginInstance: undefined,
         title: node.title,
-      },
-    );
+      };
   }
 }

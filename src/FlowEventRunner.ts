@@ -7,6 +7,7 @@ import { EmitOutput } from './helpers/EmitOutput';
 import { FlowEventRunnerHelper } from './helpers/FlowEventRunnerHelper';
 import { InjectionHelper } from './helpers/InjectionHelper';
 import { ReactiveEventEmitter } from './helpers/ReactiveEventEmitter';
+import { ActivationFunction } from './interfaces/FunctionTypes';
 import { IServicesInterface } from './interfaces/ServicesInterface';
 import { AssignTask } from './plugins/AssignTask';
 import { ClearTask } from './plugins/ClearTask';
@@ -55,10 +56,13 @@ export class FlowEventRunner {
   private flowNodeOverrideAttachHooks: any = [];
   private nodePluginInfoMap: any = {};
   private observables: IRegisteredObservable[] = [];
+  private activationFunctions : any;
 
   constructor() {
+    this.activationFunctions = [];
     this.services = {
       flowEventRunner: this,
+      getActivationFunction: this.getActivationFunction,
       logMessage: (...args) => {},
       pluginClasses: [],
       registerModel: (modelName: string, definition: any) => {},
@@ -137,7 +141,7 @@ export class FlowEventRunner {
 
         // nodeInfo contains the info needed to run the plugin on and list of input/output nodes and
         // which nodes are used for injection on each run of a plugin
-        const nodeInfo = BuildNodeInfoHelper.build(nodeList, node, nodePluginInfoMap);
+        const nodeInfo = BuildNodeInfoHelper.build(nodeList, node, nodePluginInfoMap, this.services);
         nodeInfo.pluginInstance = pluginInstance;
 
         this.nodeNames[node.name] = node.id;
@@ -740,9 +744,11 @@ export class FlowEventRunner {
         flowEventRunner: this,
         logMessage: (...args) => {},
         pluginClasses: {},
-        registerModel: (modelName: string, definition: any) => {},
+        registerModel: (modelName: string, definition: any) => {}
       };
     }
+
+    this.services.getActivationFunction = this.getActivationFunction;
 
     if (mergeWithDefaultPlugins === undefined || mergeWithDefaultPlugins === true) {
       this.services.pluginClasses['AssignTask'] = AssignTask;
@@ -813,6 +819,10 @@ export class FlowEventRunner {
     this.flowEventEmitter.pauseFlowrunner();
   };
 
+  public registerActivationFuncion = (name: string, activationFunction : ActivationFunction) => {
+    this.activationFunctions[name] = activationFunction;  
+  }
+
   public resumeFlowrunner = () => {
     this.flowEventEmitter.resumeFlowrunner();
   };
@@ -821,4 +831,11 @@ export class FlowEventRunner {
     console.error('error in FlowEventRunner EventEmitter');
     console.log(err);
   };
+
+  private getActivationFunction = (name: string) => {
+    if (this.activationFunctions[name]) {
+      return this.activationFunctions[name];
+    }
+    return false;
+  }
 }

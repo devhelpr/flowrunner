@@ -2,6 +2,7 @@ import * as uuid from 'uuid';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 import { IConnectionNode } from '../interfaces/ConnectionNode';
+import { ActivationFunction } from '../interfaces/FunctionTypes';
 import { INode } from '../interfaces/Node';
 
 const uuidV4 = uuid.v4;
@@ -44,6 +45,23 @@ export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode,
     }
     result = result && connectionNode.flowPath === payload.flowPath;
   }
+
+  if (connectionNode.activationThreshold && !isNaN(connectionNode.activationThreshold)) {
+    if (connectionNode.activationProperty && payload[connectionNode.activationProperty]) {
+      return payload[connectionNode.activationProperty] >= connectionNode.activationThreshold;
+    }
+
+    return false;
+  }
+
+  if (connectionNode.activationFunction) {
+    console.log("connectionNode.activationFunction", connectionNode.activationFunction);
+    if (typeof connectionNode.activationFunction !== "function") {
+      return false;
+    }
+    return (connectionNode.activationFunction as ActivationFunction)(connectionNode, payload);
+  }
+
   return result;
 };
 
