@@ -55,7 +55,6 @@ export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode,
   }
 
   if (connectionNode.activationFunction) {
-    console.log('connectionNode.activationFunction', connectionNode.activationFunction);
     if (typeof connectionNode.activationFunction !== 'function') {
       return false;
     }
@@ -247,7 +246,9 @@ export class EmitOutput {
       // CALL connected output nodes
       nodeInfo.outputs.map((nodeOutput: any) => {
         if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
-          if (doesConnectionEmit(nodeOutput, currentNodeInstance, currentNodeInstance.payload, eventName)) {
+          // QUESTION: Does this causes memory issues?
+          const payload = {...currentNodeInstance.payload};
+          if (doesConnectionEmit(nodeOutput, currentNodeInstance, payload, eventName)) {
             nodeWasEmitted = true;
 
             // check if connection has controller
@@ -259,11 +260,11 @@ export class EmitOutput {
               nodeEmitter.emitToController(
                 nodeOutput.endshapeid.toString(),
                 nodeOutput.controllerName,
-                currentNodeInstance.payload,
+                payload,
                 currentCallStack,
               );
             } else {
-              nodeEmitter.emit(nodeOutput.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
+              nodeEmitter.emit(nodeOutput.endshapeid.toString(), payload, currentCallStack);
             }
           }
         }
