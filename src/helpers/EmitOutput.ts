@@ -247,7 +247,7 @@ export class EmitOutput {
       nodeInfo.outputs.map((nodeOutput: any) => {
         if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
           // QUESTION: Does this causes memory issues?
-          const payload = {...currentNodeInstance.payload};
+          const payload = { ...currentNodeInstance.payload };
           if (doesConnectionEmit(nodeOutput, currentNodeInstance, payload, eventName)) {
             nodeWasEmitted = true;
 
