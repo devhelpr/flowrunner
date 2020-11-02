@@ -2,6 +2,7 @@ import { IServicesInterface } from '../interfaces/ServicesInterface';
 import { FlowEventRunnerHelper } from './FlowEventRunnerHelper';
 
 export interface INodeInfo {
+  dontAutostart: boolean;
   error?: any[];
   injections: any;
   inputs: any[];
@@ -16,6 +17,7 @@ export interface INodeInfo {
 export class BuildNodeInfoHelper {
   public static build(nodeList: any[], node: any, nodePluginInfoMap: any, services: IServicesInterface): INodeInfo {
     return {
+      dontAutostart: node.dontAutostart,
       error: nodeList.filter(
         (o: any) =>
           o.startshapeid === node.id.toString() && o.taskType === 'connection' && o.followflow === 'onfailure',

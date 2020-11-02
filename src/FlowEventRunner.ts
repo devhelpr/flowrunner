@@ -512,7 +512,7 @@ export class FlowEventRunner {
     if (!!autoStartNodes) {
       this.nodes.map((nodeInfo: any) => {
         if (nodeInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_INPUT_NODE) {
-          if (nodeInfo.inputs.length === 0) {
+          if (nodeInfo.inputs.length === 0 && !nodeInfo.dontAutostart) {
             nodeEmitter.emit(nodeInfo.nodeId.toString(), {}, {});
           }
         }
