@@ -87,12 +87,10 @@ export class EmitOutput {
 
       if (currentNodeInstance.resultProperties) {
         newPayload = {};
-        currentNodeInstance.resultProperties.map((resultProperty : string) => {
+        currentNodeInstance.resultProperties.map((resultProperty: string) => {
           newPayload[resultProperty] = currentNodeInstance.payload[resultProperty];
         });
-        
-      } else
-      if (currentNodeInstance.resultProperty) {
+      } else if (currentNodeInstance.resultProperty) {
         newPayload = { [currentNodeInstance.resultProperty]: newPayload[currentNodeInstance.resultProperty] };
       } else {
         newPayload = {};
