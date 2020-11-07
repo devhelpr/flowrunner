@@ -243,280 +243,290 @@ export class FlowEventRunner {
             isThrottling: pluginInstance.isThrottling(),
           };
 
-          nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
-            const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
-            let payloadInstance = { ...payload };
+          nodeEmitter.on(
+            node.id.toString(),
+            (payload: any, callStack: any) => {
+              const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
+              let payloadInstance = { ...payload };
 
-            if (!!node['_setPerformanceMarker'] && typeof performance !== 'undefined') {
-              payloadInstance['_performance'] = performance.now();
-            }
-
-            if (
-              !!node['_getPerformanceMeasure'] &&
-              payloadInstance['_performance'] &&
-              typeof performance !== 'undefined'
-            ) {
-              payloadInstance['_performanceDuration'] = performance.now() - payloadInstance['_performance'];
-            }
-
-            if (!!node['_clearPerformance']) {
-              if (payloadInstance['_performanceDuration']) {
-                delete payloadInstance['_performanceDuration'];
+              if (!!node['_setPerformanceMarker'] && typeof performance !== 'undefined') {
+                payloadInstance['_performance'] = performance.now();
               }
-              if (payloadInstance['_performance']) {
-                delete payloadInstance['_performance'];
-              }
-            }
 
-            if (node.controllers) {
-              node.controllers.map((controller: any) => {
-                const value = nodeEmitter.getNodeControllerValue(node.name, controller.name);
-                if (value || value === 0) {
-                  payloadInstance[controller.name] = value;
+              if (
+                !!node['_getPerformanceMeasure'] &&
+                payloadInstance['_performance'] &&
+                typeof performance !== 'undefined'
+              ) {
+                payloadInstance['_performanceDuration'] = performance.now() - payloadInstance['_performance'];
+              }
+
+              if (!!node['_clearPerformance']) {
+                if (payloadInstance['_performanceDuration']) {
+                  delete payloadInstance['_performanceDuration'];
                 }
-              });
-            }
-
-            const injectionValues: any = {};
-            const injectionPromises: any = InjectionHelper.executeInjections(
-              currentNode,
-              nodeInfo,
-              injectionValues,
-              payloadInstance,
-              this.services,
-              callStack,
-              this.middleware,
-            );
-
-            Promise.all(injectionPromises).then(() => {
-              // nodeInstance contains the payload and is the current instance of the node which
-              // is used to execute the plugin on.
-
-              let tempPayload = { ...payloadInstance };
-              let callstackInstance = { ...callStack };
-              const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
-
-              nodeInstance.payload = Object.assign({}, tempPayload, injectionValues);
-
-              if (node.subtype === 'start') {
-                callstackInstance.sessionId = uuidV4();
+                if (payloadInstance['_performance']) {
+                  delete payloadInstance['_performance'];
+                }
               }
 
-              this.services.logMessage('EVENT Received for node: ', nodeInfo.name, node.id.toString());
-
-              function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
-                EmitOutput.emitToOutputs(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack);
+              if (node.controllers) {
+                node.controllers.map((controller: any) => {
+                  const value = nodeEmitter.getNodeControllerValue(node.name, controller.name);
+                  if (value || value === 0) {
+                    payloadInstance[controller.name] = value;
+                  }
+                });
               }
 
-              function emitToError(currentNodeInstance: any, currentCallStack: any) {
-                EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack);
-              }
+              const injectionValues: any = {};
+              const injectionPromises: any = InjectionHelper.executeInjections(
+                currentNode,
+                nodeInfo,
+                injectionValues,
+                payloadInstance,
+                this.services,
+                callStack,
+                this.middleware,
+              );
 
-              try {
-                let newCallStack = callstackInstance;
+              Promise.all(injectionPromises).then(() => {
+                // nodeInstance contains the payload and is the current instance of the node which
+                // is used to execute the plugin on.
 
-                if (pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
-                  emitToOutputs(nodeInstance, newCallStack);
+                let tempPayload = { ...payloadInstance };
+                let callstackInstance = { ...callStack };
+                const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
 
-                  newCallStack = null;
-                  tempPayload = null;
-                  callstackInstance = null;
+                nodeInstance.payload = Object.assign({}, tempPayload, injectionValues);
 
-                  return;
+                if (node.subtype === 'start') {
+                  callstackInstance.sessionId = uuidV4();
                 }
 
-                if (
-                  pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE &&
-                  pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_OUTPUT_NODE
-                ) {
-                  if (typeof nodeInstance.payload.followFlow !== 'undefined') {
-                    delete nodeInstance.payload.followFlow;
-                  }
-                } else {
-                  // FORWARD_NODE OR FUNCTION_OUTPUT_NODE
-                  //
-                  // _forwardFollowFlow contains the last followFlow
-                  // followFlow is used by IfConditionTask to handle 'else'
+                this.services.logMessage('EVENT Received for node: ', nodeInfo.name, node.id.toString());
 
-                  if (nodeInstance.payload._forwardFollowFlow !== undefined) {
-                    nodeInstance.payload.followFlow = nodeInstance.payload._forwardFollowFlow;
-                  }
+                function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
+                  EmitOutput.emitToOutputs(
+                    nodePluginInfo,
+                    nodeEmitter,
+                    nodeInfo,
+                    currentNodeInstance,
+                    currentCallStack,
+                  );
                 }
-                nodeInstance.payload._forwardFollowFlow = undefined;
 
-                const result = pluginInstance.execute(nodeInstance, this.services, newCallStack);
+                function emitToError(currentNodeInstance: any, currentCallStack: any) {
+                  EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack);
+                }
 
-                if (result instanceof Observable || result instanceof Subject) {
-                  if (pluginInstance.getObservable === undefined) {
-                    this.observables.push({
-                      name: nodeInstance.name || nodeInstance.title.replace(/ /g, ''),
-                      nodeId: nodeInstance.id,
-                      observable: result,
-                    });
-                  }
+                try {
+                  let newCallStack = callstackInstance;
 
-                  if (node.isNodeObserved) {
+                  if (pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
+                    emitToOutputs(nodeInstance, newCallStack);
+
                     newCallStack = null;
                     tempPayload = null;
                     callstackInstance = null;
+
                     return;
                   }
 
-                  node.isNodeObserved = true;
+                  if (
+                    pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE &&
+                    pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_OUTPUT_NODE
+                  ) {
+                    if (typeof nodeInstance.payload.followFlow !== 'undefined') {
+                      delete nodeInstance.payload.followFlow;
+                    }
+                  } else {
+                    // FORWARD_NODE OR FUNCTION_OUTPUT_NODE
+                    //
+                    // _forwardFollowFlow contains the last followFlow
+                    // followFlow is used by IfConditionTask to handle 'else'
 
-                  const observer = {
-                    complete: () => {
-                      this.services.logMessage('Completed observable for ', nodeInstance.name);
-                      tempPayload = null;
-                      callstackInstance = null;
-                    },
-                    error: (err: any) => {
-                      FlowEventRunnerHelper.callMiddleware(
-                        this.middleware,
-                        'error',
-                        nodeInstance.id,
-                        nodeInstance.name,
-                        node.taskType,
-                        tempPayload,
-                        new Date(),
-                      );
-
-                      nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
-                      emitToError(nodeInstance, newCallStack);
-                      tempPayload = null;
-                      callstackInstance = null;
-                    },
-                    next: (incomingPayload: any) => {
-                      FlowEventRunnerHelper.callMiddleware(
-                        this.middleware,
-                        'ok',
-                        nodeInstance.id,
-                        nodeInstance.name,
-                        node.taskType,
-                        { ...incomingPayload },
-                        new Date(),
-                      );
-
-                      nodeInstance.payload = incomingPayload.payload ? incomingPayload.payload : incomingPayload;
-                      emitToOutputs(nodeInstance, newCallStack);
-
-                      tempPayload = null;
-                      callstackInstance = null;
-                      newCallStack = null;
-                    },
-                  };
-
-                  if (node.subscription) {
-                    node.subscription.unsubscribe();
-                    node.subscription = null;
+                    if (nodeInstance.payload._forwardFollowFlow !== undefined) {
+                      nodeInstance.payload.followFlow = nodeInstance.payload._forwardFollowFlow;
+                    }
                   }
+                  nodeInstance.payload._forwardFollowFlow = undefined;
 
-                  node.subscription = result.subscribe(observer);
-                } else if (typeof result === 'object' && typeof result.then === 'function') {
-                  // Promise
-                  result
-                    .then((incomingPayload: any) => {
-                      FlowEventRunnerHelper.callMiddleware(
-                        this.middleware,
-                        'ok',
-                        nodeInstance.id,
-                        nodeInstance.name,
-                        node.taskType,
-                        { ...incomingPayload },
-                        new Date(),
-                      );
+                  const result = pluginInstance.execute(nodeInstance, this.services, newCallStack);
 
-                      nodeInstance.payload = { ...incomingPayload };
-                      emitToOutputs(nodeInstance, newCallStack);
+                  if (result instanceof Observable || result instanceof Subject) {
+                    if (pluginInstance.getObservable === undefined) {
+                      this.observables.push({
+                        name: nodeInstance.name || nodeInstance.title.replace(/ /g, ''),
+                        nodeId: nodeInstance.id,
+                        observable: result,
+                      });
+                    }
 
+                    if (node.isNodeObserved) {
+                      newCallStack = null;
                       tempPayload = null;
                       callstackInstance = null;
-                      newCallStack = null;
-                    })
-                    .catch((err: any) => {
-                      this.services.logMessage(err);
+                      return;
+                    }
 
-                      FlowEventRunnerHelper.callMiddleware(
-                        this.middleware,
-                        'error',
-                        nodeInstance.id,
-                        nodeInstance.name,
-                        node.taskType,
-                        nodeInstance.payload,
-                        new Date(),
-                      );
+                    node.isNodeObserved = true;
 
-                      nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
-                      emitToError(nodeInstance, newCallStack);
+                    const observer = {
+                      complete: () => {
+                        this.services.logMessage('Completed observable for ', nodeInstance.name);
+                        tempPayload = null;
+                        callstackInstance = null;
+                      },
+                      error: (err: any) => {
+                        FlowEventRunnerHelper.callMiddleware(
+                          this.middleware,
+                          'error',
+                          nodeInstance.id,
+                          nodeInstance.name,
+                          node.taskType,
+                          tempPayload,
+                          new Date(),
+                        );
 
-                      tempPayload = null;
-                      callstackInstance = null;
-                      newCallStack = null;
-                    });
-                } else if (typeof result === 'object') {
-                  FlowEventRunnerHelper.callMiddleware(
-                    this.middleware,
-                    'ok',
-                    nodeInstance.id,
-                    nodeInstance.name,
-                    node.taskType,
-                    result,
-                    new Date(),
-                  );
+                        nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
+                        emitToError(nodeInstance, newCallStack);
+                        tempPayload = null;
+                        callstackInstance = null;
+                      },
+                      next: (incomingPayload: any) => {
+                        FlowEventRunnerHelper.callMiddleware(
+                          this.middleware,
+                          'ok',
+                          nodeInstance.id,
+                          nodeInstance.name,
+                          node.taskType,
+                          { ...incomingPayload },
+                          new Date(),
+                        );
 
-                  nodeInstance.payload = { ...result };
-                  emitToOutputs(nodeInstance, newCallStack);
+                        nodeInstance.payload = incomingPayload.payload ? incomingPayload.payload : incomingPayload;
+                        emitToOutputs(nodeInstance, newCallStack);
 
-                  tempPayload = null;
-                  callstackInstance = null;
-                  newCallStack = null;
-                } else if (typeof result === 'boolean' && result === true) {
-                  FlowEventRunnerHelper.callMiddleware(
-                    this.middleware,
-                    'ok',
-                    nodeInstance.id,
-                    nodeInstance.name,
-                    node.taskType,
-                    nodeInstance.payload,
-                    new Date(),
-                  );
+                        tempPayload = null;
+                        callstackInstance = null;
+                        newCallStack = null;
+                      },
+                    };
 
-                  emitToOutputs(nodeInstance, newCallStack);
-                  tempPayload = null;
-                  callstackInstance = null;
-                  newCallStack = null;
-                } else if (typeof result === 'boolean' && result === false) {
-                  FlowEventRunnerHelper.callMiddleware(
-                    this.middleware,
-                    'error',
-                    nodeInstance.id,
-                    nodeInstance.name,
-                    node.taskType,
-                    nodeInstance.payload,
-                    new Date(),
-                  );
+                    if (node.subscription) {
+                      node.subscription.unsubscribe();
+                      node.subscription = null;
+                    }
 
-                  emitToError(nodeInstance, newCallStack);
+                    node.subscription = result.subscribe(observer);
+                  } else if (typeof result === 'object' && typeof result.then === 'function') {
+                    // Promise
+                    result
+                      .then((incomingPayload: any) => {
+                        FlowEventRunnerHelper.callMiddleware(
+                          this.middleware,
+                          'ok',
+                          nodeInstance.id,
+                          nodeInstance.name,
+                          node.taskType,
+                          { ...incomingPayload },
+                          new Date(),
+                        );
 
-                  newCallStack = null;
+                        nodeInstance.payload = { ...incomingPayload };
+                        emitToOutputs(nodeInstance, newCallStack);
+
+                        tempPayload = null;
+                        callstackInstance = null;
+                        newCallStack = null;
+                      })
+                      .catch((err: any) => {
+                        this.services.logMessage(err);
+
+                        FlowEventRunnerHelper.callMiddleware(
+                          this.middleware,
+                          'error',
+                          nodeInstance.id,
+                          nodeInstance.name,
+                          node.taskType,
+                          nodeInstance.payload,
+                          new Date(),
+                        );
+
+                        nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
+                        emitToError(nodeInstance, newCallStack);
+
+                        tempPayload = null;
+                        callstackInstance = null;
+                        newCallStack = null;
+                      });
+                  } else if (typeof result === 'object') {
+                    FlowEventRunnerHelper.callMiddleware(
+                      this.middleware,
+                      'ok',
+                      nodeInstance.id,
+                      nodeInstance.name,
+                      node.taskType,
+                      result,
+                      new Date(),
+                    );
+
+                    nodeInstance.payload = { ...result };
+                    emitToOutputs(nodeInstance, newCallStack);
+
+                    tempPayload = null;
+                    callstackInstance = null;
+                    newCallStack = null;
+                  } else if (typeof result === 'boolean' && result === true) {
+                    FlowEventRunnerHelper.callMiddleware(
+                      this.middleware,
+                      'ok',
+                      nodeInstance.id,
+                      nodeInstance.name,
+                      node.taskType,
+                      nodeInstance.payload,
+                      new Date(),
+                    );
+
+                    emitToOutputs(nodeInstance, newCallStack);
+                    tempPayload = null;
+                    callstackInstance = null;
+                    newCallStack = null;
+                  } else if (typeof result === 'boolean' && result === false) {
+                    FlowEventRunnerHelper.callMiddleware(
+                      this.middleware,
+                      'error',
+                      nodeInstance.id,
+                      nodeInstance.name,
+                      node.taskType,
+                      nodeInstance.payload,
+                      new Date(),
+                    );
+
+                    emitToError(nodeInstance, newCallStack);
+
+                    newCallStack = null;
+                    tempPayload = null;
+                    callstackInstance = null;
+                  }
+                } catch (err) {
+                  this.services.logMessage(err);
+                  const payloadForNotification = Object.assign({}, nodeInstance.payload);
+                  payloadForNotification.response = undefined;
+                  payloadForNotification.request = undefined;
+
+                  emitToError(nodeInstance, callstackInstance);
+
                   tempPayload = null;
                   callstackInstance = null;
                 }
-              } catch (err) {
-                this.services.logMessage(err);
-                const payloadForNotification = Object.assign({}, nodeInstance.payload);
-                payloadForNotification.response = undefined;
-                payloadForNotification.request = undefined;
 
-                emitToError(nodeInstance, callstackInstance);
-
-                tempPayload = null;
-                callstackInstance = null;
-              }
-
-              payloadInstance = null;
-            });
-          }, emitterOptions);
+                payloadInstance = null;
+              });
+            },
+            emitterOptions,
+          );
 
           return nodeInfo;
         }
