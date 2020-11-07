@@ -58,7 +58,9 @@ export class ReactiveEventEmitter {
       let subjectToSubscribe: any = this.subjects[nodeName];
       if (options) {
         if (options.isThrottling) {
-          subjectToSubscribe = subjectToSubscribe.pipe(throttle(val => interval(options.throttleInterval || this.throttle)));
+          subjectToSubscribe = subjectToSubscribe.pipe(
+            throttle(val => interval(options.throttleInterval || this.throttle)),
+          );
         }
         if (options.isSampling) {
           subjectToSubscribe = subjectToSubscribe.pipe(sample(interval(options.sampleInterval || this.sample)));
