@@ -6,7 +6,7 @@ import { BuildNodeInfoHelper } from './helpers/BuildNodeInfoHelper';
 import { EmitOutput } from './helpers/EmitOutput';
 import { FlowEventRunnerHelper } from './helpers/FlowEventRunnerHelper';
 import { InjectionHelper } from './helpers/InjectionHelper';
-import { ReactiveEventEmitter } from './helpers/ReactiveEventEmitter';
+import { IReactiveEventEmitterOptions, ReactiveEventEmitter } from './helpers/ReactiveEventEmitter';
 import { ActivationFunction } from './interfaces/FunctionTypes';
 import { IServicesInterface } from './interfaces/ServicesInterface';
 import { AssignTask } from './plugins/AssignTask';
@@ -42,6 +42,7 @@ type middlewareFunc = (result: any, id: any, title: any, nodeType: any, payload:
 
 export class FlowEventRunner {
   public services: IServicesInterface;
+  public throttle : number = 30;
 
   private nodeValues: any = {};
   private nodes: any;
@@ -80,6 +81,8 @@ export class FlowEventRunner {
 
   public createNodes = (nodeList: any[], autoStartNodes: boolean = false) => {
     this.flowEventEmitter = new ReactiveEventEmitter();
+    this.flowEventEmitter.throttle = this.throttle;
+
     const nodeEmitter = this.flowEventEmitter;
 
     nodeEmitter.on('error', this.errorListener);
@@ -188,6 +191,10 @@ export class FlowEventRunner {
 
           if (node.events) {
             node.events.map((event: any) => {
+              const options : IReactiveEventEmitterOptions = {
+                isThrottling: pluginInstance.isThrottling()
+              }
+
               nodeEmitter.on(node.id.toString() + '_' + event.eventName, (payload: any, callStack: any) => {
                 const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
                 const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
@@ -222,7 +229,7 @@ export class FlowEventRunner {
                   callStack,
                   event.eventName,
                 );
-              });
+              }, options);
             });
           }
 

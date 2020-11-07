@@ -1,6 +1,7 @@
 import * as FlowTaskPackageType from './FlowTaskPackageType';
 
 export class FlowTask {
+
   public execute(node: any, services?: any, callStack?: any): any {
     return true;
   }
@@ -92,6 +93,10 @@ export class FlowTask {
   }
 
   public isAttachedToStoreChanges() {
+    return false;
+  }
+
+  public isThrottling() {
     return false;
   }
 

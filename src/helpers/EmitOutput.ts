@@ -113,6 +113,7 @@ export class EmitOutput {
       */
 
       if (
+        !currentNodeInstance.resultProperties &&
         !currentNodeInstance.resultProperty &&
         typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
         currentNodeInstance.payload.followFlow
