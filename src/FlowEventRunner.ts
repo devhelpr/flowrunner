@@ -189,12 +189,15 @@ export class FlowEventRunner {
             nodeEmitter.registerNodeControllers(node);
           }
 
+          const options: IReactiveEventEmitterOptions = {
+            isSampling: !!node.isSampling || (pluginInstance.isSampling && pluginInstance.isSampling(node)),
+            isThrottling: !!node.isThrottling || (pluginInstance.isThrottling && pluginInstance.isThrottling(node)),
+            sampleInterval: node.sampleInterval,
+            throttleInterval: node.throttleInterval
+          };
+
           if (node.events) {
             node.events.map((event: any) => {
-              const options: IReactiveEventEmitterOptions = {
-                isSampling: pluginInstance.isSampling(),
-                isThrottling: pluginInstance.isThrottling(),
-              };
 
               nodeEmitter.on(
                 node.id.toString() + '_' + event.eventName,
@@ -237,11 +240,6 @@ export class FlowEventRunner {
               );
             });
           }
-
-          const emitterOptions: IReactiveEventEmitterOptions = {
-            isSampling: pluginInstance.isSampling(),
-            isThrottling: pluginInstance.isThrottling(),
-          };
 
           nodeEmitter.on(
             node.id.toString(),
@@ -525,7 +523,7 @@ export class FlowEventRunner {
                 payloadInstance = null;
               });
             },
-            emitterOptions,
+            options,
           );
 
           return nodeInfo;
