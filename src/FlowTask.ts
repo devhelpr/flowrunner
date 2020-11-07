@@ -95,6 +95,10 @@ export class FlowTask {
     return false;
   }
 
+  public isSampling() {
+    return false;
+  }
+  
   public isThrottling() {
     return false;
   }

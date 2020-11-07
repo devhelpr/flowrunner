@@ -192,7 +192,8 @@ export class FlowEventRunner {
           if (node.events) {
             node.events.map((event: any) => {
               const options: IReactiveEventEmitterOptions = {
-                isThrottling: pluginInstance.isThrottling(),
+                isSampling: pluginInstance.isSampling(),
+                isThrottling: pluginInstance.isThrottling()
               };
 
               nodeEmitter.on(

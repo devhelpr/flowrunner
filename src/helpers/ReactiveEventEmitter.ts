@@ -1,9 +1,10 @@
 import { BehaviorSubject, Subject } from '@reactivex/rxjs';
 import { interval } from 'rxjs';
-import { throttle } from 'rxjs/operators';
+import { sample, throttle } from 'rxjs/operators';
 
 export interface IReactiveEventEmitterOptions {
   isThrottling: boolean;
+  isSampling : boolean;
 }
 /*
 
@@ -18,6 +19,7 @@ export interface IReactiveEventEmitterOptions {
 */
 export class ReactiveEventEmitter {
   public isPaused: boolean = false;
+  public sample: number = 30;
   public throttle: number = 30;
 
   private nodesListeners: any = {};
@@ -51,6 +53,9 @@ export class ReactiveEventEmitter {
       if (options) {
         if (options.isThrottling) {
           subject = subject.pipe(throttle(val => interval(this.throttle)));
+        }
+        if (options.isSampling) {
+          subject = subject.pipe(sample(interval(this.sample)));
         }
       }
 
