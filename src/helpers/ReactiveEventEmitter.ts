@@ -50,20 +50,22 @@ export class ReactiveEventEmitter {
     this.nodesListeners[nodeName].push(listener);
 
     if (typeof this.subjects[nodeName] !== 'object') {
-      let subject: any = new Subject();
+      const subject: any = new Subject();
+      this.subjects[nodeName] = subject;
 
+      const self: any = this;
+
+      let subjectToSubscribe: any = this.subjects[nodeName];
       if (options) {
         if (options.isThrottling) {
-          subject = subject.pipe(throttle(val => interval(options.throttleInterval || this.throttle)));
+          subjectToSubscribe = subjectToSubscribe.pipe(throttle(val => interval(options.throttleInterval || this.throttle)));
         }
         if (options.isSampling) {
-          subject = subject.pipe(sample(interval(options.sampleInterval || this.sample)));
+          subjectToSubscribe = subjectToSubscribe.pipe(sample(interval(options.sampleInterval || this.sample)));
         }
       }
 
-      this.subjects[nodeName] = subject;
-      const self: any = this;
-      this.subscriptions[nodeName] = this.subjects[nodeName].subscribe({
+      this.subscriptions[nodeName] = subjectToSubscribe.subscribe({
         next: (data: any) => {
           if (typeof self.nodesListeners[nodeName] === 'object') {
             const length = self.nodesListeners[nodeName].length;
