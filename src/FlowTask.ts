@@ -98,7 +98,7 @@ export class FlowTask {
   public isSampling() {
     return false;
   }
-  
+
   public isThrottling() {
     return false;
   }

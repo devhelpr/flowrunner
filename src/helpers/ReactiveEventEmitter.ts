@@ -4,7 +4,7 @@ import { sample, throttle } from 'rxjs/operators';
 
 export interface IReactiveEventEmitterOptions {
   isThrottling: boolean;
-  isSampling : boolean;
+  isSampling: boolean;
 }
 /*
 
