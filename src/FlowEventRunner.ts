@@ -193,12 +193,11 @@ export class FlowEventRunner {
             isSampling: !!node.isSampling || (pluginInstance.isSampling && pluginInstance.isSampling(node)),
             isThrottling: !!node.isThrottling || (pluginInstance.isThrottling && pluginInstance.isThrottling(node)),
             sampleInterval: node.sampleInterval,
-            throttleInterval: node.throttleInterval
+            throttleInterval: node.throttleInterval,
           };
 
           if (node.events) {
             node.events.map((event: any) => {
-
               nodeEmitter.on(
                 node.id.toString() + '_' + event.eventName,
                 (payload: any, callStack: any) => {

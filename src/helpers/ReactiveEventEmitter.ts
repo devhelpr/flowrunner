@@ -5,8 +5,8 @@ import { sample, throttle } from 'rxjs/operators';
 export interface IReactiveEventEmitterOptions {
   isThrottling: boolean;
   isSampling: boolean;
-  sampleInterval? : number;
-  throttleInterval? : number;
+  sampleInterval?: number;
+  throttleInterval?: number;
 }
 /*
 
