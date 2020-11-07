@@ -238,6 +238,11 @@ export class FlowEventRunner {
             });
           }
 
+          const emitterOptions: IReactiveEventEmitterOptions = {
+            isSampling: pluginInstance.isSampling(),
+            isThrottling: pluginInstance.isThrottling(),
+          };
+
           nodeEmitter.on(node.id.toString(), (payload: any, callStack: any) => {
             const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
             let payloadInstance = { ...payload };
@@ -511,7 +516,7 @@ export class FlowEventRunner {
 
               payloadInstance = null;
             });
-          });
+          }, emitterOptions);
 
           return nodeInfo;
         }
