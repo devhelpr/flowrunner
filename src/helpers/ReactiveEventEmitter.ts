@@ -2,9 +2,8 @@ import { BehaviorSubject, Subject } from '@reactivex/rxjs';
 import { interval } from 'rxjs';
 import { throttle } from 'rxjs/operators';
 
-
 export interface IReactiveEventEmitterOptions {
-  isThrottling : boolean
+  isThrottling: boolean;
 }
 /*
 
@@ -19,7 +18,7 @@ export interface IReactiveEventEmitterOptions {
 */
 export class ReactiveEventEmitter {
   public isPaused: boolean = false;
-  public throttle : number = 30;
+  public throttle: number = 30;
 
   private nodesListeners: any = {};
   private subjects: any = {};
@@ -39,7 +38,7 @@ export class ReactiveEventEmitter {
     this.isPaused = false;
   };
 
-  public on = (nodeName: any, listener: any, options? : IReactiveEventEmitterOptions) => {
+  public on = (nodeName: any, listener: any, options?: IReactiveEventEmitterOptions) => {
     if (typeof this.nodesListeners[nodeName] !== 'object') {
       this.nodesListeners[nodeName] = [];
     }
@@ -47,7 +46,7 @@ export class ReactiveEventEmitter {
     this.nodesListeners[nodeName].push(listener);
 
     if (typeof this.subjects[nodeName] !== 'object') {
-      let subject : any = new Subject();
+      let subject: any = new Subject();
 
       if (options) {
         if (options.isThrottling) {

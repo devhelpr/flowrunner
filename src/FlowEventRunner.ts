@@ -42,7 +42,7 @@ type middlewareFunc = (result: any, id: any, title: any, nodeType: any, payload:
 
 export class FlowEventRunner {
   public services: IServicesInterface;
-  public throttle : number = 30;
+  public throttle: number = 30;
 
   private nodeValues: any = {};
   private nodes: any;
@@ -191,45 +191,49 @@ export class FlowEventRunner {
 
           if (node.events) {
             node.events.map((event: any) => {
-              const options : IReactiveEventEmitterOptions = {
-                isThrottling: pluginInstance.isThrottling()
-              }
+              const options: IReactiveEventEmitterOptions = {
+                isThrottling: pluginInstance.isThrottling(),
+              };
 
-              nodeEmitter.on(node.id.toString() + '_' + event.eventName, (payload: any, callStack: any) => {
-                const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
-                const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
+              nodeEmitter.on(
+                node.id.toString() + '_' + event.eventName,
+                (payload: any, callStack: any) => {
+                  const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
+                  const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
 
-                // copy the current node info but DONT include its outputs...
-                const eventNodeInfo = { ...nodeInfo };
-                if (eventNodeInfo.outputs) {
-                  delete eventNodeInfo.outputs;
-                }
-                if (eventNodeInfo.error) {
-                  delete eventNodeInfo.error;
-                }
-                // only add the connections which are the actual event...
-                eventNodeInfo.outputs = nodeList.filter(
-                  (o: any) =>
-                    o.startshapeid === node.id.toString() &&
-                    o.taskType === 'connection' &&
-                    o.followflow !== 'onfailure' &&
-                    o.followflow !== 'followManually' &&
-                    o.followflow !== 'injectConfigIntoPayload' &&
-                    o.event === event.eventName,
-                );
+                  // copy the current node info but DONT include its outputs...
+                  const eventNodeInfo = { ...nodeInfo };
+                  if (eventNodeInfo.outputs) {
+                    delete eventNodeInfo.outputs;
+                  }
+                  if (eventNodeInfo.error) {
+                    delete eventNodeInfo.error;
+                  }
+                  // only add the connections which are the actual event...
+                  eventNodeInfo.outputs = nodeList.filter(
+                    (o: any) =>
+                      o.startshapeid === node.id.toString() &&
+                      o.taskType === 'connection' &&
+                      o.followflow !== 'onfailure' &&
+                      o.followflow !== 'followManually' &&
+                      o.followflow !== 'injectConfigIntoPayload' &&
+                      o.event === event.eventName,
+                  );
 
-                eventNodeInfo.error = [];
+                  eventNodeInfo.error = [];
 
-                nodeInstance.payload = Object.assign({}, payload);
-                EmitOutput.emitToOutputs(
-                  nodePluginInfo,
-                  nodeEmitter,
-                  eventNodeInfo,
-                  nodeInstance,
-                  callStack,
-                  event.eventName,
-                );
-              }, options);
+                  nodeInstance.payload = Object.assign({}, payload);
+                  EmitOutput.emitToOutputs(
+                    nodePluginInfo,
+                    nodeEmitter,
+                    eventNodeInfo,
+                    nodeInstance,
+                    callStack,
+                    event.eventName,
+                  );
+                },
+                options,
+              );
             });
           }
 
