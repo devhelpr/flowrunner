@@ -95,7 +95,7 @@ export class FlowTask {
     return false;
   }
 
-  public isSampling(node? : any) {
+  public isSampling(node?: any) {
     return false;
   }
 
