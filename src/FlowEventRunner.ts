@@ -47,6 +47,8 @@ export class FlowEventRunner {
   private nodeValues: any = {};
   private nodes: any;
   private nodeNames: string[] = [];
+  private nodeState : any = {};
+
   private flowEventEmitter: any;
   private tasks: any = {};
 
@@ -349,6 +351,10 @@ export class FlowEventRunner {
                   }
                   nodeInstance.payload._forwardFollowFlow = undefined;
 
+                  this.nodeState[nodeInstance.name] = {
+                    hasError : false
+                  }
+
                   const result = pluginInstance.execute(nodeInstance, this.services, newCallStack);
 
                   if (result instanceof Observable || result instanceof Subject) {
@@ -385,6 +391,10 @@ export class FlowEventRunner {
                           tempPayload,
                           new Date(),
                         );
+
+                        this.nodeState[nodeInstance.name] = {
+                          hasError : true
+                        }
 
                         nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
                         emitToError(nodeInstance, newCallStack);
@@ -440,6 +450,10 @@ export class FlowEventRunner {
                       })
                       .catch((err: any) => {
                         this.services.logMessage(err);
+                        
+                        this.nodeState[nodeInstance.name] = {
+                          hasError : true
+                        }
 
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
@@ -491,6 +505,11 @@ export class FlowEventRunner {
                     callstackInstance = null;
                     newCallStack = null;
                   } else if (typeof result === 'boolean' && result === false) {
+
+                    this.nodeState[nodeInstance.name] = {
+                      hasError : true
+                    }
+
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
                       'error',
@@ -545,11 +564,18 @@ export class FlowEventRunner {
   };
 
   public destroyFlow = () => {
-    this.flowEventEmitter.removeListener('error');
+    if (this.flowEventEmitter) {
+      this.flowEventEmitter.removeListener('error');
+    }
+    if (this.nodeState) {
+      this.nodeState = {};
+    }
     if (this.nodes) {
       this.nodes.map((nodeInfo: any) => {
         if (nodeInfo && nodeInfo.nodeId) {
-          this.flowEventEmitter.removeListener(nodeInfo.nodeId);
+          if (this.flowEventEmitter) {
+            this.flowEventEmitter.removeListener(nodeInfo.nodeId);
+          }
         }
         if (nodeInfo && nodeInfo.subscription) {
           nodeInfo.subscription.unsubscribe();
@@ -838,6 +864,10 @@ export class FlowEventRunner {
     }
     return undefined;
   };
+
+  public getNodeState(nodeName : string) {
+    return this.nodeState[nodeName] || {};
+  }
 
   public pauseFlowrunner = () => {
     this.flowEventEmitter.pauseFlowrunner();
