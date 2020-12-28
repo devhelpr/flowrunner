@@ -404,8 +404,7 @@ export class FlowEventRunner {
                       next: (incomingPayload: any) => {
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
-                          incomingPayload && 
-                          incomingPayload.followFlow === 'isError' ? 'error' : 'ok',
+                          incomingPayload && incomingPayload.followFlow === 'isError' ? 'error' : 'ok',
                           nodeInstance.id,
                           nodeInstance.name,
                           node.taskType,
