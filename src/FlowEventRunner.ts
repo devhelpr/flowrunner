@@ -47,7 +47,7 @@ export class FlowEventRunner {
   private nodeValues: any = {};
   private nodes: any;
   private nodeNames: string[] = [];
-  private nodeState : any = {};
+  private nodeState: any = {};
 
   private flowEventEmitter: any;
   private tasks: any = {};
@@ -352,8 +352,8 @@ export class FlowEventRunner {
                   nodeInstance.payload._forwardFollowFlow = undefined;
 
                   this.nodeState[nodeInstance.name] = {
-                    hasError : false
-                  }
+                    hasError: false,
+                  };
 
                   const result = pluginInstance.execute(nodeInstance, this.services, newCallStack);
 
@@ -393,8 +393,8 @@ export class FlowEventRunner {
                         );
 
                         this.nodeState[nodeInstance.name] = {
-                          hasError : true
-                        }
+                          hasError: true,
+                        };
 
                         nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
                         emitToError(nodeInstance, newCallStack);
@@ -450,10 +450,10 @@ export class FlowEventRunner {
                       })
                       .catch((err: any) => {
                         this.services.logMessage(err);
-                        
+
                         this.nodeState[nodeInstance.name] = {
-                          hasError : true
-                        }
+                          hasError: true,
+                        };
 
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
@@ -505,10 +505,9 @@ export class FlowEventRunner {
                     callstackInstance = null;
                     newCallStack = null;
                   } else if (typeof result === 'boolean' && result === false) {
-
                     this.nodeState[nodeInstance.name] = {
-                      hasError : true
-                    }
+                      hasError: true,
+                    };
 
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
@@ -865,7 +864,7 @@ export class FlowEventRunner {
     return undefined;
   };
 
-  public getNodeState(nodeName : string) {
+  public getNodeState(nodeName: string) {
     return this.nodeState[nodeName] || {};
   }
 
