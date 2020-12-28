@@ -433,7 +433,7 @@ export class FlowEventRunner {
                       .then((incomingPayload: any) => {
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
-                          'ok',
+                          incomingPayload && incomingPayload.followFlow === 'isError' ? 'error' : 'ok',
                           nodeInstance.id,
                           nodeInstance.name,
                           node.taskType,
@@ -475,7 +475,7 @@ export class FlowEventRunner {
                   } else if (typeof result === 'object') {
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
-                      'ok',
+                      result && result.followFlow === 'isError' ? 'error' : 'ok',
                       nodeInstance.id,
                       nodeInstance.name,
                       node.taskType,
