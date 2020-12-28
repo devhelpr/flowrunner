@@ -2,6 +2,7 @@ import * as moment from 'moment';
 import * as uuid from 'uuid';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
+import { replaceValues } from '../helpers/replace-values';
 import { IServicesInterface } from '../interfaces/ServicesInterface';
 
 const uuidV4 = uuid.v4;
@@ -24,6 +25,8 @@ export class AssignTask extends FlowTask {
           value = uuidV4().toString();
         } else if (value === '[NOW]') {
           value = moment().toISOString();
+        } else if (!!node.replaceValues) {
+          value = replaceValues(value, node.payload, false);
         }
 
         if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
