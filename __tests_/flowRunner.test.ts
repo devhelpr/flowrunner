@@ -309,6 +309,39 @@ const testAssignTaskWithTemplateValues = async () => {
 	return value;
 }
 
+const testRetriggerNode = async () => {
+	const flowEventRunner = new FlowEventRunner();
+
+	const humanFlowPackage = {
+		flow : [
+			{
+				"taskType": "AssignTask",
+				"name":"assign",
+				"assignToProperty":"abc",
+				"value" : "abcdef",				
+				"_outputs":["assign2"]			
+			},
+			{
+				"taskType": "AssignTask",
+				"name":"assign2",
+				"assignToProperty":"def",
+				"value" : "ghij",				
+				"_outputs":[]		
+			}
+		]
+	}
+
+	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
+	let value : boolean = false;
+	await flowEventRunner.start(flowPackage).then(async () => {
+		await flowEventRunner.executeNode("assign", {});
+		let result : any = await flowEventRunner.retriggerNode("assign2");
+		console.log("testRetriggerNode", JSON.stringify(humanFlowPackage), result);
+		value = (result.abc == "abcdef" && result.def == "ghij");
+	});
+	return value;
+}
+
 test('testBasicFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testBasicFlow();
@@ -360,5 +393,11 @@ test('testAssignTaskWithTemplateValues', async () => {
 	let value : boolean = await testAssignTaskWithTemplateValues();
 	expect(value).toBe(true);
 })
+
+test('testRetriggerNode', async () => {
+	let value : boolean = await testRetriggerNode();
+	expect(value).toBe(true);
+})
+
 
 
