@@ -48,7 +48,7 @@ export class FlowEventRunner {
   private nodes: any;
   private nodeNames: string[] = [];
   private nodeState: any = {};
-  private nodeLastPayload : any = {};
+  private nodeLastPayload: any = {};
 
   private flowEventEmitter: any;
   private tasks: any = {};
@@ -356,7 +356,7 @@ export class FlowEventRunner {
                     hasError: false,
                   };
 
-                  this.nodeLastPayload[node.name] = {...nodeInstance.payload};
+                  this.nodeLastPayload[node.name] = { ...nodeInstance.payload };
 
                   const result = pluginInstance.execute(nodeInstance, this.services, newCallStack);
 
@@ -405,7 +405,6 @@ export class FlowEventRunner {
                         callstackInstance = null;
                       },
                       next: (incomingPayload: any) => {
-
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
                           incomingPayload && incomingPayload.followFlow === 'isError' ? 'error' : 'ok',
@@ -435,7 +434,6 @@ export class FlowEventRunner {
                     // Promise
                     result
                       .then((incomingPayload: any) => {
-
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
                           incomingPayload && incomingPayload.followFlow === 'isError' ? 'error' : 'ok',
@@ -478,7 +476,6 @@ export class FlowEventRunner {
                         newCallStack = null;
                       });
                   } else if (typeof result === 'object') {
-
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
                       result && result.followFlow === 'isError' ? 'error' : 'ok',
@@ -575,7 +572,7 @@ export class FlowEventRunner {
     if (this.nodeState) {
       this.nodeState = {};
     }
-    
+
     if (this.nodeLastPayload) {
       this.nodeLastPayload = {};
     }
@@ -628,10 +625,10 @@ export class FlowEventRunner {
     return this.executeNode(nodeName, payload, undefined, eventName);
   };
 
-  public retriggerNode = (nodeName : any) => {
+  public retriggerNode = (nodeName: any) => {
     const payload = this.nodeLastPayload[nodeName] || {};
-    return this.executeNode(nodeName, payload , undefined);
-  }
+    return this.executeNode(nodeName, payload, undefined);
+  };
 
   public executeNode = (nodeName: any, payload: any, callStack?: any, eventName?: string) => {
     if (!this.nodeNames[nodeName]) {
