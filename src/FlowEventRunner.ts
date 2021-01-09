@@ -441,6 +441,11 @@ export class FlowEventRunner {
                     // Promise
                     result
                       .then((incomingPayload: any) => {
+
+                        nodeInstance.payload = { ...incomingPayload };
+                        emitToOutputs(nodeInstance, newCallStack);
+
+
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
                           incomingPayload && incomingPayload.followFlow === 'isError' ? 'error' : 'ok',
@@ -451,9 +456,7 @@ export class FlowEventRunner {
                           new Date(),
                         );
 
-                        nodeInstance.payload = { ...incomingPayload };
-                        emitToOutputs(nodeInstance, newCallStack);
-
+                        
                         tempPayload = null;
                         callstackInstance = null;
                         newCallStack = null;
@@ -465,6 +468,9 @@ export class FlowEventRunner {
                           hasError: true,
                         };
 
+                        nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
+                        emitToError(nodeInstance, newCallStack);
+
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
                           'error',
@@ -475,14 +481,15 @@ export class FlowEventRunner {
                           new Date(),
                         );
 
-                        nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
-                        emitToError(nodeInstance, newCallStack);
-
                         tempPayload = null;
                         callstackInstance = null;
                         newCallStack = null;
                       });
                   } else if (typeof result === 'object') {
+
+                    nodeInstance.payload = { ...result };
+                    emitToOutputs(nodeInstance, newCallStack);
+
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
                       result && result.followFlow === 'isError' ? 'error' : 'ok',
@@ -492,14 +499,14 @@ export class FlowEventRunner {
                       result,
                       new Date(),
                     );
-
-                    nodeInstance.payload = { ...result };
-                    emitToOutputs(nodeInstance, newCallStack);
-
+                  
                     tempPayload = null;
                     callstackInstance = null;
                     newCallStack = null;
                   } else if (typeof result === 'boolean' && result === true) {
+                    
+                    emitToOutputs(nodeInstance, newCallStack);
+
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
                       'ok',
@@ -509,8 +516,7 @@ export class FlowEventRunner {
                       nodeInstance.payload,
                       new Date(),
                     );
-
-                    emitToOutputs(nodeInstance, newCallStack);
+                    
                     tempPayload = null;
                     callstackInstance = null;
                     newCallStack = null;
@@ -518,6 +524,8 @@ export class FlowEventRunner {
                     this.nodeState[nodeInstance.name] = {
                       hasError: true,
                     };
+
+                    emitToError(nodeInstance, newCallStack);
 
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
@@ -527,9 +535,7 @@ export class FlowEventRunner {
                       node.taskType,
                       nodeInstance.payload,
                       new Date(),
-                    );
-
-                    emitToError(nodeInstance, newCallStack);
+                    );                  
 
                     newCallStack = null;
                     tempPayload = null;
