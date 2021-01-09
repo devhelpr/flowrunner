@@ -898,6 +898,10 @@ export class FlowEventRunner {
     return (this.touchedNodes[nodeName] as boolean) || false;
   }
 
+  public getTouchedNodes(): any {
+    return this.touchedNodes || {};
+  }
+
   public pauseFlowrunner = () => {
     this.flowEventEmitter.pauseFlowrunner();
   };
