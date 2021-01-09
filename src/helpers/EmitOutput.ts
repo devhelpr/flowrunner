@@ -200,7 +200,14 @@ export class EmitOutput {
             currentNodeInstance.payload.followFlow = undefined;
             delete currentNodeInstance.payload.followFlow;
           }
-          EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack, flowEventRunner);
+          EmitOutput.emitToError(
+            nodePluginInfo,
+            nodeEmitter,
+            nodeInfo,
+            currentNodeInstance,
+            currentCallStack,
+            flowEventRunner,
+          );
           return;
         }
       }
@@ -320,7 +327,7 @@ export class EmitOutput {
     nodeInfo: any,
     currentNodeInstance: any,
     currentCallStack: any,
-    flowEventRunner: any
+    flowEventRunner: any,
   ) {
     if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
       const newPayload = Object.assign({}, currentNodeInstance.payload);

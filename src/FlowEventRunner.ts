@@ -324,7 +324,14 @@ export class FlowEventRunner {
                 }
 
                 function emitToError(currentNodeInstance: any, currentCallStack: any) {
-                  EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack, flowEventRunner);
+                  EmitOutput.emitToError(
+                    nodePluginInfo,
+                    nodeEmitter,
+                    nodeInfo,
+                    currentNodeInstance,
+                    currentCallStack,
+                    flowEventRunner,
+                  );
                 }
 
                 try {
