@@ -71,7 +71,8 @@ export class EmitOutput {
     nodeInfo: any,
     currentNodeInstance: any,
     currentCallStack: any,
-    eventName?: string,
+    flowEventRunner: any,
+    eventName?: string
   ) {
     let followFlow = '';
 
@@ -123,6 +124,7 @@ export class EmitOutput {
           if (typeof currentCallStack.error !== 'undefined') {
             const upperCallStack = currentCallStack.callStack;
             currentCallStack.error.map((outputNode: any) => {
+              flowEventRunner.touchedNodes[outputNode.name] = true;
               nodeEmitter.emit(
                 outputNode.endshapeid.toString(),
                 { ...upperCallStack.newPayload, ...newPayload },
@@ -140,6 +142,8 @@ export class EmitOutput {
         currentCallStack.outputs.map((nodeOutput: any) => {
           if (doesConnectionEmit(nodeOutput, currentNodeInstance, newPayload, eventName)) {
             nodeWasEmitted = true;
+            
+            flowEventRunner.touchedNodes[nodeOutput.name] = true;
 
             nodeEmitter.emit(
               nodeOutput.endshapeid.toString(),
@@ -152,6 +156,7 @@ export class EmitOutput {
         if (!nodeWasEmitted || currentCallStack.outputs.length === 0) {
           if (upperCallStack.outputs !== undefined) {
             upperCallStack.outputs.map((outputNode: any) => {
+              flowEventRunner.touchedNodes[outputNode.name] = true;
               nodeEmitter.emit(
                 outputNode.endshapeid.toString(),
                 { ...upperCallStack.payload, ...newPayload },
@@ -257,6 +262,8 @@ export class EmitOutput {
           if (doesConnectionEmit(nodeOutput, currentNodeInstance, payload, eventName)) {
             nodeWasEmitted = true;
 
+            flowEventRunner.touchedNodes[nodeOutput.name] = true;
+
             // check if connection has controller
             // - controllers are only supported on direct connections from node to node
             //   ... so not yet on functions (although that would be useful as well)
@@ -296,6 +303,9 @@ export class EmitOutput {
           delete newPayload.followFlow;
           if (currentCallStack.outputs) {
             currentCallStack.outputs.map((outputNode: any) => {
+
+              flowEventRunner.touchedNodes[outputNode.name] = true;
+
               // todo : double check if this needs doesConnectionEmit
               nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
             });

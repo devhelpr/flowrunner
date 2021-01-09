@@ -7,7 +7,9 @@ jest.setTimeout(15000);
 const testDoesConnectionEmit = () => {
 	expect(doesConnectionEmit(
 		{
-			tag: "test"
+			tag: "test",
+			id:"testconnection",
+			name:"testconnection"
 		},
 		{
 			tag: "test", 

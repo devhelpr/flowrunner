@@ -62,6 +62,8 @@ export class FlowEventRunner {
   private observables: IRegisteredObservable[] = [];
   private activationFunctions: any;
 
+  private touchedNodes : any = {};
+
   constructor() {
     this.activationFunctions = [];
     this.services = {
@@ -200,6 +202,7 @@ export class FlowEventRunner {
           };
 
           if (node.events) {
+            const flowEventRunner = this;
             node.events.map((event: any) => {
               nodeEmitter.on(
                 node.id.toString() + '_' + event.eventName,
@@ -235,6 +238,7 @@ export class FlowEventRunner {
                     eventNodeInfo,
                     nodeInstance,
                     callStack,
+                    flowEventRunner,
                     event.eventName,
                   );
                 },
@@ -290,6 +294,8 @@ export class FlowEventRunner {
                 this.middleware,
               );
 
+              const flowEventRunner = this;
+
               Promise.all(injectionPromises).then(() => {
                 // nodeInstance contains the payload and is the current instance of the node which
                 // is used to execute the plugin on.
@@ -305,7 +311,7 @@ export class FlowEventRunner {
                 }
 
                 this.services.logMessage('EVENT Received for node: ', nodeInfo.name, node.id.toString());
-
+                
                 function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
                   EmitOutput.emitToOutputs(
                     nodePluginInfo,
@@ -313,6 +319,7 @@ export class FlowEventRunner {
                     nodeInfo,
                     currentNodeInstance,
                     currentCallStack,
+                    flowEventRunner
                   );
                 }
 
@@ -566,6 +573,11 @@ export class FlowEventRunner {
   };
 
   public destroyFlow = () => {
+    
+    if (this.touchedNodes) {
+      this.touchedNodes = {};
+    }
+
     if (this.flowEventEmitter) {
       this.flowEventEmitter.removeListener('error');
     }
@@ -798,6 +810,9 @@ export class FlowEventRunner {
     mergeWithDefaultPlugins: boolean = true,
     autoStartNodes = false,
   ) => {
+
+    this.touchedNodes = {};
+
     if (customServices !== undefined) {
       this.services = customServices;
       this.services.flowEventRunner = this;
@@ -879,6 +894,10 @@ export class FlowEventRunner {
 
   public getNodeState(nodeName: string) {
     return this.nodeState[nodeName] || {};
+  }
+
+  public getTouchedNodeState(nodeName: string) : boolean {
+    return (this.touchedNodes[nodeName] as boolean) || false;
   }
 
   public pauseFlowrunner = () => {

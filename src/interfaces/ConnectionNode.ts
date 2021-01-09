@@ -1,6 +1,8 @@
 import { ActivationFunction } from './FunctionTypes';
 
 export interface IConnectionNode {
+  id: string;
+  name: string;
   tag?: string;
   weight?: number;
   tagPropertyFromPayload?: string;
