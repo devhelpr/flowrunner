@@ -441,10 +441,8 @@ export class FlowEventRunner {
                     // Promise
                     result
                       .then((incomingPayload: any) => {
-
                         nodeInstance.payload = { ...incomingPayload };
                         emitToOutputs(nodeInstance, newCallStack);
-
 
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
@@ -456,7 +454,6 @@ export class FlowEventRunner {
                           new Date(),
                         );
 
-                        
                         tempPayload = null;
                         callstackInstance = null;
                         newCallStack = null;
@@ -486,7 +483,6 @@ export class FlowEventRunner {
                         newCallStack = null;
                       });
                   } else if (typeof result === 'object') {
-
                     nodeInstance.payload = { ...result };
                     emitToOutputs(nodeInstance, newCallStack);
 
@@ -499,12 +495,11 @@ export class FlowEventRunner {
                       result,
                       new Date(),
                     );
-                  
+
                     tempPayload = null;
                     callstackInstance = null;
                     newCallStack = null;
                   } else if (typeof result === 'boolean' && result === true) {
-                    
                     emitToOutputs(nodeInstance, newCallStack);
 
                     FlowEventRunnerHelper.callMiddleware(
@@ -516,7 +511,7 @@ export class FlowEventRunner {
                       nodeInstance.payload,
                       new Date(),
                     );
-                    
+
                     tempPayload = null;
                     callstackInstance = null;
                     newCallStack = null;
@@ -535,7 +530,7 @@ export class FlowEventRunner {
                       node.taskType,
                       nodeInstance.payload,
                       new Date(),
-                    );                  
+                    );
 
                     newCallStack = null;
                     tempPayload = null;
