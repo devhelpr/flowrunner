@@ -642,6 +642,9 @@ export class FlowEventRunner {
   };
 
   public executeNode = (nodeName: any, payload: any, callStack?: any, eventName?: string) => {
+    
+    this.touchedNodes = {};
+
     if (!this.nodeNames[nodeName]) {
       return new Promise((resolve, reject) => {
         reject();
