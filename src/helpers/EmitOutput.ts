@@ -200,7 +200,7 @@ export class EmitOutput {
             currentNodeInstance.payload.followFlow = undefined;
             delete currentNodeInstance.payload.followFlow;
           }
-          EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack);
+          EmitOutput.emitToError(nodePluginInfo, nodeEmitter, nodeInfo, currentNodeInstance, currentCallStack, flowEventRunner);
           return;
         }
       }
@@ -320,6 +320,7 @@ export class EmitOutput {
     nodeInfo: any,
     currentNodeInstance: any,
     currentCallStack: any,
+    flowEventRunner: any
   ) {
     if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
       const newPayload = Object.assign({}, currentNodeInstance.payload);
@@ -342,6 +343,7 @@ export class EmitOutput {
       }
 
       nodeInfo.error.map((currentNode: any) => {
+        flowEventRunner.touchedNodes[currentNode.name] = true;
         nodeEmitter.emit(currentNode.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
       });
 
@@ -356,6 +358,7 @@ export class EmitOutput {
         const newPayload = Object.assign({}, currentNodeInstance.payload);
         delete newPayload.followFlow;
         currentCallStack.error.map((outputNode: any) => {
+          flowEventRunner.touchedNodes[outputNode.name] = true;
           nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
         });
       }
