@@ -62,7 +62,7 @@ export class FlowEventRunner {
   private observables: IRegisteredObservable[] = [];
   private activationFunctions: any;
 
-  private touchedNodes : any = {};
+  private touchedNodes: any = {};
 
   constructor() {
     this.activationFunctions = [];
@@ -311,7 +311,7 @@ export class FlowEventRunner {
                 }
 
                 this.services.logMessage('EVENT Received for node: ', nodeInfo.name, node.id.toString());
-                
+
                 function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
                   EmitOutput.emitToOutputs(
                     nodePluginInfo,
@@ -319,7 +319,7 @@ export class FlowEventRunner {
                     nodeInfo,
                     currentNodeInstance,
                     currentCallStack,
-                    flowEventRunner
+                    flowEventRunner,
                   );
                 }
 
@@ -573,7 +573,6 @@ export class FlowEventRunner {
   };
 
   public destroyFlow = () => {
-    
     if (this.touchedNodes) {
       this.touchedNodes = {};
     }
@@ -810,7 +809,6 @@ export class FlowEventRunner {
     mergeWithDefaultPlugins: boolean = true,
     autoStartNodes = false,
   ) => {
-
     this.touchedNodes = {};
 
     if (customServices !== undefined) {
@@ -896,7 +894,7 @@ export class FlowEventRunner {
     return this.nodeState[nodeName] || {};
   }
 
-  public getTouchedNodeState(nodeName: string) : boolean {
+  public getTouchedNodeState(nodeName: string): boolean {
     return (this.touchedNodes[nodeName] as boolean) || false;
   }
 

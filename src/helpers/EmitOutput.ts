@@ -72,7 +72,7 @@ export class EmitOutput {
     currentNodeInstance: any,
     currentCallStack: any,
     flowEventRunner: any,
-    eventName?: string
+    eventName?: string,
   ) {
     let followFlow = '';
 
@@ -142,7 +142,7 @@ export class EmitOutput {
         currentCallStack.outputs.map((nodeOutput: any) => {
           if (doesConnectionEmit(nodeOutput, currentNodeInstance, newPayload, eventName)) {
             nodeWasEmitted = true;
-            
+
             flowEventRunner.touchedNodes[nodeOutput.name] = true;
 
             nodeEmitter.emit(
@@ -303,7 +303,6 @@ export class EmitOutput {
           delete newPayload.followFlow;
           if (currentCallStack.outputs) {
             currentCallStack.outputs.map((outputNode: any) => {
-
               flowEventRunner.touchedNodes[outputNode.name] = true;
 
               // todo : double check if this needs doesConnectionEmit
