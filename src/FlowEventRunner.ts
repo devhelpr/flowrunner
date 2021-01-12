@@ -399,7 +399,6 @@ export class FlowEventRunner {
                         callstackInstance = null;
                       },
                       error: (err: any) => {
-
                         this.nodeState[nodeInstance.name] = {
                           hasError: true,
                         };
@@ -421,7 +420,6 @@ export class FlowEventRunner {
                         callstackInstance = null;
                       },
                       next: (incomingPayload: any) => {
-                        
                         nodeInstance.payload = incomingPayload.payload ? incomingPayload.payload : incomingPayload;
                         emitToOutputs(nodeInstance, newCallStack);
 
@@ -434,7 +432,7 @@ export class FlowEventRunner {
                           { ...incomingPayload },
                           new Date(),
                         );
-                
+
                         tempPayload = null;
                         callstackInstance = null;
                         newCallStack = null;

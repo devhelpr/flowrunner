@@ -48,8 +48,10 @@ export class IfConditionTask extends FlowTask {
       field2 = objectToCheck;
     }
 
-    if (node.dontTriggerOnEmptyValues && 
-      (field1 === "" || field2 === "" || field1 === undefined || field2 === undefined)) {
+    if (
+      node.dontTriggerOnEmptyValues &&
+      (field1 === '' || field2 === '' || field1 === undefined || field2 === undefined)
+    ) {
       return false;
     }
 
