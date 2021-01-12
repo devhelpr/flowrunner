@@ -399,6 +399,14 @@ export class FlowEventRunner {
                         callstackInstance = null;
                       },
                       error: (err: any) => {
+
+                        this.nodeState[nodeInstance.name] = {
+                          hasError: true,
+                        };
+
+                        nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
+                        emitToError(nodeInstance, newCallStack);
+
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
                           'error',
@@ -409,16 +417,14 @@ export class FlowEventRunner {
                           new Date(),
                         );
 
-                        this.nodeState[nodeInstance.name] = {
-                          hasError: true,
-                        };
-
-                        nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
-                        emitToError(nodeInstance, newCallStack);
                         tempPayload = null;
                         callstackInstance = null;
                       },
                       next: (incomingPayload: any) => {
+                        
+                        nodeInstance.payload = incomingPayload.payload ? incomingPayload.payload : incomingPayload;
+                        emitToOutputs(nodeInstance, newCallStack);
+
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
                           incomingPayload && incomingPayload.followFlow === 'isError' ? 'error' : 'ok',
@@ -428,10 +434,7 @@ export class FlowEventRunner {
                           { ...incomingPayload },
                           new Date(),
                         );
-
-                        nodeInstance.payload = incomingPayload.payload ? incomingPayload.payload : incomingPayload;
-                        emitToOutputs(nodeInstance, newCallStack);
-
+                
                         tempPayload = null;
                         callstackInstance = null;
                         newCallStack = null;
