@@ -528,7 +528,8 @@ export class FlowEventRunner {
                       hasError: true,
                     };
 
-                    emitToError(nodeInstance, newCallStack);
+                    // todo : check and think about if this should not happen here
+                    // emitToError(nodeInstance, newCallStack);
 
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
