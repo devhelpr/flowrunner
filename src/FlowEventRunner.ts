@@ -889,7 +889,7 @@ export class FlowEventRunner {
 
   public setPropertyOnNode = (nodeName: string, propertyName: string, value: any, additionalValues: any) => {
     const nodeId: string = this.nodeNames[nodeName as any];
-    if (!additionalValues) {
+    if (additionalValues) {
       this.nodeValues[nodeId] = { ...this.nodeValues[nodeId], ...additionalValues };
     }
     if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
