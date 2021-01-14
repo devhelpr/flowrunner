@@ -887,8 +887,11 @@ export class FlowEventRunner {
     return metaData;
   };
 
-  public setPropertyOnNode = (nodeName: string, propertyName: string, value: any) => {
+  public setPropertyOnNode = (nodeName: string, propertyName: string, value: any, additionalValues : any) => {
     const nodeId: string = this.nodeNames[nodeName as any];
+    if (!additionalValues) {
+      this.nodeValues[nodeId] = {...this.nodeValues[nodeId], ...additionalValues};
+    }
     if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
       this.nodeValues[nodeId][propertyName] = value;
     }
