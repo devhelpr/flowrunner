@@ -976,6 +976,7 @@ export class FlowEventRunner {
     if (updatedNodes.indexOf(nodeInfo.nodeId) >= 0) {
       return;
     }
+    const updatedNodesList = [...updatedNodes, nodeInfo.nodeId];
     this.touchedNodes[nodeInfo.nodeId] = false;
     if (nodeInfo && nodeInfo.outputs) {
       nodeInfo.outputs.map((outputNode: any) => {
@@ -983,10 +984,7 @@ export class FlowEventRunner {
       });
 
       nodeInfo.outputs.map((outputNode: any) => {
-        this.resetTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], [
-          ...updatedNodes,
-          outputNode.endshapeid,
-        ]);
+        this.resetTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], updatedNodesList);
       });
     }
 
@@ -996,10 +994,7 @@ export class FlowEventRunner {
       });
 
       nodeInfo.error.map((outputNode: any) => {
-        this.resetTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], [
-          ...updatedNodes,
-          outputNode.endshapeid,
-        ]);
+        this.resetTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], updatedNodesList);
       });
     }
   };
