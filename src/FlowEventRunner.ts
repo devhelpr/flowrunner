@@ -375,7 +375,9 @@ export class FlowEventRunner {
 
                   this.nodeLastPayload[node.name] = { ...nodeInstance.payload };
 
-                  this.updateTouchedNodesPreExecute(nodeInfo, []);
+                  
+                  this.resetTouchedNodesPreExecute(nodeInfo, []);
+                  this.touchedNodes[nodeInfo.nodeId] = true;
 
                   const result = pluginInstance.execute(nodeInstance, this.services, newCallStack);
 
@@ -949,7 +951,7 @@ export class FlowEventRunner {
     return false;
   };
 
-  private updateTouchedNodesPreExecute = (nodeInfo: INodeInfo, updatedNodes: string[]) => {
+  private resetTouchedNodesPreExecute = (nodeInfo: INodeInfo, updatedNodes: string[]) => {
     /*
     - touchednodes bijwerken in de FlowEventRunner:
 		
@@ -975,14 +977,14 @@ export class FlowEventRunner {
     if (updatedNodes.indexOf(nodeInfo.nodeId) >= 0) {
       return;
     }
-    this.touchedNodes[nodeInfo.nodeId] = true;
+    this.touchedNodes[nodeInfo.nodeId] = false;
     if (nodeInfo && nodeInfo.outputs) {
       nodeInfo.outputs.map((outputNode: any) => {
         delete this.touchedNodes[outputNode.name];
       });
 
       nodeInfo.outputs.map((outputNode: any) => {
-        this.updateTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], [
+        this.resetTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], [
           ...updatedNodes,
           outputNode.endshapeid,
         ]);
@@ -995,7 +997,7 @@ export class FlowEventRunner {
       });
 
       nodeInfo.error.map((outputNode: any) => {
-        this.updateTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], [
+        this.resetTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], [
           ...updatedNodes,
           outputNode.endshapeid,
         ]);
