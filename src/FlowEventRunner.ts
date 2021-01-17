@@ -988,6 +988,19 @@ export class FlowEventRunner {
         ]);
       });
     }
+
+    if (nodeInfo && nodeInfo.error) {
+      nodeInfo.error.map((outputNode: any) => {
+        delete this.touchedNodes[outputNode.name];
+      });
+
+      nodeInfo.error.map((outputNode: any) => {
+        this.updateTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], [
+          ...updatedNodes,
+          outputNode.endshapeid,
+        ]);
+      });
+    }
   };
 
   private updateTouchedNodesPostExecute = (nodeInfo: INodeInfo, updatedNodes: string[]) => {
