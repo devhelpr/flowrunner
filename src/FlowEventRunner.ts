@@ -2,7 +2,7 @@ import { Observable, Subject } from '@reactivex/rxjs';
 import * as Promise from 'promise';
 import * as uuid from 'uuid';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
-import { BuildNodeInfoHelper } from './helpers/BuildNodeInfoHelper';
+import { BuildNodeInfoHelper, INodeInfo } from './helpers/BuildNodeInfoHelper';
 import { EmitOutput } from './helpers/EmitOutput';
 import { FlowEventRunnerHelper } from './helpers/FlowEventRunnerHelper';
 import { InjectionHelper } from './helpers/InjectionHelper';
@@ -63,6 +63,7 @@ export class FlowEventRunner {
   private activationFunctions: any;
 
   private touchedNodes: any = {};
+  private nodeInfoMap : any = {};
 
   constructor() {
     this.activationFunctions = [];
@@ -151,6 +152,8 @@ export class FlowEventRunner {
         // which nodes are used for injection on each run of a plugin
         const nodeInfo = BuildNodeInfoHelper.build(nodeList, node, nodePluginInfoMap, this.services);
         nodeInfo.pluginInstance = pluginInstance;
+
+        this.nodeInfoMap[node.id] = nodeInfo;
 
         this.nodeNames[node.name] = node.id;
 
@@ -372,6 +375,8 @@ export class FlowEventRunner {
 
                   this.nodeLastPayload[node.name] = { ...nodeInstance.payload };
 
+                  this.updateTouchedNodesPreExecute(nodeInfo, []);
+
                   const result = pluginInstance.execute(nodeInstance, this.services, newCallStack);
 
                   if (result instanceof Observable || result instanceof Subject) {
@@ -583,6 +588,8 @@ export class FlowEventRunner {
   };
 
   public destroyFlow = () => {
+    this.nodeInfoMap = {};
+
     if (this.touchedNodes) {
       this.touchedNodes = {};
     }
@@ -652,7 +659,7 @@ export class FlowEventRunner {
   };
 
   public executeNode = (nodeName: any, payload: any, callStack?: any, eventName?: string) => {
-    this.touchedNodes = {};
+    // this.touchedNodes = {};
 
     if (!this.nodeNames[nodeName]) {
       return new Promise((resolve, reject) => {
@@ -822,6 +829,7 @@ export class FlowEventRunner {
     autoStartNodes = false,
   ) => {
     this.touchedNodes = {};
+    this.nodeInfoMap = {};
 
     if (customServices !== undefined) {
       this.services = customServices;
@@ -940,4 +948,63 @@ export class FlowEventRunner {
     }
     return false;
   };
+
+  private updateTouchedNodesPreExecute = (nodeInfo : INodeInfo, updatedNodes : string[]) => {
+    /*
+    - touchednodes bijwerken in de FlowEventRunner:
+		
+			- touchednodes wordt alleen gereset bij volledig starten van flow (startFlow)
+			- voor node.execute
+				- set output node connections en ouput nodes als touched = false
+
+				- recursief door output nodes lopen (voorkom circulaire nodes door steeds lijst
+						van nodes die "geweest" zijn mee te sturen en als een node behandeld
+							wordt die al geweest is.. dan stoppen
+					) 
+
+					PROBLEEM : de output nodes zijn nog niet uitgevoerd als een parent
+            wordt uitgevoerd .. de kinderen worden natuurlijk van zelf uitgevoerd
+        - na elke node.execute:
+          - set current node als touched
+          - emitoutput zet de node-connections die aangeraakt zijn als touched
+
+    */
+    if (!nodeInfo) {
+      return;
+    }
+    if (updatedNodes.indexOf(nodeInfo.nodeId) >= 0) {
+      return;
+    }
+    this.touchedNodes[nodeInfo.nodeId] = true;
+    if (nodeInfo && nodeInfo.outputs) {
+      nodeInfo.outputs.map((outputNode : any) => {
+        delete this.touchedNodes[outputNode.name];
+      });
+
+      nodeInfo.outputs.map((outputNode : any) => {
+        this.updateTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], 
+          [...updatedNodes, outputNode.endshapeid]);
+      });
+    }
+  }
+
+  private updateTouchedNodesPostExecute = (nodeInfo : INodeInfo, updatedNodes : string[]) => {    
+    if (!nodeInfo) {
+      return;
+    }
+    if (updatedNodes.indexOf(nodeInfo.nodeId) >= 0) {
+      return;
+    }
+    this.touchedNodes[nodeInfo.nodeId] = true;
+    
+    /*nodeInfo.outputs?.map(outputNode => {
+      delete this.touchedNodes[outputNode.name];
+    });
+
+    nodeInfo.outputs?.map(outputNode => {
+      this.updateTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], 
+        [...updatedNodes, outputNode.endshapeid]);
+    });
+    */
+  }
 }
