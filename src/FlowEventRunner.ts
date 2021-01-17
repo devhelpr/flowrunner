@@ -375,7 +375,6 @@ export class FlowEventRunner {
 
                   this.nodeLastPayload[node.name] = { ...nodeInstance.payload };
 
-                  
                   this.resetTouchedNodesPreExecute(nodeInfo, []);
                   this.touchedNodes[nodeInfo.nodeId] = true;
 
