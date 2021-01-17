@@ -63,7 +63,7 @@ export class FlowEventRunner {
   private activationFunctions: any;
 
   private touchedNodes: any = {};
-  private nodeInfoMap : any = {};
+  private nodeInfoMap: any = {};
 
   constructor() {
     this.activationFunctions = [];
@@ -949,7 +949,7 @@ export class FlowEventRunner {
     return false;
   };
 
-  private updateTouchedNodesPreExecute = (nodeInfo : INodeInfo, updatedNodes : string[]) => {
+  private updateTouchedNodesPreExecute = (nodeInfo: INodeInfo, updatedNodes: string[]) => {
     /*
     - touchednodes bijwerken in de FlowEventRunner:
 		
@@ -977,18 +977,20 @@ export class FlowEventRunner {
     }
     this.touchedNodes[nodeInfo.nodeId] = true;
     if (nodeInfo && nodeInfo.outputs) {
-      nodeInfo.outputs.map((outputNode : any) => {
+      nodeInfo.outputs.map((outputNode: any) => {
         delete this.touchedNodes[outputNode.name];
       });
 
-      nodeInfo.outputs.map((outputNode : any) => {
-        this.updateTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], 
-          [...updatedNodes, outputNode.endshapeid]);
+      nodeInfo.outputs.map((outputNode: any) => {
+        this.updateTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], [
+          ...updatedNodes,
+          outputNode.endshapeid,
+        ]);
       });
     }
-  }
+  };
 
-  private updateTouchedNodesPostExecute = (nodeInfo : INodeInfo, updatedNodes : string[]) => {    
+  private updateTouchedNodesPostExecute = (nodeInfo: INodeInfo, updatedNodes: string[]) => {
     if (!nodeInfo) {
       return;
     }
@@ -996,7 +998,7 @@ export class FlowEventRunner {
       return;
     }
     this.touchedNodes[nodeInfo.nodeId] = true;
-    
+
     /*nodeInfo.outputs?.map(outputNode => {
       delete this.touchedNodes[outputNode.name];
     });
@@ -1006,5 +1008,5 @@ export class FlowEventRunner {
         [...updatedNodes, outputNode.endshapeid]);
     });
     */
-  }
+  };
 }
