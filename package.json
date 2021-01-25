@@ -6,18 +6,17 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest --no-cache --config jestconfig.json",
-    "build": "tsc",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "tslint -p tsconfig.json",
+    "build": "npm run format && tsc",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "npm run format && tslint -p tsconfig.json",
     "prepare": "npm run build",
-    "version": "npm run format && git add -A src",
+    "version": "git add -A src",
     "postversion": "git push && git push --tags"
   },
   "repository": "https://www.github.com/devhelpr/flowrunner",
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
-    "@reactivex/rxjs": "^6.4.0",
     "@types/uuid": "^3.4.4",
     "moment": "^2.24.0",
     "promise": "^8.0.2",
