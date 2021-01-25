@@ -2,7 +2,7 @@ export const replaceValues = (content: string, payload: any, keepUnknownFields: 
   let resultContent = content;
   const matches = resultContent.match(/{.+?}/g);
   if (matches) {
-    matches.map(match => {
+    matches.map((match) => {
       const matchValue = match.slice(1, -1);
       const splittedValues = matchValue.split(':');
       const variableName = splittedValues[0];
@@ -10,9 +10,7 @@ export const replaceValues = (content: string, payload: any, keepUnknownFields: 
       if (splittedValues.length > 1) {
         const format = splittedValues[1];
         if (format === 'currency') {
-          value = parseFloat(value)
-            .toFixed(2)
-            .replace('.', ',');
+          value = parseFloat(value).toFixed(2).replace('.', ',');
         } else if (format === 'integer') {
           value = parseFloat(value).toFixed(0);
         }

@@ -156,7 +156,7 @@ export class InjectIntoPayloadTask extends FlowTask {
           } else if (Array.isArray(value)) {
             let newValue = '';
 
-            (value as string[]).map(item => {
+            (value as string[]).map((item) => {
               if (newValue !== '') {
                 newValue += ',';
               }

@@ -50,7 +50,7 @@ export class BuildNodeInfoHelper {
             o.followflow !== 'followManually' &&
             o.followflow !== 'injectConfigIntoPayload',
         )
-        .map(connection => {
+        .map((connection) => {
           // todo check activationFunction and attach it here
           if (connection.activationFunction && services.getActivationFunction) {
             connection.activationFunction = services.getActivationFunction(connection.activationFunction);

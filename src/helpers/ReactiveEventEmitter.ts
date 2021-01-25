@@ -59,7 +59,7 @@ export class ReactiveEventEmitter {
       if (options) {
         if (options.isThrottling) {
           subjectToSubscribe = subjectToSubscribe.pipe(
-            throttle(val => interval(options.throttleInterval || this.throttle)),
+            throttle((val) => interval(options.throttleInterval || this.throttle)),
           );
         }
         if (options.isSampling) {
@@ -183,7 +183,7 @@ export class ReactiveEventEmitter {
               */
               const sendPayload: any = {};
               let emitToNode = true;
-              Object.keys(controllerObservables).map(key => {
+              Object.keys(controllerObservables).map((key) => {
                 emitToNode = emitToNode && controllerObservables[key].hasValue;
                 sendPayload[key] = payloadInstance[key];
               });

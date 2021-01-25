@@ -629,7 +629,7 @@ export class FlowEventRunner {
       });
     }
     this.nodes = [];
-    this.observables.map(observableHelper => {
+    this.observables.map((observableHelper) => {
       if (observableHelper && observableHelper.observable) {
         (observableHelper.observable as any).complete();
       }
@@ -734,7 +734,7 @@ export class FlowEventRunner {
           innerreject();
         }
       })
-        .then(localPayload => {
+        .then((localPayload) => {
           self.flowEventEmitter.removeListener(tempNodeId);
           self.flowEventEmitter.removeListener(tempErrorNodeId);
 
@@ -783,7 +783,7 @@ export class FlowEventRunner {
   };
 
   public getObservableNode = (nodeName: string) => {
-    const observables = this.observables.filter(observableNode => {
+    const observables = this.observables.filter((observableNode) => {
       return observableNode.name === nodeName;
     });
     return observables.length > 0 ? observables[0].observable : false;
