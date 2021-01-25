@@ -1,6 +1,6 @@
 import { FlowEventRunner } from "../src/FlowEventRunner";
 import { HumanFlowToMachineFlow } from "../src/HumanFlowToMachineFlow";
-import * as Rx from '@reactivex/rxjs';
+import * as Rx from 'rxjs';
 
 test('testObservableFlow', done => {
 

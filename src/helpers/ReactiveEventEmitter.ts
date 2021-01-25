@@ -1,4 +1,4 @@
-import { BehaviorSubject, Subject } from '@reactivex/rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { interval } from 'rxjs';
 import { sampleTime, throttle } from 'rxjs/operators';
 

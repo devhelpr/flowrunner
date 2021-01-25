@@ -1,5 +1,5 @@
-import { BehaviorSubject, Observable, Subject } from '@reactivex/rxjs';
 import * as Promise from 'promise';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 

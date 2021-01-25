@@ -1,5 +1,5 @@
-import { Observable } from '@reactivex/rxjs';
 import * as Promise from 'promise';
+import { Observable } from 'rxjs';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 

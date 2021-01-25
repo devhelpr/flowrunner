@@ -1,5 +1,5 @@
-import { Observable, Subject } from '@reactivex/rxjs';
 import * as Promise from 'promise';
+import { Observable, Subject } from 'rxjs';
 import * as uuid from 'uuid';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
 import { BuildNodeInfoHelper, INodeInfo } from './helpers/BuildNodeInfoHelper';
