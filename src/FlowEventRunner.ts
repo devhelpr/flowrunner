@@ -645,6 +645,7 @@ export class FlowEventRunner {
                     callstackInstance = null;
                     newCallStack = null;
                   } else if (typeof result === 'boolean' && result === false) {
+                    console.log('====== RETURN IS FALSE ====', nodeInstance);
                     this.nodeState[nodeInstance.name] = {
                       hasError: true,
                     };

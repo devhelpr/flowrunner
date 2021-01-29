@@ -148,6 +148,63 @@ const ifConditionBasicFlow = async () => {
 	return value;
 }
 
+/*
+// this situation cant be tested.. because the ifconditiontask doesn't trigger in this scenario
+
+const ifConditionNoResultFlow = async () => {
+	const flowEventRunner = new FlowEventRunner();
+
+	const humanFlowPackage = {
+		flow : [
+			
+			{
+				"taskType": "AssignTask",
+				"name":"assign",
+				"assignToProperty":"test",
+				"value":"test",
+				"subtype": "",
+				"_outputs":["ifthen"]
+			},
+			{
+				"taskType": "IfConditionTask",
+				"name":"ifthen",
+				"compareProperty":"doesnexists",
+				"withProperty":"",
+				"withValue":"different",
+				"usingCondition": "equals",
+				"dataType":"string",
+				"dontTriggerOnEmptyValues": true,
+				"_outputs":["return"],
+				"_errors":["else"]
+			},
+			{
+				"taskType": "AssignTask",
+				"name":"else",
+				"assignToProperty":"ok",
+				"value":"ja"
+			},
+			{
+				"taskType": "AssignTask",
+				"name":"return",
+				"assignToProperty":"ok",
+				"value":"ja"
+			},
+		]
+	}
+
+	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
+	let value : boolean = false;
+	await flowEventRunner.start(flowPackage).then(async (services : any) => {
+		services.logMessage = (...args : any) => {
+			console.log(...args)
+		}
+		let result : any = await flowEventRunner.executeNode("assign", {});
+		value = (result.ok ===  undefined);
+	});
+	return value;
+}
+*/
+
 const testTaskMetaData = async () => {
 	const flowEventRunner = new FlowEventRunner();
 
@@ -370,6 +427,14 @@ test('ifConditionBasicFlow', async () => {
 	let value : boolean = await ifConditionBasicFlow();
 	expect(value).toBe(true);
 })
+
+/*
+test('ifConditionNoResultFlow', async () => {
+	// https://jestjs.io/docs/en/tutorial-async
+	let value : boolean = await ifConditionNoResultFlow();
+	expect(value).toBe(true);
+})
+*/
 
 test('testInjectFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async

@@ -88,8 +88,8 @@ export class ReactiveEventEmitter {
             // let callStack =  data.length > 1 && {...data[1]};
             // console.log("DATA:" , data, "PAYLOAD:", payload, "CALLSTACK: " , callStack);
 
-            const payloadInstance = { ...data.payload };
-            const callstackInstance = { ...data.callstack };
+            let payloadInstance = { ...data.payload };
+            let callstackInstance = { ...data.callstack };
 
             for (let i = 0; i < length; i++) {
               self.nodesListeners[nodeName][i](
