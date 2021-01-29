@@ -1,6 +1,4 @@
 import { FlowEventRunner } from "../src/FlowEventRunner";
-import { HumanFlowToMachineFlow } from "../src/HumanFlowToMachineFlow";
-import { doesConnectionEmit } from '../src/helpers/EmitOutput';
 
 jest.setTimeout(15000);
 
@@ -101,7 +99,7 @@ const testConnectionActivatingFlow = async () => {
 
 const testConnectionNotByActivatingFunctionFlow = async () => {
 	const flowEventRunner = new FlowEventRunner();
-	flowEventRunner.registerActivationFuncion("test", (connection : any, payload : any) => {
+	flowEventRunner.registerActivationFuncion("test", (_connection : any, _payload : any) => {
 		return false;
 	});	
 	const flowPackage = {
@@ -150,7 +148,7 @@ const testConnectionNotByActivatingFunctionFlow = async () => {
 */
 const testConnectionByActivatingSigmoidFunctionFlow = async () => {
 	const flowEventRunner = new FlowEventRunner();
-	flowEventRunner.registerActivationFuncion("sigmoid", (connection : any, payload : any) => {
+	flowEventRunner.registerActivationFuncion("sigmoid", (_connection : any, _payload : any) => {
 		let x = 12;
 		let result = 1/(1+Math.pow(Math.E, -x));
 		console.log("sigmoid", result);

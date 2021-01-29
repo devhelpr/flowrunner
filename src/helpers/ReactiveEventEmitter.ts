@@ -30,9 +30,9 @@ export class ReactiveEventEmitter {
 
   private nodesControllers: any = {};
 
-  public suspendUntilLock = (lockID: string) => {};
+  public suspendUntilLock = (_lockID: string) => {};
 
-  public liftLock = (lockID: string) => {};
+  public liftLock = (_lockID: string) => {};
 
   public pauseFlowrunner = () => {
     this.isPaused = true;
@@ -42,7 +42,11 @@ export class ReactiveEventEmitter {
     this.isPaused = false;
   };
 
-  public on = (nodeName: any, listener: any, options?: IReactiveEventEmitterOptions) => {
+  public on = (
+    nodeName: any,
+    listener: any,
+    options?: IReactiveEventEmitterOptions
+  ) => {
     if (typeof this.nodesListeners[nodeName] !== 'object') {
       this.nodesListeners[nodeName] = [];
     }
@@ -59,11 +63,15 @@ export class ReactiveEventEmitter {
       if (options) {
         if (options.isThrottling) {
           subjectToSubscribe = subjectToSubscribe.pipe(
-            throttle((val) => interval(options.throttleInterval || this.throttle)),
+            throttle(_val =>
+              interval(options.throttleInterval || this.throttle)
+            )
           );
         }
         if (options.isSampling) {
-          subjectToSubscribe = subjectToSubscribe.pipe(sampleTime(options.sampleInterval || this.sample));
+          subjectToSubscribe = subjectToSubscribe.pipe(
+            sampleTime(options.sampleInterval || this.sample)
+          );
         }
       }
 
@@ -84,7 +92,10 @@ export class ReactiveEventEmitter {
             const callstackInstance = { ...data.callstack };
 
             for (let i = 0; i < length; i++) {
-              self.nodesListeners[nodeName][i](payloadInstance, callstackInstance);
+              self.nodesListeners[nodeName][i](
+                payloadInstance,
+                callstackInstance
+              );
             }
             (payloadInstance as any) = null;
             (callstackInstance as any) = null;
@@ -135,8 +146,16 @@ export class ReactiveEventEmitter {
     }
   };
 
-  public emitToController = (nodeName: any, controllerName: string, payload: any, currentCallstack: any) => {
-    if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
+  public emitToController = (
+    nodeName: any,
+    controllerName: string,
+    payload: any,
+    currentCallstack: any
+  ) => {
+    if (
+      this.nodesControllers[nodeName] &&
+      this.nodesControllers[nodeName][controllerName]
+    ) {
       let value = payload[controllerName];
       let callStack = { ...currentCallstack };
       // console.log ("callStack:", callStack, "currentCallstack", currentCallstack);
@@ -167,14 +186,15 @@ export class ReactiveEventEmitter {
           complete: () => {
             // this.services.logMessage('Controller: Completed for ', node.name, controller.name);
           },
-          error: (err: any) => {
+          error: (_err: any) => {
             // this.services.logMessage('Controller: Error', node.name, controller.name, err);
           },
           next: (payload: any) => {
             let payloadInstance = payload;
             let callstackInstance = payloadInstance.currentCallstack;
             if (payloadInstance.value !== undefined) {
-              controllerObservables[controller.name].value = payloadInstance.value;
+              controllerObservables[controller.name].value =
+                payloadInstance.value;
               controllerObservables[controller.name].hasValue = true;
               /*
                 only emit .. 
@@ -183,9 +203,10 @@ export class ReactiveEventEmitter {
               */
               const sendPayload: any = {};
               let emitToNode = true;
-              Object.keys(controllerObservables).map((key) => {
+              Object.keys(controllerObservables).map(key => {
                 emitToNode = emitToNode && controllerObservables[key].hasValue;
                 sendPayload[key] = payloadInstance[key];
+                return true;
               });
               if (!!emitToNode) {
                 this.emit(node.id.toString(), sendPayload, callstackInstance);
@@ -199,6 +220,7 @@ export class ReactiveEventEmitter {
 
         subject.subscribe(observerSubscription);
       }
+      return true;
     });
 
     if (node.controllers.length > 0) {
@@ -207,7 +229,10 @@ export class ReactiveEventEmitter {
   }
 
   public getNodeControllerValue(nodeName: string, controllerName: string) {
-    if (this.nodesControllers[nodeName] && this.nodesControllers[nodeName][controllerName]) {
+    if (
+      this.nodesControllers[nodeName] &&
+      this.nodesControllers[nodeName][controllerName]
+    ) {
       return this.nodesControllers[nodeName][controllerName].value;
     }
     return;

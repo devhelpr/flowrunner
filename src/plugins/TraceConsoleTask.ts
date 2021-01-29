@@ -1,8 +1,7 @@
-import * as Promise from 'promise';
 import { FlowTask } from '../FlowTask';
 
 export class TraceConsoleTask extends FlowTask {
-  public execute(node: any, services: any, callStack: any) {
+  public execute(node: any, services: any, _callStack: any) {
     services.logMessage('RUNNING: ' + node.id + ' - ' + node.name);
 
     if (node.message !== undefined && node.message !== '') {
@@ -11,7 +10,7 @@ export class TraceConsoleTask extends FlowTask {
       services.logMessage(node.payload);
     }
 
-    return new Promise((resolve: any, reject: any) => {
+    return new Promise((resolve: any, _reject: any) => {
       resolve(node.payload);
     });
   }

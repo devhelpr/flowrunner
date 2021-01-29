@@ -1,4 +1,3 @@
-import * as Promise from 'promise';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
@@ -16,6 +15,7 @@ export class ClearTask extends FlowTask {
             properties[propertyName] = node.payload[propertyName];
           }
         }
+        return true;
       });
     }
 

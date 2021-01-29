@@ -1,12 +1,14 @@
-import * as Promise from 'promise';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ObservableTask extends FlowTask {
-  public execute(node: any, services: any) {
+  public execute(node: any, _services: any) {
     if (node.observable) {
-      if (!node.observeProperty || (node.observeProperty && node.payload[node.observeProperty])) {
+      if (
+        !node.observeProperty ||
+        (node.observeProperty && node.payload[node.observeProperty])
+      ) {
         if (!!node.sendNodeName) {
           node.observable.next({
             nodeName: node.name,
@@ -25,7 +27,10 @@ export class ObservableTask extends FlowTask {
   public getObservable(node: any) {
     if (node.observable === undefined) {
       if (!!node.sendNodeName) {
-        node.observable = new BehaviorSubject<any>({ nodeName: node.name, payload: {} });
+        node.observable = new BehaviorSubject<any>({
+          nodeName: node.name,
+          payload: {},
+        });
       } else {
         node.observable = new BehaviorSubject<any>({});
       }
@@ -79,6 +84,13 @@ export class ObservableTask extends FlowTask {
   }
 
   public getConfigMetaData() {
-    return [{ name: 'observeProperty', defaultValue: '', valueType: 'string', required: true }];
+    return [
+      {
+        name: 'observeProperty',
+        defaultValue: '',
+        valueType: 'string',
+        required: true,
+      },
+    ];
   }
 }

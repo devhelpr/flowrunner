@@ -1,6 +1,5 @@
 
 import { FlowEventRunner } from "../src/FlowEventRunner";
-import { doesConnectionEmit } from '../src/helpers/EmitOutput';
 
 jest.setTimeout(15000);
 

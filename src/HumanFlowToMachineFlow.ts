@@ -25,10 +25,17 @@ export const HumanFlowToMachineFlow = {
           connection.shapeType = 'line';
           connection.taskType = 'connection';
           connection.title = 'connection';
-          connection.name = 'outputsFrom_' + flowNode.name + '_to_' + outputNodeName + '_' + connection.id;
+          connection.name =
+            'outputsFrom_' +
+            flowNode.name +
+            '_to_' +
+            outputNodeName +
+            '_' +
+            connection.id;
           connection.startshapeid = flowNode.name;
           connection.endshapeid = outputNodeName;
           flowPackage.flow.push(connection);
+          return true;
         });
       }
       if (typeof flowNode._errors !== 'undefined') {
@@ -39,13 +46,21 @@ export const HumanFlowToMachineFlow = {
           connection.shapeType = 'line';
           connection.taskType = 'connection';
           connection.title = 'connection';
-          connection.name = 'sendsErrorFrom_' + flowNode.name + '_to_' + outputNodeName + '_' + connection.id;
+          connection.name =
+            'sendsErrorFrom_' +
+            flowNode.name +
+            '_to_' +
+            outputNodeName +
+            '_' +
+            connection.id;
           connection.startshapeid = flowNode.id;
           connection.endshapeid = outputNodeName;
           connection.followflow = 'onfailure';
           flowPackage.flow.push(connection);
+          return true;
         });
       }
+      return true;
     });
 
     return flowPackage;

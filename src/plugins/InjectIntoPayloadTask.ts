@@ -4,7 +4,9 @@ import { IServicesInterface } from '../interfaces/ServicesInterface';
 
 export class InjectIntoPayloadTask extends FlowTask {
   public execute(node: any, services: IServicesInterface) {
-    services.logMessage('RUNNING InjectIntoPayloadTask: ' + node.id + ' - ' + node.name);
+    services.logMessage(
+      'RUNNING InjectIntoPayloadTask: ' + node.id + ' - ' + node.name
+    );
     try {
       if (node.object !== undefined) {
         /*
@@ -20,7 +22,11 @@ export class InjectIntoPayloadTask extends FlowTask {
         */
         if (!!node.hasObjectVariables) {
           try {
-            const data = this.replaceObjectVariables(node, JSON.stringify(node.object), node.payload);
+            const data = this.replaceObjectVariables(
+              node,
+              JSON.stringify(node.object),
+              node.payload
+            );
             node.payload = Object.assign({}, node.payload, JSON.parse(data));
           } catch (err) {
             services.logMessage('InjectIntoPayloadTask inner exception', err);
@@ -66,7 +72,10 @@ export class InjectIntoPayloadTask extends FlowTask {
                     newValue += ',';
                   }
 
-                  if (loop < data['values'].length && loopCell < data['values'][loop].length) {
+                  if (
+                    loop < data['values'].length &&
+                    loopCell < data['values'][loop].length
+                  ) {
                     let item;
                     const cellValue = data['values'][loop][loopCell];
                     item = Number(cellValue);
@@ -75,10 +84,16 @@ export class InjectIntoPayloadTask extends FlowTask {
                     }
 
                     if (transformObject) {
-                      const parse = this.replaceObjectVariables(node, JSON.stringify(transformObject), {
-                        name: String.fromCharCode((loopCell % 26) + 65) + (loop + 1),
-                        value: item,
-                      });
+                      const parse = this.replaceObjectVariables(
+                        node,
+                        JSON.stringify(transformObject),
+                        {
+                          name:
+                            String.fromCharCode((loopCell % 26) + 65) +
+                            (loop + 1),
+                          value: item,
+                        }
+                      );
                       item = JSON.parse(parse);
                     }
 
@@ -99,7 +114,11 @@ export class InjectIntoPayloadTask extends FlowTask {
               value = '[' + newValue + ']';
             }
           }
-        } else if (splitted.length > 0 && splitted[0] === 'value' && splitted.length === 2) {
+        } else if (
+          splitted.length > 0 &&
+          splitted[0] === 'value' &&
+          splitted.length === 2
+        ) {
           if (splitted.length === 2) {
             const cellId = splitted[1].split(/(\d+)/);
             let transformObject: any;
@@ -116,7 +135,10 @@ export class InjectIntoPayloadTask extends FlowTask {
               if (newValue !== '') {
                 newValue += ',';
               }
-              if (rowCell < data['values'].length && columnCell < data['values'][rowCell].length) {
+              if (
+                rowCell < data['values'].length &&
+                columnCell < data['values'][rowCell].length
+              ) {
                 let item;
                 const cellValue = data['values'][rowCell][columnCell];
 
@@ -127,10 +149,16 @@ export class InjectIntoPayloadTask extends FlowTask {
 
                 if (transformObject) {
                   item = JSON.parse(
-                    this.replaceObjectVariables(node, JSON.stringify(transformObject), {
-                      name: String.fromCharCode((columnCell % 26) + 65) + (rowCell + 1),
-                      value: item,
-                    }),
+                    this.replaceObjectVariables(
+                      node,
+                      JSON.stringify(transformObject),
+                      {
+                        name:
+                          String.fromCharCode((columnCell % 26) + 65) +
+                          (rowCell + 1),
+                        value: item,
+                      }
+                    )
                   );
                 }
 
@@ -156,7 +184,7 @@ export class InjectIntoPayloadTask extends FlowTask {
           } else if (Array.isArray(value)) {
             let newValue = '';
 
-            (value as string[]).map((item) => {
+            (value as string[]).map(item => {
               if (newValue !== '') {
                 newValue += ',';
               }
@@ -165,6 +193,7 @@ export class InjectIntoPayloadTask extends FlowTask {
               } else {
                 newValue += item;
               }
+              return true;
             });
 
             value = '[' + newValue + ']';
@@ -173,6 +202,7 @@ export class InjectIntoPayloadTask extends FlowTask {
 
         const allOccurancesOfMatchRegex = new RegExp(match, 'g');
         template = template.replace(allOccurancesOfMatchRegex, value);
+        return true;
       });
     }
     return template;
@@ -215,6 +245,8 @@ export class InjectIntoPayloadTask extends FlowTask {
   }
 
   public getConfigMetaData() {
-    return [{ name: 'object', defaultValue: '', valueType: 'string', required: true }];
+    return [
+      { name: 'object', defaultValue: '', valueType: 'string', required: true },
+    ];
   }
 }

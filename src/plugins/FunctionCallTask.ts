@@ -1,12 +1,13 @@
-import * as Promise from 'promise';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class FunctionCallTask extends FlowTask {
   public execute(node: any, services: any) {
-    services.logMessage('RUNNING FunctionCallTask: ' + node.id + ' - ' + node.name);
+    services.logMessage(
+      'RUNNING FunctionCallTask: ' + node.id + ' - ' + node.name
+    );
 
-    return new Promise((resolve: any, reject: any) => {
+    return new Promise((resolve: any, _reject: any) => {
       resolve(node.payload);
     });
   }
@@ -49,7 +50,13 @@ export class FunctionCallTask extends FlowTask {
 
   public getConfigMetaData() {
     return [
-      { name: 'functionnodeid', defaultValue: '', valueType: 'enum', required: true, optionsViaController: true },
+      {
+        name: 'functionnodeid',
+        defaultValue: '',
+        valueType: 'enum',
+        required: true,
+        optionsViaController: true,
+      },
     ];
   }
 }

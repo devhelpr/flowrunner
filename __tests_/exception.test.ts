@@ -30,7 +30,7 @@ const testBasicFlow = async () => {
 	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
-		let result : any = await flowEventRunner.executeNode("exception", {});
+		await flowEventRunner.executeNode("exception", {});
 		value = false;
 	}).catch(() => {
 		value = true;

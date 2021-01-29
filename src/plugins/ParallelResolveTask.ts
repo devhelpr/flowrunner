@@ -1,10 +1,11 @@
-import * as Promise from 'promise';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ParallelResolveTask extends FlowTask {
   public execute(node: any, services: any) {
-    services.logMessage('RUNNING ParallelResolveTask: ' + node.id + ' - ' + node.name);
+    services.logMessage(
+      'RUNNING ParallelResolveTask: ' + node.id + ' - ' + node.name
+    );
 
     return true;
   }

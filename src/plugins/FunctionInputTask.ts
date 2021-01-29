@@ -1,12 +1,13 @@
-import * as Promise from 'promise';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class FunctionInputTask extends FlowTask {
   public execute(node: any, services: any) {
-    services.logMessage('RUNNING FunctionInputTask: ' + node.id + ' - ' + node.name);
+    services.logMessage(
+      'RUNNING FunctionInputTask: ' + node.id + ' - ' + node.name
+    );
 
-    return new Promise((resolve: any, reject: any) => {
+    return new Promise((resolve: any, _reject: any) => {
       resolve(node.payload);
     });
   }

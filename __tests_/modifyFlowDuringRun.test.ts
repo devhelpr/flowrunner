@@ -46,7 +46,7 @@ const runFlow = async () => {
 	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
-		let result : any = await flowEventRunner.executeNode("console", {});
+		await flowEventRunner.executeNode("console", {});
 		value = (flowEventRunner.getPropertyFromNode("console","test") === 303);
 	});
 	return value;
@@ -78,7 +78,7 @@ const runFlowUnknownNode = async () => {
 	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
 	let value : boolean = false;
 	await flowEventRunner.start(flowPackage).then(async () => {
-		let result : any = await flowEventRunner.executeNode("console", {});
+		await flowEventRunner.executeNode("console", {});
 		value = (flowEventRunner.getPropertyFromNode("unknown","test") === undefined);
 	});
 	return value;

@@ -15,29 +15,42 @@ export interface INodeInfo {
 }
 
 export class BuildNodeInfoHelper {
-  public static build(nodeList: any[], node: any, nodePluginInfoMap: any, services: IServicesInterface): INodeInfo {
+  public static build(
+    nodeList: any[],
+    node: any,
+    nodePluginInfoMap: any,
+    services: IServicesInterface
+  ): INodeInfo {
     return {
       dontAutostart: node.dontAutostart,
       error: nodeList.filter(
         (o: any) =>
-          o.startshapeid === node.id.toString() && o.taskType === 'connection' && o.followflow === 'onfailure',
+          o.startshapeid === node.id.toString() &&
+          o.taskType === 'connection' &&
+          o.followflow === 'onfailure'
       ),
       // TODO : hier direct de nodes uitlezen en de variabelen die geinjecteerd moeten
       // worden toevoegen
-      injections: FlowEventRunnerHelper.getInjections(node.id.toString(), nodeList, nodePluginInfoMap),
+      injections: FlowEventRunnerHelper.getInjections(
+        node.id.toString(),
+        nodeList,
+        nodePluginInfoMap
+      ),
       inputs: nodeList.filter(
         (o: any) =>
           o.endshapeid === node.id.toString() &&
           o.taskType === 'connection' &&
           o.followflow !== 'followManually' &&
-          o.followflow !== 'injectConfigIntoPayload',
+          o.followflow !== 'injectConfigIntoPayload'
       ),
       manuallyToFollowNodes: FlowEventRunnerHelper.getManuallyToFollowNodes(
         nodeList.filter(
           (o: any) =>
-            o.startshapeid === node.id.toString() && o.taskType === 'connection' && o.followflow === 'followManually',
+            o.startshapeid === node.id.toString() &&
+            o.taskType === 'connection' &&
+            o.followflow === 'followManually'
         ),
-        nodeList,
+        nodeList
       ),
       name: node.name,
       nodeId: node.id,
@@ -48,12 +61,14 @@ export class BuildNodeInfoHelper {
             o.taskType === 'connection' &&
             o.followflow !== 'onfailure' &&
             o.followflow !== 'followManually' &&
-            o.followflow !== 'injectConfigIntoPayload',
+            o.followflow !== 'injectConfigIntoPayload'
         )
-        .map((connection) => {
+        .map(connection => {
           // todo check activationFunction and attach it here
           if (connection.activationFunction && services.getActivationFunction) {
-            connection.activationFunction = services.getActivationFunction(connection.activationFunction);
+            connection.activationFunction = services.getActivationFunction(
+              connection.activationFunction
+            );
           }
           return connection;
         }),

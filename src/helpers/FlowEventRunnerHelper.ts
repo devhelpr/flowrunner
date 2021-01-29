@@ -6,7 +6,7 @@ export class FlowEventRunnerHelper {
     title: any,
     nodeType: any,
     payload: any,
-    dateTime: Date,
+    dateTime: Date
   ) => {
     const cleanPayload = Object.assign({}, payload);
 
@@ -15,6 +15,7 @@ export class FlowEventRunnerHelper {
 
     middleware.map((middlewareFunction: any) => {
       middlewareFunction(result, id, title, nodeType, cleanPayload, dateTime);
+      return true;
     });
 
     return;
@@ -27,24 +28,39 @@ export class FlowEventRunnerHelper {
         if (node.id === nodeRelation.startshapeid) {
           nodeInjections.push(node);
         }
+        return true;
       });
+      return true;
     });
 
     return nodeInjections;
   };
 
-  public static getManuallyToFollowNodes = (manuallyToFollowNodes: any, nodeList: any) => {
+  public static getManuallyToFollowNodes = (
+    manuallyToFollowNodes: any,
+    nodeList: any
+  ) => {
     return nodeList.filter((node: any) => {
-      return typeof manuallyToFollowNodes.find((o: any) => o.endshapeid === node.id.toString()) !== 'undefined';
+      return (
+        typeof manuallyToFollowNodes.find(
+          (o: any) => o.endshapeid === node.id.toString()
+        ) !== 'undefined'
+      );
     });
   };
 
-  public static getInjections = (injectIntoNodeId: any, nodeList: any, nodeTypes: any) => {
+  public static getInjections = (
+    injectIntoNodeId: any,
+    nodeList: any,
+    nodeTypes: any
+  ) => {
     const injections: any = [];
 
     const nodeInjections = nodeList.filter(
       (o: any) =>
-        o.endshapeid === injectIntoNodeId && o.taskType === 'connection' && o.followflow === 'injectConfigIntoPayload',
+        o.endshapeid === injectIntoNodeId &&
+        o.taskType === 'connection' &&
+        o.followflow === 'injectConfigIntoPayload'
     );
 
     nodeInjections.map((nodeRelation: any) => {
@@ -85,13 +101,20 @@ export class FlowEventRunnerHelper {
 						  */
           }
         }
+        return true;
       });
+      return true;
     });
 
     return injections;
   };
 
-  public static registerNode(node: any, pluginInstance: any, services: any, flowNodeRegisterHooks: any) {
+  public static registerNode(
+    node: any,
+    pluginInstance: any,
+    services: any,
+    flowNodeRegisterHooks: any
+  ) {
     services.logMessage('REGISTRATE ' + node.name);
 
     const nodeInstance = Object.assign({}, node);
@@ -99,8 +122,9 @@ export class FlowEventRunnerHelper {
     if (pluginInstance !== undefined) {
       flowNodeRegisterHooks.map((hook: any) => {
         if (hook(node, pluginInstance)) {
-          return;
+          return true;
         }
+        return true;
       });
 
       const result = pluginInstance.execute(nodeInstance, services, {});

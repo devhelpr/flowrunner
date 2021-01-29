@@ -1,11 +1,10 @@
 import { FlowEventRunner } from "../src/FlowEventRunner";
-import { HumanFlowToMachineFlow } from "../src/HumanFlowToMachineFlow";
 import { doesConnectionEmit } from '../src/helpers/EmitOutput';
 
 jest.setTimeout(15000);
 
 const testDoesConnectionEmit = () => {
-	expect(doesConnectionEmit(
+	return doesConnectionEmit(
 		{
 			tag: "test",
 			id:"testconnection",
@@ -16,7 +15,7 @@ const testDoesConnectionEmit = () => {
 			id : "test",
 			name :"test",
 			taskType :"test"
-		}, {})).toBe(true);
+		}, {});
 }
 
 const testConnectionTagBasicFlow = async () => {
@@ -206,6 +205,13 @@ const testConnectionEventBasicNoEventFlow = async () => {
 	});
 	return value;
 }
+
+
+
+test('testConnectionTagBasicFlow', async () => {
+	let value : boolean = await testDoesConnectionEmit();
+	expect(value).toBe(true);
+})
 
 test('testConnectionTagBasicFlow', async () => {
 	let value : boolean = await testConnectionTagBasicFlow();

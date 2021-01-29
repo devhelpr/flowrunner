@@ -1,6 +1,11 @@
-import * as moment from 'moment';
+//import * as moment from 'moment';
 
-export function conditionCheck(field1: any, field2: any, condition: any, dataType: any) {
+export function conditionCheck(
+  field1: any,
+  field2: any,
+  condition: any,
+  dataType: any
+) {
   try {
     let field2Values = [];
     if (
@@ -15,19 +20,25 @@ export function conditionCheck(field1: any, field2: any, condition: any, dataTyp
       field2Values = field2.split(',');
     }
 
-    if (field2 === '__ISISODATE__') {
+    /*if (field2 === '__ISISODATE__') {
       const date = moment(field1, 'YYYY-MM-DD', true);
       return date.isValid();
-    } else if (condition === 'equals') {
+    } else */
+
+    if (condition === 'equals') {
       if (field2 === '') {
-        return field1 === '' || typeof field1 === 'undefined' || field1 === null;
+        return (
+          field1 === '' || typeof field1 === 'undefined' || field1 === null
+        );
       } else {
         if (field2Values.length > 1) {
           return field2Values.indexOf(field1) >= 0;
         } else {
-          if (dataType === 'date') {
+          /*if (dataType === 'date') {
             return moment(field1).isSame(moment(field2));
-          } else if (dataType === 'number') {
+          } else */ if (
+            dataType === 'number'
+          ) {
             return parseFloat(field1) === parseFloat(field2);
           } else {
             return field1 === field2;
@@ -38,11 +49,15 @@ export function conditionCheck(field1: any, field2: any, condition: any, dataTyp
 
     if (condition === 'not-equals') {
       if (field2 === '') {
-        return field1 !== '' && typeof field1 !== 'undefined' && field1 !== null;
+        return (
+          field1 !== '' && typeof field1 !== 'undefined' && field1 !== null
+        );
       } else {
-        if (dataType === 'date') {
+        /*if (dataType === 'date') {
           return !moment(field1).isSame(moment(field2));
-        } else if (dataType === 'number') {
+        } else */ if (
+          dataType === 'number'
+        ) {
           return parseFloat(field1) !== parseFloat(field2);
         } else {
           return field1 !== field2;
@@ -51,9 +66,11 @@ export function conditionCheck(field1: any, field2: any, condition: any, dataTyp
     }
 
     if (condition === 'smaller') {
-      if (dataType === 'date') {
+      /*if (dataType === 'date') {
         return moment(field1).isBefore(moment(field2));
-      } else if (dataType === 'number') {
+      } else */ if (
+        dataType === 'number'
+      ) {
         return parseFloat(field1) < parseFloat(field2);
       } else {
         return field1 < field2;
@@ -61,9 +78,11 @@ export function conditionCheck(field1: any, field2: any, condition: any, dataTyp
     }
 
     if (condition === 'bigger') {
-      if (dataType === 'date') {
+      /*if (dataType === 'date') {
         return moment(field1).isAfter(moment(field2));
-      } else if (dataType === 'number') {
+      } else */ if (
+        dataType === 'number'
+      ) {
         return parseFloat(field1) > parseFloat(field2);
       } else {
         return field1 > field2;
@@ -71,9 +90,11 @@ export function conditionCheck(field1: any, field2: any, condition: any, dataTyp
     }
 
     if (condition === 'smaller-or-equal') {
-      if (dataType === 'date') {
+      /*if (dataType === 'date') {
         return moment(field1).isSameOrBefore(moment(field2));
-      } else if (dataType === 'number') {
+      } else */ if (
+        dataType === 'number'
+      ) {
         return parseFloat(field1) <= parseFloat(field2);
       } else {
         return field1 <= field2;
@@ -81,14 +102,17 @@ export function conditionCheck(field1: any, field2: any, condition: any, dataTyp
     }
 
     if (condition === 'bigger-or-equal') {
-      if (dataType === 'date') {
+      /*if (dataType === 'date') {
         return moment(field1).isSameOrAfter(moment(field2));
-      } else if (dataType === 'number') {
+      } else */ if (
+        dataType === 'number'
+      ) {
         return parseFloat(field1) >= parseFloat(field2);
       } else {
         return field1 >= field2;
       }
     }
+    return false;
   } catch (err) {
     throw new Error(err);
   }

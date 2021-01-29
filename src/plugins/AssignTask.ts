@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+//import * as moment from 'moment';
 import * as uuid from 'uuid';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
@@ -13,43 +13,73 @@ export class AssignTask extends FlowTask {
     try {
       node.payload = Object.assign({}, node.payload);
 
-      if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
+      if (
+        node.assignAsPropertyFromObject !== undefined &&
+        node.assignAsPropertyFromObject !== ''
+      ) {
         if (node.payload[node.assignAsPropertyFromObject] === undefined) {
           node.payload[node.assignAsPropertyFromObject] = {};
         }
       }
 
-      if (node.value !== undefined && (node.valueFromProperty === undefined || node.valueFromProperty === '')) {
+      if (
+        node.value !== undefined &&
+        (node.valueFromProperty === undefined || node.valueFromProperty === '')
+      ) {
         let value = node.value;
         if (value === '[UUID]') {
           value = uuidV4().toString();
-        } else if (value === '[NOW]') {
-          value = moment().toISOString();
+          //} else if (value === '[NOW]') {
+          //value = moment().toISOString();
         } else if (!!node.replaceValues) {
           value = replaceValues(value, node.payload, false);
         }
 
-        if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
-          node.payload[node.assignAsPropertyFromObject][node.assignToProperty] = value;
+        if (
+          node.assignAsPropertyFromObject !== undefined &&
+          node.assignAsPropertyFromObject !== ''
+        ) {
+          node.payload[node.assignAsPropertyFromObject][
+            node.assignToProperty
+          ] = value;
         } else {
           node.payload[node.assignToProperty] = value;
         }
       } else if (node.valueFromProperty !== '') {
         if (node.readFromObject !== undefined && node.readFromObject !== '') {
-          if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
-            node.payload[node.assignAsPropertyFromObject][node.assignToProperty] =
-              node.payload[node.readFromObject][node.valueFromProperty];
+          if (
+            node.assignAsPropertyFromObject !== undefined &&
+            node.assignAsPropertyFromObject !== ''
+          ) {
+            node.payload[node.assignAsPropertyFromObject][
+              node.assignToProperty
+            ] = node.payload[node.readFromObject][node.valueFromProperty];
           } else {
-            node.payload[node.assignToProperty] = node.payload[node.readFromObject][node.valueFromProperty];
+            node.payload[node.assignToProperty] =
+              node.payload[node.readFromObject][node.valueFromProperty];
           }
-        } else if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
-          node.payload[node.assignAsPropertyFromObject][node.assignToProperty] = node.payload[node.valueFromProperty];
+        } else if (
+          node.assignAsPropertyFromObject !== undefined &&
+          node.assignAsPropertyFromObject !== ''
+        ) {
+          node.payload[node.assignAsPropertyFromObject][node.assignToProperty] =
+            node.payload[node.valueFromProperty];
         } else {
-          node.payload[node.assignToProperty] = node.payload[node.valueFromProperty];
+          node.payload[node.assignToProperty] =
+            node.payload[node.valueFromProperty];
         }
-      } else if (node.value === undefined || node.value === null || node.value === '' || !node.value) {
-        if (node.assignAsPropertyFromObject !== undefined && node.assignAsPropertyFromObject !== '') {
-          node.payload[node.assignAsPropertyFromObject][node.assignToProperty] = '';
+      } else if (
+        node.value === undefined ||
+        node.value === null ||
+        node.value === '' ||
+        !node.value
+      ) {
+        if (
+          node.assignAsPropertyFromObject !== undefined &&
+          node.assignAsPropertyFromObject !== ''
+        ) {
+          node.payload[node.assignAsPropertyFromObject][node.assignToProperty] =
+            '';
         } else {
           node.payload[node.assignToProperty] = '';
         }
@@ -99,11 +129,31 @@ export class AssignTask extends FlowTask {
 
   public getConfigMetaData() {
     return [
-      { name: 'assignToProperty', defaultValue: '', valueType: 'string', required: true },
-      { name: 'assignAsPropertyFromObject', defaultValue: '', valueType: 'string', required: false },
+      {
+        name: 'assignToProperty',
+        defaultValue: '',
+        valueType: 'string',
+        required: true,
+      },
+      {
+        name: 'assignAsPropertyFromObject',
+        defaultValue: '',
+        valueType: 'string',
+        required: false,
+      },
       { name: 'value', defaultValue: '', valueType: 'string', required: false },
-      { name: 'valueFromProperty', defaultValue: '', valueType: 'string', required: false },
-      { name: 'readFromObject', defaultValue: '', valueType: 'string', required: false },
+      {
+        name: 'valueFromProperty',
+        defaultValue: '',
+        valueType: 'string',
+        required: false,
+      },
+      {
+        name: 'readFromObject',
+        defaultValue: '',
+        valueType: 'string',
+        required: false,
+      },
     ];
   }
 }

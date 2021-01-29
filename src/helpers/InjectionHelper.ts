@@ -8,14 +8,18 @@ export class InjectionHelper {
     payload: any,
     services: any,
     callStack: any,
-    middleware: any,
+    middleware: any
   ) {
     const injectionPromises: any = [];
     nodeInfo.injections.map((nodeInjection: any) => {
       const nodeInstance = Object.assign({}, nodeInjection.node);
       nodeInstance.payload = Object.assign({}, payload);
 
-      const result = nodeInjection.pluginInstance.execute(nodeInstance, services, callStack);
+      const result = nodeInjection.pluginInstance.execute(
+        nodeInstance,
+        services,
+        callStack
+      );
 
       if (typeof result === 'object' && typeof result.then === 'function') {
         result
@@ -30,11 +34,14 @@ export class InjectionHelper {
               nodeInstance.name,
               node.taskType,
               payloadResult,
-              new Date(),
+              new Date()
             );
 
             for (const property in payloadResult) {
-              if (typeof payloadResult[property] === 'undefined' || payloadResult[property] === null) {
+              if (
+                typeof payloadResult[property] === 'undefined' ||
+                payloadResult[property] === null
+              ) {
                 continue;
               }
               if (!payloadResult.hasOwnProperty(property)) {
@@ -54,7 +61,7 @@ export class InjectionHelper {
           nodeInstance.name,
           node.taskType,
           payload,
-          new Date(),
+          new Date()
         );
 
         for (const property in result) {
@@ -66,6 +73,7 @@ export class InjectionHelper {
       }
 
       injectionPromises.push(result);
+      return true;
     });
 
     return injectionPromises;

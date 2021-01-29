@@ -1,20 +1,25 @@
-import * as Promise from 'promise';
 import { Observable } from 'rxjs';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 
 export class ObserverTask extends FlowTask {
   public execute(node: any, services: any) {
-    const counter = 0;
+    //const counter = 0;
     const observable = Observable.create((observer: any) => {
       try {
         if (node.observe !== undefined && node.observe !== '') {
           const observableSubscription = services.getObservable(node.observe);
 
-          if (observableSubscription !== undefined && observableSubscription !== false) {
+          if (
+            observableSubscription !== undefined &&
+            observableSubscription !== false
+          ) {
             const observerSubscription: any = {
               complete: () => {
-                services.logMessage('ObserverTask: Completed observable for ', node.name);
+                services.logMessage(
+                  'ObserverTask: Completed observable for ',
+                  node.name
+                );
               },
               error: (err: any) => {
                 observer.error(err);
@@ -30,7 +35,10 @@ export class ObserverTask extends FlowTask {
 
             observableSubscription.subscribe(observerSubscription);
           } else {
-            observer.error('ObserverTask: Error - observable not found', node.observe);
+            observer.error(
+              'ObserverTask: Error - observable not found',
+              node.observe
+            );
           }
         } else {
           observer.error('ObserverTask: Error - nothing to observe');
@@ -88,6 +96,13 @@ export class ObserverTask extends FlowTask {
   }
 
   public getConfigMetaData() {
-    return [{ name: 'observe', defaultValue: '', valueType: 'string', required: true }];
+    return [
+      {
+        name: 'observe',
+        defaultValue: '',
+        valueType: 'string',
+        required: true,
+      },
+    ];
   }
 }

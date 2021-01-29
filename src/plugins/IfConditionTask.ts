@@ -1,5 +1,4 @@
-import * as moment from 'moment';
-import * as Promise from 'promise';
+//import * as moment from 'moment';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 import { conditionCheck } from './helpers/IfConditionHelpers';
@@ -7,7 +6,7 @@ import { conditionCheck } from './helpers/IfConditionHelpers';
 export class IfConditionTask extends FlowTask {
   public execute(node: any) {
     // return new Promise((resolve: any, reject: any) => {
-    const splitField1 = node.compareProperty.split('.');
+    //const splitField1 = node.compareProperty.split('.');
     const splitField2 = node.withProperty.split('.');
     const errors = [];
 
@@ -16,9 +15,10 @@ export class IfConditionTask extends FlowTask {
 
     let field1 = node.payload[node.compareProperty];
 
-    if (field1 === '[NOW]') {
+    /*if (field1 === '[NOW]') {
       field1 = moment().toISOString();
     }
+    */
 
     let field2;
 
@@ -29,8 +29,8 @@ export class IfConditionTask extends FlowTask {
         field2 = true;
       } else if (node.withProperty === '__EMPTY__') {
         field2 = '';
-      } else if (node.withProperty === '[NOW]') {
-        field2 = moment().toISOString();
+        //} else if (node.withProperty === '[NOW]') {
+        //  field2 = moment().toISOString();
       } else if (node.withProperty === '__ISISODATE__') {
         field2 = '__ISISODATE__';
       } else {
@@ -44,20 +44,30 @@ export class IfConditionTask extends FlowTask {
         } else {
           objectToCheck = node.payload[fieldName];
         }
+        return true;
       });
       field2 = objectToCheck;
     }
 
     if (
       node.dontTriggerOnEmptyValues &&
-      (field1 === '' || field2 === '' || field1 === undefined || field2 === undefined)
+      (field1 === '' ||
+        field2 === '' ||
+        field1 === undefined ||
+        field2 === undefined)
     ) {
       return false;
     }
 
-    if (node.usingCondition === 'isNonEmptyProperty' && field1 !== undefined && field1 !== '') {
+    if (
+      node.usingCondition === 'isNonEmptyProperty' &&
+      field1 !== undefined &&
+      field1 !== ''
+    ) {
       return node.payload;
-    } else if (conditionCheck(field1, field2, node.usingCondition, node.dataType)) {
+    } else if (
+      conditionCheck(field1, field2, node.usingCondition, node.dataType)
+    ) {
       // console.log("conditionCheck: true", field1,field2,node.compareProperty,node.withProperty);
       return node.payload;
     } else {
@@ -116,13 +126,42 @@ export class IfConditionTask extends FlowTask {
 
   public getConfigMetaData() {
     return [
-      { name: 'compareProperty', defaultValue: '', valueType: 'string', required: true },
-      { name: 'withProperty', defaultValue: '', valueType: 'string', required: false },
-      { name: 'withValue', defaultValue: '', valueType: 'string', required: false },
+      {
+        name: 'compareProperty',
+        defaultValue: '',
+        valueType: 'string',
+        required: true,
+      },
+      {
+        name: 'withProperty',
+        defaultValue: '',
+        valueType: 'string',
+        required: false,
+      },
+      {
+        name: 'withValue',
+        defaultValue: '',
+        valueType: 'string',
+        required: false,
+      },
       {
         defaultValue: '',
-        enumText: ['equals', 'not-equals', 'smaller', 'bigger', 'smaller-or-equal', 'bigger-or-equal'],
-        enumValues: ['equals', 'not-equals', 'smaller', 'bigger', 'smaller-or-equal', 'bigger-or-equal'],
+        enumText: [
+          'equals',
+          'not-equals',
+          'smaller',
+          'bigger',
+          'smaller-or-equal',
+          'bigger-or-equal',
+        ],
+        enumValues: [
+          'equals',
+          'not-equals',
+          'smaller',
+          'bigger',
+          'smaller-or-equal',
+          'bigger-or-equal',
+        ],
         name: 'usingCondition',
         valueType: 'enum',
       },

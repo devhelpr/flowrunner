@@ -8,7 +8,12 @@ import { INode } from '../interfaces/Node';
 const uuidV4 = uuid.v4;
 const parallelSessions: any = {};
 
-export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode, payload: any, eventName?: string) => {
+export const doesConnectionEmit = (
+  connectionNode: IConnectionNode,
+  node: INode,
+  payload: any,
+  eventName?: string
+) => {
   let result: boolean = true;
 
   if (connectionNode.event !== undefined && connectionNode.event !== '') {
@@ -17,7 +22,8 @@ export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode,
     }
     return false;
   } else if (connectionNode.tagPropertyFromPayload && connectionNode.tag) {
-    result = connectionNode.tag === payload[connectionNode.tagPropertyFromPayload];
+    result =
+      connectionNode.tag === payload[connectionNode.tagPropertyFromPayload];
   }
   if (connectionNode.tag && payload.tag) {
     result = result && connectionNode.tag === payload.tag;
@@ -46,9 +52,18 @@ export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode,
     result = result && connectionNode.flowPath === payload.flowPath;
   }
 
-  if (connectionNode.activationThreshold && !isNaN(connectionNode.activationThreshold)) {
-    if (connectionNode.activationProperty && payload[connectionNode.activationProperty]) {
-      return payload[connectionNode.activationProperty] >= connectionNode.activationThreshold;
+  if (
+    connectionNode.activationThreshold &&
+    !isNaN(connectionNode.activationThreshold)
+  ) {
+    if (
+      connectionNode.activationProperty &&
+      payload[connectionNode.activationProperty]
+    ) {
+      return (
+        payload[connectionNode.activationProperty] >=
+        connectionNode.activationThreshold
+      );
     }
 
     return false;
@@ -58,7 +73,10 @@ export const doesConnectionEmit = (connectionNode: IConnectionNode, node: INode,
     if (typeof connectionNode.activationFunction !== 'function') {
       return false;
     }
-    return (connectionNode.activationFunction as ActivationFunction)(connectionNode, payload);
+    return (connectionNode.activationFunction as ActivationFunction)(
+      connectionNode,
+      payload
+    );
   }
 
   return result;
@@ -72,15 +90,22 @@ export class EmitOutput {
     currentNodeInstance: any,
     currentCallStack: any,
     flowEventRunner: any,
-    eventName?: string,
+    eventName?: string
   ) {
     let followFlow = '';
 
-    if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
-      currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
+    if (
+      typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
+      currentNodeInstance.payload.followFlow
+    ) {
+      currentNodeInstance.payload._forwardFollowFlow =
+        currentNodeInstance.payload.followFlow;
     }
 
-    if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
+    if (
+      nodePluginInfo.pluginInstance.getPackageType() ===
+      FlowTaskPackageType.FUNCTION_OUTPUT_NODE
+    ) {
       // HANDLE FUNCTION OUTPUT/RESULT
 
       let newPayload = Object.assign({}, currentNodeInstance.payload);
@@ -89,10 +114,15 @@ export class EmitOutput {
       if (currentNodeInstance.resultProperties) {
         newPayload = {};
         currentNodeInstance.resultProperties.map((resultProperty: string) => {
-          newPayload[resultProperty] = currentNodeInstance.payload[resultProperty];
+          newPayload[resultProperty] =
+            currentNodeInstance.payload[resultProperty];
+          return true;
         });
       } else if (currentNodeInstance.resultProperty) {
-        newPayload = { [currentNodeInstance.resultProperty]: newPayload[currentNodeInstance.resultProperty] };
+        newPayload = {
+          [currentNodeInstance.resultProperty]:
+            newPayload[currentNodeInstance.resultProperty],
+        };
       } else {
         newPayload = {};
       }
@@ -128,8 +158,9 @@ export class EmitOutput {
               nodeEmitter.emit(
                 outputNode.endshapeid.toString(),
                 { ...upperCallStack.newPayload, ...newPayload },
-                upperCallStack,
+                upperCallStack
               );
+              return true;
             });
           }
           return;
@@ -140,7 +171,14 @@ export class EmitOutput {
         const upperCallStack = currentCallStack.callStack;
         let nodeWasEmitted = false;
         currentCallStack.outputs.map((nodeOutput: any) => {
-          if (doesConnectionEmit(nodeOutput, currentNodeInstance, newPayload, eventName)) {
+          if (
+            doesConnectionEmit(
+              nodeOutput,
+              currentNodeInstance,
+              newPayload,
+              eventName
+            )
+          ) {
             nodeWasEmitted = true;
 
             flowEventRunner.touchedNodes[nodeOutput.name] = true;
@@ -148,9 +186,10 @@ export class EmitOutput {
             nodeEmitter.emit(
               nodeOutput.endshapeid.toString(),
               { ...currentCallStack.payload, ...newPayload },
-              upperCallStack,
+              upperCallStack
             );
           }
+          return true;
         });
 
         if (!nodeWasEmitted || currentCallStack.outputs.length === 0) {
@@ -160,13 +199,17 @@ export class EmitOutput {
               nodeEmitter.emit(
                 outputNode.endshapeid.toString(),
                 { ...upperCallStack.payload, ...newPayload },
-                upperCallStack.callStack,
+                upperCallStack.callStack
               );
+              return true;
             });
           }
         }
       }
-    } else if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
+    } else if (
+      nodePluginInfo.pluginInstance.getPackageType() ===
+      FlowTaskPackageType.FUNCTION_NODE
+    ) {
       // CALL FUNCTION NODE
 
       const newCallStack = {
@@ -189,14 +232,24 @@ export class EmitOutput {
       }
 
       // TODO : check if functionnode needs "doesConnectionFire"
-      nodeEmitter.emit(currentNodeInstance.functionnodeid.toString(), currentNodeInstance.payload, newCallStack);
+      nodeEmitter.emit(
+        currentNodeInstance.functionnodeid.toString(),
+        currentNodeInstance.payload,
+        newCallStack
+      );
     } else {
-      if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
+      if (
+        typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
+        currentNodeInstance.payload.followFlow
+      ) {
         // Handle error flow
         followFlow = currentNodeInstance.payload.followFlow;
 
         if (followFlow === 'isError') {
-          if (nodePluginInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE) {
+          if (
+            nodePluginInfo.pluginInstance.getPackageType() !==
+            FlowTaskPackageType.FORWARD_NODE
+          ) {
             currentNodeInstance.payload.followFlow = undefined;
             delete currentNodeInstance.payload.followFlow;
           }
@@ -206,13 +259,16 @@ export class EmitOutput {
             nodeInfo,
             currentNodeInstance,
             currentCallStack,
-            flowEventRunner,
+            flowEventRunner
           );
           return;
         }
       }
 
-      if (nodePluginInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE) {
+      if (
+        nodePluginInfo.pluginInstance.getPackageType() !==
+        FlowTaskPackageType.FORWARD_NODE
+      ) {
         currentNodeInstance.payload.followFlow = undefined;
       }
 
@@ -220,7 +276,8 @@ export class EmitOutput {
 
       // Handle parallel sessions
       if (
-        nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_NODE &&
+        nodePluginInfo.pluginInstance.getPackageType() ===
+          FlowTaskPackageType.PARALLEL_NODE &&
         nodeInfo.outputs.length > 0
       ) {
         currentNodeInstance.payload._parallelSessionId = uuidV4();
@@ -231,10 +288,15 @@ export class EmitOutput {
         };
       }
 
-      if (nodePluginInfo.pluginInstance.getPackageType() === FlowTaskPackageType.PARALLEL_RESOLVE_NODE) {
-        const parallelSessionId = currentNodeInstance.payload._parallelSessionId;
+      if (
+        nodePluginInfo.pluginInstance.getPackageType() ===
+        FlowTaskPackageType.PARALLEL_RESOLVE_NODE
+      ) {
+        const parallelSessionId =
+          currentNodeInstance.payload._parallelSessionId;
 
-        const parallelSessionCount = parallelSessions[parallelSessionId].nodeCount - 1;
+        const parallelSessionCount =
+          parallelSessions[parallelSessionId].nodeCount - 1;
         parallelSessions[parallelSessionId].nodeCount = parallelSessionCount;
 
         if (parallelSessions[parallelSessionId].payloads === undefined) {
@@ -244,7 +306,9 @@ export class EmitOutput {
         delete currentNodeInstance.payload._parallelSessionId;
         delete currentNodeInstance.payload._parallelCount;
 
-        parallelSessions[parallelSessionId].payloads.push(Object.assign({}, currentNodeInstance.payload));
+        parallelSessions[parallelSessionId].payloads.push(
+          Object.assign({}, currentNodeInstance.payload)
+        );
 
         // TODO : test merge payloads
         // TODO : how handle emitError?
@@ -256,17 +320,30 @@ export class EmitOutput {
 
         currentNodeInstance.payload = {};
         // currentNodeInstance.payload.payloads = parallelSessions[parallelSessionId].payloads;
-        currentNodeInstance.payload = Object.assign({}, ...parallelSessions[parallelSessionId].payloads);
+        currentNodeInstance.payload = Object.assign(
+          {},
+          ...parallelSessions[parallelSessionId].payloads
+        );
         delete parallelSessions[parallelSessionId];
       }
 
       let nodeWasEmitted = false;
       // CALL connected output nodes
       nodeInfo.outputs.map((nodeOutput: any) => {
-        if (followFlow === '' || (followFlow !== '' && nodeOutput.name === followFlow)) {
+        if (
+          followFlow === '' ||
+          (followFlow !== '' && nodeOutput.name === followFlow)
+        ) {
           // QUESTION: Does this causes memory issues?
           const payload = { ...currentNodeInstance.payload };
-          if (doesConnectionEmit(nodeOutput, currentNodeInstance, payload, eventName)) {
+          if (
+            doesConnectionEmit(
+              nodeOutput,
+              currentNodeInstance,
+              payload,
+              eventName
+            )
+          ) {
             nodeWasEmitted = true;
 
             flowEventRunner.touchedNodes[nodeOutput.name] = true;
@@ -281,17 +358,26 @@ export class EmitOutput {
                 nodeOutput.endshapeid.toString(),
                 nodeOutput.controllerName,
                 payload,
-                currentCallStack,
+                currentCallStack
               );
             } else {
-              nodeEmitter.emit(nodeOutput.endshapeid.toString(), payload, currentCallStack);
+              nodeEmitter.emit(
+                nodeOutput.endshapeid.toString(),
+                payload,
+                currentCallStack
+              );
             }
           }
         }
+        return true;
       });
 
       // call output nodes on callstack if node has no outputs
-      if (!nodeWasEmitted || (nodeInfo.outputs.length === 0 && typeof currentCallStack.outputs !== 'undefined')) {
+      if (
+        !nodeWasEmitted ||
+        (nodeInfo.outputs.length === 0 &&
+          typeof currentCallStack.outputs !== 'undefined')
+      ) {
         if (currentCallStack && currentCallStack.callStackType === 'FUNCTION') {
           // DONT call output node if in function... only fire function output node
           return;
@@ -313,7 +399,12 @@ export class EmitOutput {
               flowEventRunner.touchedNodes[outputNode.name] = true;
 
               // todo : double check if this needs doesConnectionEmit
-              nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
+              nodeEmitter.emit(
+                outputNode.endshapeid.toString(),
+                newPayload,
+                upperCallStack
+              );
+              return true;
             });
           }
         }
@@ -327,12 +418,18 @@ export class EmitOutput {
     nodeInfo: any,
     currentNodeInstance: any,
     currentCallStack: any,
-    flowEventRunner: any,
+    flowEventRunner: any
   ) {
-    if (nodeType.pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_OUTPUT_NODE) {
+    if (
+      nodeType.pluginInstance.getPackageType() ===
+      FlowTaskPackageType.FUNCTION_OUTPUT_NODE
+    ) {
       const newPayload = Object.assign({}, currentNodeInstance.payload);
 
-      if (typeof newPayload.followFlow !== 'undefined' && newPayload.followFlow) {
+      if (
+        typeof newPayload.followFlow !== 'undefined' &&
+        newPayload.followFlow
+      ) {
         newPayload._forwardFollowFlow = newPayload.followFlow;
       }
 
@@ -342,19 +439,36 @@ export class EmitOutput {
 
       const upperCallStack = currentCallStack.callStack;
       currentCallStack.error.map((currentNode: any) => {
-        nodeEmitter.emit(currentNode.endshapeid.toString(), newPayload, upperCallStack);
+        nodeEmitter.emit(
+          currentNode.endshapeid.toString(),
+          newPayload,
+          upperCallStack
+        );
+        return true;
       });
     } else {
-      if (typeof currentNodeInstance.payload.followFlow !== 'undefined' && currentNodeInstance.payload.followFlow) {
-        currentNodeInstance.payload._forwardFollowFlow = currentNodeInstance.payload.followFlow;
+      if (
+        typeof currentNodeInstance.payload.followFlow !== 'undefined' &&
+        currentNodeInstance.payload.followFlow
+      ) {
+        currentNodeInstance.payload._forwardFollowFlow =
+          currentNodeInstance.payload.followFlow;
       }
 
       nodeInfo.error.map((currentNode: any) => {
         flowEventRunner.touchedNodes[currentNode.name] = true;
-        nodeEmitter.emit(currentNode.endshapeid.toString(), currentNodeInstance.payload, currentCallStack);
+        nodeEmitter.emit(
+          currentNode.endshapeid.toString(),
+          currentNodeInstance.payload,
+          currentCallStack
+        );
+        return true;
       });
 
-      if (nodeInfo.error.length === 0 && typeof currentCallStack.error !== 'undefined') {
+      if (
+        nodeInfo.error.length === 0 &&
+        typeof currentCallStack.error !== 'undefined'
+      ) {
         let upperCallStack = currentCallStack.callStack;
         if (upperCallStack === undefined) {
           upperCallStack = {};
@@ -366,7 +480,12 @@ export class EmitOutput {
         delete newPayload.followFlow;
         currentCallStack.error.map((outputNode: any) => {
           flowEventRunner.touchedNodes[outputNode.name] = true;
-          nodeEmitter.emit(outputNode.endshapeid.toString(), newPayload, upperCallStack);
+          nodeEmitter.emit(
+            outputNode.endshapeid.toString(),
+            newPayload,
+            upperCallStack
+          );
+          return true;
         });
       }
     }

@@ -26,7 +26,7 @@ test('testObservableFlow', done => {
 	}
 
 	const flowPackage = HumanFlowToMachineFlow.convert(humanFlowPackage);
-	flowEventRunner.start(flowPackage).then((services) => {
+	flowEventRunner.start(flowPackage).then((_services) => {
 		console.log("started");
 
 		let observable = flowEventRunner.getObservableNode("observable");

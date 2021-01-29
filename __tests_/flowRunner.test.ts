@@ -361,7 +361,7 @@ test('testInjectTemplateWithValuesRangeIntoPayloadFlow', async () => {
 
 test('testDestroyFlow', async () => {
 	// https://jestjs.io/docs/en/tutorial-async
-	let value : boolean = await testBasicFlow();
+	let value : boolean = await testDestroyFlow();
 	expect(value).toBe(true);
 })
 

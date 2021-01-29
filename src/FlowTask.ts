@@ -1,13 +1,10 @@
 import * as FlowTaskPackageType from './FlowTaskPackageType';
 
-export class FlowTask {
-  public execute(node: any, services?: any, callStack?: any): any {
-    return true;
-  }
+export abstract class FlowTask {
+  abstract execute(node: any, services?: any, callStack?: any): any;
 
-  public executeAsHTTPEndpoint(node: any, request: any, response: any) {
-    // only called when PackageType is FlowTaskPackageType.HTTP_ENDPOINT_NODE
-  }
+  // only called when PackageType is FlowTaskPackageType.HTTP_ENDPOINT_NODE
+  //abstract executeAsHTTPEndpoint?(node: any, request: any, response: any) : any;
 
   public getName() {
     return 'FlowTask';
@@ -95,7 +92,7 @@ export class FlowTask {
     return false;
   }
 
-  public isSampling(node?: any) {
+  public isSampling(_node?: any) {
     return false;
   }
 

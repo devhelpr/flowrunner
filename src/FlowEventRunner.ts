@@ -1,4 +1,3 @@
-import * as Promise from 'promise';
 import { Observable, Subject } from 'rxjs';
 import * as uuid from 'uuid';
 import * as FlowTaskPackageType from './FlowTaskPackageType';
@@ -6,7 +5,10 @@ import { BuildNodeInfoHelper, INodeInfo } from './helpers/BuildNodeInfoHelper';
 import { EmitOutput } from './helpers/EmitOutput';
 import { FlowEventRunnerHelper } from './helpers/FlowEventRunnerHelper';
 import { InjectionHelper } from './helpers/InjectionHelper';
-import { IReactiveEventEmitterOptions, ReactiveEventEmitter } from './helpers/ReactiveEventEmitter';
+import {
+  IReactiveEventEmitterOptions,
+  ReactiveEventEmitter,
+} from './helpers/ReactiveEventEmitter';
 import { ActivationFunction } from './interfaces/FunctionTypes';
 import { IServicesInterface } from './interfaces/ServicesInterface';
 import { AssignTask } from './plugins/AssignTask';
@@ -38,7 +40,14 @@ export interface ITaskMetaData {
   shape: string;
 }
 
-type middlewareFunc = (result: any, id: any, title: any, nodeType: any, payload: any, dateTime: Date) => void;
+type middlewareFunc = (
+  result: any,
+  id: any,
+  title: any,
+  nodeType: any,
+  payload: any,
+  dateTime: Date
+) => void;
 
 export class FlowEventRunner {
   public services: IServicesInterface;
@@ -58,7 +67,7 @@ export class FlowEventRunner {
   private flowNodeTriggers: any = [];
   private flowNodeRegisterHooks: any = [];
   private flowNodeOverrideAttachHooks: any = [];
-  private nodePluginInfoMap: any = {};
+  //private nodePluginInfoMap: any = {};
   private observables: IRegisteredObservable[] = [];
   private activationFunctions: any;
 
@@ -70,9 +79,11 @@ export class FlowEventRunner {
     this.services = {
       flowEventRunner: this,
       getActivationFunction: this.getActivationFunction,
-      logMessage: (...args) => {},
+      //logMessage: (...args) => {},
+      logMessage: () => {},
       pluginClasses: [],
-      registerModel: (modelName: string, definition: any) => {},
+      //registerModel: (modelName: string, definition: any) => {},
+      registerModel: () => {},
     };
   }
 
@@ -109,11 +120,15 @@ export class FlowEventRunner {
 
         const name = pluginInstance.getName() || '';
         if (!name || name === '' || name === 'FlowTask') {
-          throw new Error(`Task ${pluginClassName} has no valid getName() method`);
+          throw new Error(
+            `Task ${pluginClassName} has no valid getName() method`
+          );
         }
 
         if (nodePluginInfoMap[name]) {
-          throw new Error(`Task ${pluginClassName} has getName() conflict with other task`);
+          throw new Error(
+            `Task ${pluginClassName} has getName() conflict with other task`
+          );
         }
 
         nodePluginInfoMap[name] = {
@@ -127,7 +142,7 @@ export class FlowEventRunner {
         };
       }
     }
-    this.nodePluginInfoMap = nodePluginInfoMap;
+    //this.nodePluginInfoMap = nodePluginInfoMap;
 
     this.nodes = nodeList
       .filter((o: any) => o.taskType !== 'connection')
@@ -144,13 +159,23 @@ export class FlowEventRunner {
         node.payload = {};
 
         if (node.subtype === 'registrate' || node.subtype === 'register') {
-          FlowEventRunnerHelper.registerNode(node, pluginInstance, this.services, this.flowNodeRegisterHooks);
-          return;
+          FlowEventRunnerHelper.registerNode(
+            node,
+            pluginInstance,
+            this.services,
+            this.flowNodeRegisterHooks
+          );
+          return false;
         }
 
         // nodeInfo contains the info needed to run the plugin on and list of input/output nodes and
         // which nodes are used for injection on each run of a plugin
-        const nodeInfo = BuildNodeInfoHelper.build(nodeList, node, nodePluginInfoMap, this.services);
+        const nodeInfo = BuildNodeInfoHelper.build(
+          nodeList,
+          node,
+          nodePluginInfoMap,
+          this.services
+        );
         nodeInfo.pluginInstance = pluginInstance;
 
         this.nodeInfoMap[node.id] = nodeInfo;
@@ -159,17 +184,23 @@ export class FlowEventRunner {
 
         if (pluginInstance !== undefined) {
           this.flowNodeTriggers.map((flowNodeTrigger: any) => {
-            flowNodeTrigger(pluginInstance.getPackageType(), node, (payload: any, callStack: any) => {
-              nodeEmitter.emit(node.id.toString(), payload, callStack);
-            });
+            flowNodeTrigger(
+              pluginInstance.getPackageType(),
+              node,
+              (payload: any, callStack: any) => {
+                nodeEmitter.emit(node.id.toString(), payload, callStack);
+              }
+            );
+            return true;
           });
         }
 
         if (typeof nodePluginInfo !== 'undefined') {
           this.flowNodeOverrideAttachHooks.map((hook: any) => {
             if (hook(node, pluginInstance, this.flowEventEmitter, nodeInfo)) {
-              return;
+              return false;
             }
+            return true;
           });
 
           if (node.subtype === 'autostart') {
@@ -188,7 +219,10 @@ export class FlowEventRunner {
             });
           }
 
-          if (pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_INPUT_NODE) {
+          if (
+            pluginInstance.getPackageType() ===
+            FlowTaskPackageType.FUNCTION_INPUT_NODE
+          ) {
             this.functionNodes[node.name] = node.id.toString();
             this.services.logMessage(this.functionNodes);
           }
@@ -198,8 +232,13 @@ export class FlowEventRunner {
           }
 
           const options: IReactiveEventEmitterOptions = {
-            isSampling: !!node.isSampling || (pluginInstance.isSampling && pluginInstance.isSampling(node)),
-            isThrottling: !!node.isThrottling || (pluginInstance.isThrottling && pluginInstance.isThrottling(node)),
+            isSampling:
+              !!node.isSampling ||
+              (pluginInstance.isSampling && pluginInstance.isSampling(node)),
+            isThrottling:
+              !!node.isThrottling ||
+              (pluginInstance.isThrottling &&
+                pluginInstance.isThrottling(node)),
             sampleInterval: node.sampleInterval,
             throttleInterval: node.throttleInterval,
           };
@@ -210,8 +249,14 @@ export class FlowEventRunner {
               nodeEmitter.on(
                 node.id.toString() + '_' + event.eventName,
                 (payload: any, callStack: any) => {
-                  const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
-                  const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
+                  const currentNode = Object.assign(
+                    {},
+                    node,
+                    this.nodeValues[node.id]
+                  );
+                  const nodeInstance = Object.assign({}, currentNode, {
+                    followNodes: nodeInfo.manuallyToFollowNodes,
+                  });
 
                   // copy the current node info but DONT include its outputs...
                   const eventNodeInfo = { ...nodeInfo };
@@ -229,7 +274,7 @@ export class FlowEventRunner {
                       o.followflow !== 'onfailure' &&
                       o.followflow !== 'followManually' &&
                       o.followflow !== 'injectConfigIntoPayload' &&
-                      o.event === event.eventName,
+                      o.event === event.eventName
                   );
 
                   eventNodeInfo.error = [];
@@ -242,21 +287,29 @@ export class FlowEventRunner {
                     nodeInstance,
                     callStack,
                     flowEventRunner,
-                    event.eventName,
+                    event.eventName
                   );
                 },
-                options,
+                options
               );
+              return true;
             });
           }
 
           nodeEmitter.on(
             node.id.toString(),
             (payload: any, callStack: any) => {
-              const currentNode = Object.assign({}, node, this.nodeValues[node.id]);
+              const currentNode = Object.assign(
+                {},
+                node,
+                this.nodeValues[node.id]
+              );
               let payloadInstance = { ...payload };
 
-              if (!!node['_setPerformanceMarker'] && typeof performance !== 'undefined') {
+              if (
+                !!node['_setPerformanceMarker'] &&
+                typeof performance !== 'undefined'
+              ) {
                 payloadInstance['_performance'] = performance.now();
               }
 
@@ -265,7 +318,8 @@ export class FlowEventRunner {
                 payloadInstance['_performance'] &&
                 typeof performance !== 'undefined'
               ) {
-                payloadInstance['_performanceDuration'] = performance.now() - payloadInstance['_performance'];
+                payloadInstance['_performanceDuration'] =
+                  performance.now() - payloadInstance['_performance'];
               }
 
               if (!!node['_clearPerformance']) {
@@ -279,10 +333,14 @@ export class FlowEventRunner {
 
               if (node.controllers) {
                 node.controllers.map((controller: any) => {
-                  const value = nodeEmitter.getNodeControllerValue(node.name, controller.name);
+                  const value = nodeEmitter.getNodeControllerValue(
+                    node.name,
+                    controller.name
+                  );
                   if (value || value === 0) {
                     payloadInstance[controller.name] = value;
                   }
+                  return true;
                 });
               }
 
@@ -294,7 +352,7 @@ export class FlowEventRunner {
                 payloadInstance,
                 this.services,
                 callStack,
-                this.middleware,
+                this.middleware
               );
 
               const flowEventRunner = this;
@@ -305,42 +363,61 @@ export class FlowEventRunner {
 
                 let tempPayload = { ...payloadInstance };
                 let callstackInstance = { ...callStack };
-                const nodeInstance = Object.assign({}, currentNode, { followNodes: nodeInfo.manuallyToFollowNodes });
+                const nodeInstance = Object.assign({}, currentNode, {
+                  followNodes: nodeInfo.manuallyToFollowNodes,
+                });
 
-                nodeInstance.payload = Object.assign({}, tempPayload, injectionValues);
+                nodeInstance.payload = Object.assign(
+                  {},
+                  tempPayload,
+                  injectionValues
+                );
 
                 if (node.subtype === 'start') {
                   callstackInstance.sessionId = uuidV4();
                 }
 
-                this.services.logMessage('EVENT Received for node: ', nodeInfo.name, node.id.toString());
+                this.services.logMessage(
+                  'EVENT Received for node: ',
+                  nodeInfo.name,
+                  node.id.toString()
+                );
 
-                function emitToOutputs(currentNodeInstance: any, currentCallStack: any) {
+                function emitToOutputs(
+                  currentNodeInstance: any,
+                  currentCallStack: any
+                ) {
                   EmitOutput.emitToOutputs(
                     nodePluginInfo,
                     nodeEmitter,
                     nodeInfo,
                     currentNodeInstance,
                     currentCallStack,
-                    flowEventRunner,
+                    flowEventRunner
                   );
                 }
 
-                function emitToError(currentNodeInstance: any, currentCallStack: any) {
+                function emitToError(
+                  currentNodeInstance: any,
+                  currentCallStack: any
+                ) {
                   EmitOutput.emitToError(
                     nodePluginInfo,
                     nodeEmitter,
                     nodeInfo,
                     currentNodeInstance,
                     currentCallStack,
-                    flowEventRunner,
+                    flowEventRunner
                   );
                 }
 
                 try {
                   let newCallStack = callstackInstance;
 
-                  if (pluginInstance.getPackageType() === FlowTaskPackageType.FUNCTION_NODE) {
+                  if (
+                    pluginInstance.getPackageType() ===
+                    FlowTaskPackageType.FUNCTION_NODE
+                  ) {
                     emitToOutputs(nodeInstance, newCallStack);
 
                     newCallStack = null;
@@ -351,10 +428,14 @@ export class FlowEventRunner {
                   }
 
                   if (
-                    pluginInstance.getPackageType() !== FlowTaskPackageType.FORWARD_NODE &&
-                    pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_OUTPUT_NODE
+                    pluginInstance.getPackageType() !==
+                      FlowTaskPackageType.FORWARD_NODE &&
+                    pluginInstance.getPackageType() !==
+                      FlowTaskPackageType.FUNCTION_OUTPUT_NODE
                   ) {
-                    if (typeof nodeInstance.payload.followFlow !== 'undefined') {
+                    if (
+                      typeof nodeInstance.payload.followFlow !== 'undefined'
+                    ) {
                       delete nodeInstance.payload.followFlow;
                     }
                   } else {
@@ -364,7 +445,8 @@ export class FlowEventRunner {
                     // followFlow is used by IfConditionTask to handle 'else'
 
                     if (nodeInstance.payload._forwardFollowFlow !== undefined) {
-                      nodeInstance.payload.followFlow = nodeInstance.payload._forwardFollowFlow;
+                      nodeInstance.payload.followFlow =
+                        nodeInstance.payload._forwardFollowFlow;
                     }
                   }
                   nodeInstance.payload._forwardFollowFlow = undefined;
@@ -378,12 +460,21 @@ export class FlowEventRunner {
                   this.resetTouchedNodesPreExecute(nodeInfo, []);
                   this.touchedNodes[nodeInfo.nodeId] = true;
 
-                  const result = pluginInstance.execute(nodeInstance, this.services, newCallStack);
+                  const result = pluginInstance.execute(
+                    nodeInstance,
+                    this.services,
+                    newCallStack
+                  );
 
-                  if (result instanceof Observable || result instanceof Subject) {
+                  if (
+                    result instanceof Observable ||
+                    result instanceof Subject
+                  ) {
                     if (pluginInstance.getObservable === undefined) {
                       this.observables.push({
-                        name: nodeInstance.name || nodeInstance.title.replace(/ /g, ''),
+                        name:
+                          nodeInstance.name ||
+                          nodeInstance.title.replace(/ /g, ''),
                         nodeId: nodeInstance.id,
                         observable: result,
                       });
@@ -400,7 +491,10 @@ export class FlowEventRunner {
 
                     const observer = {
                       complete: () => {
-                        this.services.logMessage('Completed observable for ', nodeInstance.name);
+                        this.services.logMessage(
+                          'Completed observable for ',
+                          nodeInstance.name
+                        );
                         tempPayload = null;
                         callstackInstance = null;
                       },
@@ -409,7 +503,11 @@ export class FlowEventRunner {
                           hasError: true,
                         };
 
-                        nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
+                        nodeInstance.payload = Object.assign(
+                          {},
+                          nodeInstance.payload,
+                          { error: err }
+                        );
                         emitToError(nodeInstance, newCallStack);
 
                         FlowEventRunnerHelper.callMiddleware(
@@ -419,24 +517,29 @@ export class FlowEventRunner {
                           nodeInstance.name,
                           node.taskType,
                           tempPayload,
-                          new Date(),
+                          new Date()
                         );
 
                         tempPayload = null;
                         callstackInstance = null;
                       },
                       next: (incomingPayload: any) => {
-                        nodeInstance.payload = incomingPayload.payload ? incomingPayload.payload : incomingPayload;
+                        nodeInstance.payload = incomingPayload.payload
+                          ? incomingPayload.payload
+                          : incomingPayload;
                         emitToOutputs(nodeInstance, newCallStack);
 
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
-                          incomingPayload && incomingPayload.followFlow === 'isError' ? 'error' : 'ok',
+                          incomingPayload &&
+                            incomingPayload.followFlow === 'isError'
+                            ? 'error'
+                            : 'ok',
                           nodeInstance.id,
                           nodeInstance.name,
                           node.taskType,
                           { ...incomingPayload },
-                          new Date(),
+                          new Date()
                         );
 
                         tempPayload = null;
@@ -451,7 +554,10 @@ export class FlowEventRunner {
                     }
 
                     node.subscription = result.subscribe(observer);
-                  } else if (typeof result === 'object' && typeof result.then === 'function') {
+                  } else if (
+                    typeof result === 'object' &&
+                    typeof result.then === 'function'
+                  ) {
                     // Promise
                     result
                       .then((incomingPayload: any) => {
@@ -460,12 +566,15 @@ export class FlowEventRunner {
 
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
-                          incomingPayload && incomingPayload.followFlow === 'isError' ? 'error' : 'ok',
+                          incomingPayload &&
+                            incomingPayload.followFlow === 'isError'
+                            ? 'error'
+                            : 'ok',
                           nodeInstance.id,
                           nodeInstance.name,
                           node.taskType,
                           { ...incomingPayload },
-                          new Date(),
+                          new Date()
                         );
 
                         tempPayload = null;
@@ -479,7 +588,11 @@ export class FlowEventRunner {
                           hasError: true,
                         };
 
-                        nodeInstance.payload = Object.assign({}, nodeInstance.payload, { error: err });
+                        nodeInstance.payload = Object.assign(
+                          {},
+                          nodeInstance.payload,
+                          { error: err }
+                        );
                         emitToError(nodeInstance, newCallStack);
 
                         FlowEventRunnerHelper.callMiddleware(
@@ -489,7 +602,7 @@ export class FlowEventRunner {
                           nodeInstance.name,
                           node.taskType,
                           nodeInstance.payload,
-                          new Date(),
+                          new Date()
                         );
 
                         tempPayload = null;
@@ -502,12 +615,14 @@ export class FlowEventRunner {
 
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
-                      result && result.followFlow === 'isError' ? 'error' : 'ok',
+                      result && result.followFlow === 'isError'
+                        ? 'error'
+                        : 'ok',
                       nodeInstance.id,
                       nodeInstance.name,
                       node.taskType,
                       result,
-                      new Date(),
+                      new Date()
                     );
 
                     tempPayload = null;
@@ -523,7 +638,7 @@ export class FlowEventRunner {
                       nodeInstance.name,
                       node.taskType,
                       nodeInstance.payload,
-                      new Date(),
+                      new Date()
                     );
 
                     tempPayload = null;
@@ -544,7 +659,7 @@ export class FlowEventRunner {
                       nodeInstance.name,
                       node.taskType,
                       nodeInstance.payload,
-                      new Date(),
+                      new Date()
                     );
 
                     newCallStack = null;
@@ -553,7 +668,10 @@ export class FlowEventRunner {
                   }
                 } catch (err) {
                   this.services.logMessage(err);
-                  const payloadForNotification = Object.assign({}, nodeInstance.payload);
+                  const payloadForNotification = Object.assign(
+                    {},
+                    nodeInstance.payload
+                  );
                   payloadForNotification.response = undefined;
                   payloadForNotification.request = undefined;
 
@@ -566,24 +684,30 @@ export class FlowEventRunner {
                 payloadInstance = null;
               });
             },
-            options,
+            options
           );
 
           return nodeInfo;
         }
+        return false;
       });
 
     autostarters.map((nodeId: any) => {
       nodeEmitter.emit(nodeId.toString(), {}, {});
+      return true;
     });
 
     if (!!autoStartNodes) {
       this.nodes.map((nodeInfo: any) => {
-        if (nodeInfo.pluginInstance.getPackageType() !== FlowTaskPackageType.FUNCTION_INPUT_NODE) {
+        if (
+          nodeInfo.pluginInstance.getPackageType() !==
+          FlowTaskPackageType.FUNCTION_INPUT_NODE
+        ) {
           if (nodeInfo.inputs.length === 0 && !nodeInfo.dontAutostart) {
             nodeEmitter.emit(nodeInfo.nodeId.toString(), {}, {});
           }
         }
+        return true;
       });
     }
   };
@@ -617,7 +741,11 @@ export class FlowEventRunner {
           nodeInfo.subscription.unsubscribe();
           nodeInfo.subscription = undefined;
         }
-        if (nodeInfo && nodeInfo.pluginInstance && nodeInfo.pluginInstance.kill) {
+        if (
+          nodeInfo &&
+          nodeInfo.pluginInstance &&
+          nodeInfo.pluginInstance.kill
+        ) {
           nodeInfo.pluginInstance.kill();
         }
         if (nodeInfo) {
@@ -626,13 +754,15 @@ export class FlowEventRunner {
           nodeInfo.outputs = [];
           nodeInfo.error = [];
         }
+        return true;
       });
     }
     this.nodes = [];
-    this.observables.map((observableHelper) => {
+    this.observables.map(observableHelper => {
       if (observableHelper && observableHelper.observable) {
         (observableHelper.observable as any).complete();
       }
+      return true;
     });
     this.observables = [];
     this.nodeValues = {};
@@ -640,7 +770,10 @@ export class FlowEventRunner {
   };
 
   public getFunctionNodeId = (title: any) => {
-    if (typeof this.functionNodes[title] !== 'undefined' && this.functionNodes[title] !== '') {
+    if (
+      typeof this.functionNodes[title] !== 'undefined' &&
+      this.functionNodes[title] !== ''
+    ) {
       return this.functionNodes[title];
     }
     return false;
@@ -650,7 +783,11 @@ export class FlowEventRunner {
     this.flowEventEmitter.emit(nodeId.toString(), payload, {});
   };
 
-  public triggerEventOnNode = (nodeName: any, eventName: string, payload: any) => {
+  public triggerEventOnNode = (
+    nodeName: any,
+    eventName: string,
+    payload: any
+  ) => {
     return this.executeNode(nodeName, payload, undefined, eventName);
   };
 
@@ -659,11 +796,16 @@ export class FlowEventRunner {
     return this.executeNode(nodeName, payload, undefined);
   };
 
-  public executeNode = (nodeName: any, payload: any, callStack?: any, eventName?: string) => {
+  public executeNode = (
+    nodeName: any,
+    payload: any,
+    callStack?: any,
+    eventName?: string
+  ) => {
     // this.touchedNodes = {};
 
     if (!this.nodeNames[nodeName]) {
-      return new Promise((resolve, reject) => {
+      return new Promise((_resolve, reject) => {
         reject();
       });
     }
@@ -684,7 +826,7 @@ export class FlowEventRunner {
     callstackInstance['_executeNode'] = true;
 
     if (!!this.flowEventEmitter.isPaused) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve, _reject) => {
         resolve({});
       });
     }
@@ -693,7 +835,7 @@ export class FlowEventRunner {
     tempErrorNodeId = uuidV4().toString();
 
     return new Promise((resolve: any, reject: any) => {
-      const innerPromise = new Promise((innerresolve: any, innerreject: any) => {
+      new Promise((innerresolve: any, innerreject: any) => {
         function onResult(localPayload: any) {
           // self.services.logMessage('executeNode result', localPayload);
           innerresolve(localPayload);
@@ -716,13 +858,14 @@ export class FlowEventRunner {
               error: [{ endshapeid: tempErrorNodeId }],
               outputs: [{ endshapeid: tempNodeId }],
             },
-            callstackInstance,
+            callstackInstance
           );
 
           self.flowEventEmitter.emit(
-            nodeId.toString() + (eventName !== undefined ? '_' + eventName : ''),
+            nodeId.toString() +
+              (eventName !== undefined ? '_' + eventName : ''),
             payloadInstance,
-            newCallStack,
+            newCallStack
           );
 
           payloadInstance = null;
@@ -734,7 +877,7 @@ export class FlowEventRunner {
           innerreject();
         }
       })
-        .then((localPayload) => {
+        .then(localPayload => {
           self.flowEventEmitter.removeListener(tempNodeId);
           self.flowEventEmitter.removeListener(tempErrorNodeId);
 
@@ -783,7 +926,7 @@ export class FlowEventRunner {
   };
 
   public getObservableNode = (nodeName: string) => {
-    const observables = this.observables.filter((observableNode) => {
+    const observables = this.observables.filter(observableNode => {
       return observableNode.name === nodeName;
     });
     return observables.length > 0 ? observables[0].observable : false;
@@ -800,7 +943,10 @@ export class FlowEventRunner {
       }
 
       try {
-        if (typeof this.functionNodes[nodeName] !== 'undefined' && self.functionNodes[nodeName] !== '') {
+        if (
+          typeof this.functionNodes[nodeName] !== 'undefined' &&
+          self.functionNodes[nodeName] !== ''
+        ) {
           tempNodeId = uuidV4().toString();
           const nodeId = self.functionNodes[nodeName];
 
@@ -827,7 +973,7 @@ export class FlowEventRunner {
     flowPackage: any,
     customServices?: IServicesInterface,
     mergeWithDefaultPlugins: boolean = true,
-    autoStartNodes = false,
+    autoStartNodes = false
   ) => {
     this.touchedNodes = {};
     this.nodeInfoMap = {};
@@ -838,19 +984,24 @@ export class FlowEventRunner {
     } else {
       this.services = {
         flowEventRunner: this,
-        logMessage: (...args) => {},
+        logMessage: (..._args) => {},
         pluginClasses: {},
-        registerModel: (modelName: string, definition: any) => {},
+        registerModel: (_modelName: string, _definition: any) => {},
       };
     }
 
     this.services.getActivationFunction = this.getActivationFunction;
 
-    if (mergeWithDefaultPlugins === undefined || mergeWithDefaultPlugins === true) {
+    if (
+      mergeWithDefaultPlugins === undefined ||
+      mergeWithDefaultPlugins === true
+    ) {
       this.services.pluginClasses['AssignTask'] = AssignTask;
       this.services.pluginClasses['ClearTask'] = ClearTask;
       this.services.pluginClasses['ForwardTask'] = ForwardTask;
-      this.services.pluginClasses['InjectIntoPayloadTask'] = InjectIntoPayloadTask;
+      this.services.pluginClasses[
+        'InjectIntoPayloadTask'
+      ] = InjectIntoPayloadTask;
       this.services.pluginClasses['ObserverTask'] = ObserverTask;
       this.services.pluginClasses['ObservableTask'] = ObservableTask;
       this.services.pluginClasses['TraceConsoleTask'] = TraceConsoleTask;
@@ -862,7 +1013,11 @@ export class FlowEventRunner {
       this.services.pluginClasses['ParallelResolveTask'] = ParallelResolveTask;
     }
 
-    this.services.pluginClasses = Object.assign({}, this.services.pluginClasses, this.tasks);
+    this.services.pluginClasses = Object.assign(
+      {},
+      this.services.pluginClasses,
+      this.tasks
+    );
 
     return new Promise((resolve: any, reject: any) => {
       try {
@@ -896,10 +1051,18 @@ export class FlowEventRunner {
     return metaData;
   };
 
-  public setPropertyOnNode = (nodeName: string, propertyName: string, value: any, additionalValues: any) => {
+  public setPropertyOnNode = (
+    nodeName: string,
+    propertyName: string,
+    value: any,
+    additionalValues: any
+  ) => {
     const nodeId: string = this.nodeNames[nodeName as any];
     if (additionalValues) {
-      this.nodeValues[nodeId] = { ...this.nodeValues[nodeId], ...additionalValues };
+      this.nodeValues[nodeId] = {
+        ...this.nodeValues[nodeId],
+        ...additionalValues,
+      };
     }
     if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
       this.nodeValues[nodeId][propertyName] = value;
@@ -930,7 +1093,10 @@ export class FlowEventRunner {
     this.flowEventEmitter.pauseFlowrunner();
   };
 
-  public registerActivationFuncion = (name: string, activationFunction: ActivationFunction) => {
+  public registerActivationFuncion = (
+    name: string,
+    activationFunction: ActivationFunction
+  ) => {
     this.activationFunctions[name] = activationFunction;
   };
 
@@ -950,7 +1116,10 @@ export class FlowEventRunner {
     return false;
   };
 
-  private resetTouchedNodesPreExecute = (nodeInfo: INodeInfo, updatedNodes: string[]) => {
+  private resetTouchedNodesPreExecute = (
+    nodeInfo: INodeInfo,
+    updatedNodes: string[]
+  ) => {
     /*
     - touchednodes bijwerken in de FlowEventRunner:
 		
@@ -981,24 +1150,35 @@ export class FlowEventRunner {
     if (nodeInfo && nodeInfo.outputs) {
       nodeInfo.outputs.map((outputNode: any) => {
         delete this.touchedNodes[outputNode.name];
+        return true;
       });
 
       nodeInfo.outputs.map((outputNode: any) => {
-        this.resetTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], updatedNodesList);
+        this.resetTouchedNodesPreExecute(
+          this.nodeInfoMap[outputNode.endshapeid],
+          updatedNodesList
+        );
+        return true;
       });
     }
 
     if (nodeInfo && nodeInfo.error) {
       nodeInfo.error.map((outputNode: any) => {
         delete this.touchedNodes[outputNode.name];
+        return true;
       });
 
       nodeInfo.error.map((outputNode: any) => {
-        this.resetTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], updatedNodesList);
+        this.resetTouchedNodesPreExecute(
+          this.nodeInfoMap[outputNode.endshapeid],
+          updatedNodesList
+        );
+        return true;
       });
     }
   };
 
+  /*
   private updateTouchedNodesPostExecute = (nodeInfo: INodeInfo, updatedNodes: string[]) => {
     if (!nodeInfo) {
       return;
@@ -1007,15 +1187,6 @@ export class FlowEventRunner {
       return;
     }
     this.touchedNodes[nodeInfo.nodeId] = true;
-
-    /*nodeInfo.outputs?.map(outputNode => {
-      delete this.touchedNodes[outputNode.name];
-    });
-
-    nodeInfo.outputs?.map(outputNode => {
-      this.updateTouchedNodesPreExecute(this.nodeInfoMap[outputNode.endshapeid], 
-        [...updatedNodes, outputNode.endshapeid]);
-    });
-    */
   };
+  */
 }
