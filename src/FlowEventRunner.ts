@@ -810,7 +810,7 @@ export class FlowEventRunner {
         reject();
       });
     }
-    const self = this;
+    let self: any = this;
     let payloadInstance = { ...payload };
     let callstackInstance = callStack ? { ...callStack } : {};
     let tempNodeId: any;
@@ -882,7 +882,7 @@ export class FlowEventRunner {
           self.flowEventEmitter.removeListener(tempNodeId);
           self.flowEventEmitter.removeListener(tempErrorNodeId);
 
-          (self as any) = null;
+          self = null;
           tempNodeId = null;
           tempErrorNodeId = null;
 
@@ -892,7 +892,7 @@ export class FlowEventRunner {
           self.flowEventEmitter.removeListener(tempNodeId);
           self.flowEventEmitter.removeListener(tempErrorNodeId);
 
-          (self as any) = null;
+          self = null;
           tempNodeId = null;
           tempErrorNodeId = null;
 
