@@ -766,7 +766,7 @@ export class FlowEventRunner {
       return true;
     });
     this.observables = [];
-    this.nodeValues = {};
+    //this.nodeValues = {};
     this.nodeNames = [];
   };
 
@@ -974,10 +974,15 @@ export class FlowEventRunner {
     flowPackage: any,
     customServices?: IServicesInterface,
     mergeWithDefaultPlugins: boolean = true,
-    autoStartNodes = false
+    autoStartNodes = false,
+    keepOldFlowValues = false
   ) => {
     this.touchedNodes = {};
     this.nodeInfoMap = {};
+
+    if (!keepOldFlowValues) {
+      this.nodeValues = {};
+    }
 
     if (customServices !== undefined) {
       this.services = customServices;
