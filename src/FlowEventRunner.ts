@@ -96,7 +96,11 @@ export class FlowEventRunner {
   //
   // split in multiple methods / classes
 
-  public createNodes = (nodeList: any[], autoStartNodes: boolean = false) => {
+  public createNodes = (
+    nodeList: any[],
+    autoStartNodes: boolean = false,
+    keepOldFlowValues = false
+  ) => {
     this.flowEventEmitter = new ReactiveEventEmitter();
     this.flowEventEmitter.throttle = this.throttle;
 
@@ -147,7 +151,9 @@ export class FlowEventRunner {
     this.nodes = nodeList
       .filter((o: any) => o.taskType !== 'connection')
       .map((node: any) => {
-        this.nodeValues[node.id] = node;
+        if (!keepOldFlowValues || !this.nodeValues[node.id]) {
+          this.nodeValues[node.id] = node;
+        }
 
         // nodePluginInfo contains info about the the plugin such as the plugInstance, className and config metadata
         const nodePluginInfo = nodePluginInfoMap[node.taskType];
@@ -1027,7 +1033,7 @@ export class FlowEventRunner {
 
     return new Promise((resolve: any, reject: any) => {
       try {
-        this.createNodes(flowPackage.flow, autoStartNodes);
+        this.createNodes(flowPackage.flow, autoStartNodes, keepOldFlowValues);
 
         resolve(this.services);
       } catch (err) {
