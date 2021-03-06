@@ -159,6 +159,12 @@ export class FlowEventRunner {
         const nodePluginInfo = nodePluginInfoMap[node.taskType];
 
         const pluginClass = this.services.pluginClasses[node.taskType];
+        
+        if (!pluginClass) {
+          this.services.logMessage("pluginClass not defined", node.id, node);
+          return false;
+        }
+
         const pluginInstance = new pluginClass();
 
         // node is the actual node on flow-level (it contains just the basic properties defined in the flow)
@@ -369,9 +375,13 @@ export class FlowEventRunner {
 
                 let tempPayload = { ...payloadInstance };
                 let callstackInstance = { ...callStack };
-                const nodeInstance = Object.assign({}, currentNode, {
+                let nodeInstance = Object.assign({}, currentNode, {
                   followNodes: nodeInfo.manuallyToFollowNodes,
                 });
+
+                if (node && node.observable) {
+                  nodeInstance.observable = node.observable;
+                }
 
                 nodeInstance.payload = Object.assign(
                   {},

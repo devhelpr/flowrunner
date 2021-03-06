@@ -51,12 +51,16 @@ export class AssignTask extends FlowTask {
             node.assignAsPropertyFromObject !== undefined &&
             node.assignAsPropertyFromObject !== ''
           ) {
-            node.payload[node.assignAsPropertyFromObject][
-              node.assignToProperty
-            ] = node.payload[node.readFromObject][node.valueFromProperty];
+            if (node.payload[node.readFromObject]) {
+              node.payload[node.assignAsPropertyFromObject][
+                node.assignToProperty
+              ] = node.payload[node.readFromObject][node.valueFromProperty];
+            }
           } else {
-            node.payload[node.assignToProperty] =
-              node.payload[node.readFromObject][node.valueFromProperty];
+            if (node.payload[node.readFromObject]) {
+              node.payload[node.assignToProperty] =
+                node.payload[node.readFromObject][node.valueFromProperty];
+            }
           }
         } else if (
           node.assignAsPropertyFromObject !== undefined &&
