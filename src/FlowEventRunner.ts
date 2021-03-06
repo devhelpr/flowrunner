@@ -159,9 +159,9 @@ export class FlowEventRunner {
         const nodePluginInfo = nodePluginInfoMap[node.taskType];
 
         const pluginClass = this.services.pluginClasses[node.taskType];
-        
+
         if (!pluginClass) {
-          this.services.logMessage("pluginClass not defined", node.id, node);
+          this.services.logMessage('pluginClass not defined', node.id, node);
           return false;
         }
 
