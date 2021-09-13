@@ -1091,6 +1091,19 @@ export class FlowEventRunner {
     }
   };
 
+  public setPropertiesOnNode = (
+    nodeName: string,
+    additionalValues: any
+  ) => {
+    const nodeId: string = this.nodeNames[nodeName as any];
+    if (additionalValues) {
+      this.nodeValues[nodeId] = {
+        ...this.nodeValues[nodeId],
+        ...additionalValues,
+      };
+    }
+  };
+
   public getPropertyFromNode = (nodeName: string, propertyName: string) => {
     const nodeId: string = this.nodeNames[nodeName as any];
     if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
