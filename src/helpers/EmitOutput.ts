@@ -103,6 +103,7 @@ export class EmitOutput {
     }
 
     if (
+      nodePluginInfo.pluginInstance &&
       nodePluginInfo.pluginInstance.getPackageType() ===
       FlowTaskPackageType.FUNCTION_OUTPUT_NODE
     ) {
@@ -207,6 +208,7 @@ export class EmitOutput {
         }
       }
     } else if (
+      nodePluginInfo.pluginInstance &&
       nodePluginInfo.pluginInstance.getPackageType() ===
       FlowTaskPackageType.FUNCTION_NODE
     ) {
@@ -247,6 +249,7 @@ export class EmitOutput {
 
         if (followFlow === 'isError') {
           if (
+            nodePluginInfo.pluginInstance &&
             nodePluginInfo.pluginInstance.getPackageType() !==
             FlowTaskPackageType.FORWARD_NODE
           ) {
@@ -266,6 +269,7 @@ export class EmitOutput {
       }
 
       if (
+        nodePluginInfo.pluginInstance &&
         nodePluginInfo.pluginInstance.getPackageType() !==
         FlowTaskPackageType.FORWARD_NODE
       ) {
@@ -276,6 +280,7 @@ export class EmitOutput {
 
       // Handle parallel sessions
       if (
+        nodePluginInfo.pluginInstance &&
         nodePluginInfo.pluginInstance.getPackageType() ===
           FlowTaskPackageType.PARALLEL_NODE &&
         nodeInfo.outputs.length > 0
@@ -289,6 +294,7 @@ export class EmitOutput {
       }
 
       if (
+        nodePluginInfo.pluginInstance &&
         nodePluginInfo.pluginInstance.getPackageType() ===
         FlowTaskPackageType.PARALLEL_RESOLVE_NODE
       ) {

@@ -48,7 +48,7 @@ test('testObservableFlow', done => {
 				console.log(err);
 				expect(false).toBe(true);
 				done();	
-		}
+			}
 			
 		} else {
 			expect(false).toBe(true);

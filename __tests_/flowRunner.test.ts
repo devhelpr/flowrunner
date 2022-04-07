@@ -400,13 +400,11 @@ const testRetriggerNode = async () => {
 }
 
 test('testBasicFlow', async () => {
-	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testBasicFlow();
 	expect(value).toBe(true);
 })
 
 test('testInjectTemplateIntoPayloadFlow', async () => {
-	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testInjectTemplateIntoPayloadFlow();
 	expect(value).toBe(true);
 })
@@ -417,34 +415,22 @@ test('testInjectTemplateWithValuesRangeIntoPayloadFlow', async () => {
 })
 
 test('testDestroyFlow', async () => {
-	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testDestroyFlow();
 	expect(value).toBe(true);
 })
 
 test('ifConditionBasicFlow', async () => {
-	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await ifConditionBasicFlow();
 	expect(value).toBe(true);
 })
 
-/*
-test('ifConditionNoResultFlow', async () => {
-	// https://jestjs.io/docs/en/tutorial-async
-	let value : boolean = await ifConditionNoResultFlow();
-	expect(value).toBe(true);
-})
-*/
-
 test('testInjectFlow', async () => {
-	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testInjectFlow();
 	expect(value).toBe(true);
 })
 
 
 test('testTaskMetaData', async () => {
-	// https://jestjs.io/docs/en/tutorial-async
 	let value : boolean = await testTaskMetaData();
 	expect(value).toBe(true);
 })
@@ -463,6 +449,3 @@ test('testRetriggerNode', async () => {
 	let value : boolean = await testRetriggerNode();
 	expect(value).toBe(true);
 })
-
-
-

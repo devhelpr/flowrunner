@@ -114,6 +114,9 @@ export function conditionCheck(
     }
     return false;
   } catch (err) {
-    throw new Error(err);
+    if (typeof err === "string") {
+      throw new Error(err);
+    }
+    throw new Error("Error in IfConditionHelpers.conditionCheck");
   }
 }
