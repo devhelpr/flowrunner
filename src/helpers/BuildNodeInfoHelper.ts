@@ -12,6 +12,7 @@ export interface INodeInfo {
   outputs?: any[];
   pluginInstance: any;
   title: string;
+  isAnnotation: boolean;
 }
 
 export class BuildNodeInfoHelper {
@@ -74,6 +75,7 @@ export class BuildNodeInfoHelper {
         }),
       pluginInstance: undefined,
       title: node.title,
+      isAnnotation: false,
     };
   }
 }

@@ -206,6 +206,7 @@ export class FlowEventRunner {
           nodePluginInfoMap,
           this.services
         );
+        nodeInfo.isAnnotation = nodePluginInfo.isAnnotation;
         nodeInfo.pluginInstance = pluginInstance;
 
         this.nodeInfoMap[node.id] = nodeInfo;
@@ -755,9 +756,10 @@ export class FlowEventRunner {
     if (!!autoStartNodes) {
       this.nodes.map((nodeInfo: any) => {
         if (
-          !nodeInfo.isAnnotation &&
-          nodeInfo.pluginInstance.getPackageType() !==
-            FlowTaskPackageType.FUNCTION_INPUT_NODE
+          !nodeInfo.pluginInstance ||
+          (nodeInfo.pluginInstanc &&
+            nodeInfo.pluginInstance.getPackageType() !==
+              FlowTaskPackageType.FUNCTION_INPUT_NODE)
         ) {
           if (nodeInfo.inputs.length === 0 && !nodeInfo.dontAutostart) {
             nodeEmitter.emit(nodeInfo.nodeId.toString(), {}, {});
