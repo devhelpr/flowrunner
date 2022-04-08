@@ -1164,6 +1164,10 @@ export class FlowEventRunner {
     return this.touchedNodes || {};
   }
 
+  public isPaused = () => {
+    return this.flowEventEmitter.isPaused;
+  };
+
   public pauseFlowrunner = () => {
     this.flowEventEmitter.pauseFlowrunner();
   };
