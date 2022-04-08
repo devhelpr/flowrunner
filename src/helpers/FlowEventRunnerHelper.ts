@@ -6,15 +6,23 @@ export class FlowEventRunnerHelper {
     title: any,
     nodeType: any,
     payload: any,
-    dateTime: Date
+    dateTime: Date,
+    beforePayload? : any
   ) => {
     const cleanPayload = Object.assign({}, payload);
 
     cleanPayload.request = undefined;
     cleanPayload.response = undefined;
 
+    let cleanBeforePayload : any  = undefined;
+    if (beforePayload) {
+      cleanBeforePayload = {...beforePayload};
+      cleanBeforePayload.request = undefined;
+      cleanBeforePayload.response = undefined;
+    }
+
     middleware.map((middlewareFunction: any) => {
-      middlewareFunction(result, id, title, nodeType, cleanPayload, dateTime);
+      middlewareFunction(result, id, title, nodeType, cleanPayload, dateTime, cleanBeforePayload);
       return true;
     });
 

@@ -565,7 +565,8 @@ export class FlowEventRunner {
                           nodeInstance.name,
                           node.taskType,
                           tempPayload,
-                          new Date()
+                          new Date(),
+                          this.nodeLastPayload[node.name]
                         );
 
                         tempPayload = null;
@@ -587,7 +588,8 @@ export class FlowEventRunner {
                           nodeInstance.name,
                           node.taskType,
                           { ...incomingPayload },
-                          new Date()
+                          new Date(),
+                          this.nodeLastPayload[node.name]
                         );
 
                         tempPayload = null;
@@ -622,7 +624,8 @@ export class FlowEventRunner {
                           nodeInstance.name,
                           node.taskType,
                           { ...incomingPayload },
-                          new Date()
+                          new Date(),
+                          this.nodeLastPayload[node.name]
                         );
 
                         tempPayload = null;
@@ -650,7 +653,8 @@ export class FlowEventRunner {
                           nodeInstance.name,
                           node.taskType,
                           nodeInstance.payload,
-                          new Date()
+                          new Date(),
+                          this.nodeLastPayload[node.name]
                         );
 
                         tempPayload = null;
@@ -670,7 +674,8 @@ export class FlowEventRunner {
                       nodeInstance.name,
                       node.taskType,
                       result,
-                      new Date()
+                      new Date(),
+                      this.nodeLastPayload[node.name]
                     );
 
                     tempPayload = null;
@@ -686,7 +691,8 @@ export class FlowEventRunner {
                       nodeInstance.name,
                       node.taskType,
                       nodeInstance.payload,
-                      new Date()
+                      new Date(),
+                      this.nodeLastPayload[node.name]
                     );
 
                     tempPayload = null;
@@ -708,7 +714,8 @@ export class FlowEventRunner {
                       nodeInstance.name,
                       node.taskType,
                       nodeInstance.payload,
-                      new Date()
+                      new Date(),
+                      this.nodeLastPayload[node.name]
                     );
 
                     newCallStack = null;
@@ -875,11 +882,13 @@ export class FlowEventRunner {
     */
     callstackInstance['_executeNode'] = true;
 
+    /*
     if (!!this.flowEventEmitter.isPaused) {
       return new Promise((resolve, _reject) => {
         resolve({});
       });
     }
+    */
 
     tempNodeId = uuidV4().toString();
     tempErrorNodeId = uuidV4().toString();
@@ -1159,6 +1168,14 @@ export class FlowEventRunner {
 
   public pauseFlowrunner = () => {
     this.flowEventEmitter.pauseFlowrunner();
+  };
+
+  public doFlowStep = () => {
+    this.flowEventEmitter.stepToNextNode();
+  }
+
+  public continueFlowrunner = () => {
+    this.flowEventEmitter.resumeFlowrunner();
   };
 
   public registerActivationFuncion = (

@@ -21,6 +21,7 @@ export interface IReactiveEventEmitterOptions {
 */
 export class ReactiveEventEmitter {
   public isPaused: boolean = false;
+  public doPauseEverything : boolean = true;
   public sample: number = 30;
   public throttle: number = 30;
 
@@ -29,6 +30,8 @@ export class ReactiveEventEmitter {
   private subscriptions: any = {};
 
   private nodesControllers: any = {};
+
+  private pausingSubject = new Subject<any>();
 
   public suspendUntilLock = (_lockID: string) => {};
 
@@ -40,6 +43,11 @@ export class ReactiveEventEmitter {
 
   public resumeFlowrunner = () => {
     this.isPaused = false;
+    this.pausingSubject.next(true);
+  };
+
+  public stepToNextNode = () => {
+    this.pausingSubject.next(true);
   };
 
   public on = (
@@ -124,15 +132,7 @@ export class ReactiveEventEmitter {
     delete this.nodesListeners[nodeName];
   };
 
-  public emit = (nodeName: any, payload: any, callstack: any) => {
-    if (!!this.isPaused && callstack['_executeNode'] === undefined) {
-      // if in executeNode.. then finish that run of the flow before pausing
-
-      // naive solution to pause the flow
-      // .. should we also pause observables?
-      return;
-    }
-
+  private emitToSubject = (nodeName: any, payload: any, callstack: any) => {
     if (typeof this.subjects[nodeName] === 'object') {
       let subject$ = this.subjects[nodeName];
       let payloadInstance = { ...payload };
@@ -144,6 +144,36 @@ export class ReactiveEventEmitter {
       payloadInstance = null;
       callstackInstance = null;
     }
+  }
+
+  private pauseSubscriptions: any = {};
+
+  public emit = (nodeName: any, payload: any, callstack: any) => {
+    if (!!this.isPaused && (this.doPauseEverything || 
+        (!this.doPauseEverything && callstack['_executeNode'] === undefined))) {
+
+      // TODO : fix pausing and suspending properly .. this is BUGGY!
+      if (!this.pauseSubscriptions[nodeName]) {
+        const pausingSubscription = this.pausingSubject.subscribe({
+          next: () => {
+            if (!this.isPaused) {
+              this.pauseSubscriptions[nodeName].unsubscribe();
+              delete this.pauseSubscriptions[nodeName];
+            }
+            this.emitToSubject(nodeName, payload, callstack);
+          }
+        });
+        this.pauseSubscriptions[nodeName] = pausingSubscription;
+      }
+
+      // if in executeNode.. then finish that run of the flow before pausing
+
+      // naive solution to pause the flow
+      // .. should we also pause observables? it looks like these are also paused already !?
+      return;
+    }
+
+    this.emitToSubject(nodeName, payload, callstack);
   };
 
   public emitToController = (
