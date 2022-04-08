@@ -757,7 +757,7 @@ export class FlowEventRunner {
       this.nodes.map((nodeInfo: any) => {
         if (
           !nodeInfo.pluginInstance ||
-          (nodeInfo.pluginInstanc &&
+          (nodeInfo.pluginInstance &&
             nodeInfo.pluginInstance.getPackageType() !==
               FlowTaskPackageType.FUNCTION_INPUT_NODE)
         ) {
