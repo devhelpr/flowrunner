@@ -21,7 +21,7 @@ export interface IReactiveEventEmitterOptions {
 */
 export class ReactiveEventEmitter {
   public isPaused: boolean = false;
-  public doPauseEverything : boolean = true;
+  public doPauseEverything: boolean = true;
   public sample: number = 30;
   public throttle: number = 30;
 
@@ -144,14 +144,16 @@ export class ReactiveEventEmitter {
       payloadInstance = null;
       callstackInstance = null;
     }
-  }
+  };
 
   private pauseSubscriptions: any = {};
 
   public emit = (nodeName: any, payload: any, callstack: any) => {
-    if (!!this.isPaused && (this.doPauseEverything || 
-        (!this.doPauseEverything && callstack['_executeNode'] === undefined))) {
-
+    if (
+      !!this.isPaused &&
+      (this.doPauseEverything ||
+        (!this.doPauseEverything && callstack['_executeNode'] === undefined))
+    ) {
       // TODO : fix pausing and suspending properly .. this is BUGGY!
       if (!this.pauseSubscriptions[nodeName]) {
         const pausingSubscription = this.pausingSubject.subscribe({
@@ -161,7 +163,7 @@ export class ReactiveEventEmitter {
               delete this.pauseSubscriptions[nodeName];
             }
             this.emitToSubject(nodeName, payload, callstack);
-          }
+          },
         });
         this.pauseSubscriptions[nodeName] = pausingSubscription;
       }

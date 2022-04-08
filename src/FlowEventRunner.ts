@@ -125,9 +125,8 @@ export class FlowEventRunner {
               shape: 'Annotation',
               isAnnotation: true,
             };
-          }          
+          }
         } else {
-
           const pluginClass = this.services.pluginClasses[pluginClassName];
           if (pluginClass === undefined) {
             throw new Error(`Task ${pluginClassName} doesn't exist`);
@@ -402,7 +401,7 @@ export class FlowEventRunner {
 
                 let nodeInstance = Object.assign({}, currentNode, {
                   followNodes: nodeInfo.manuallyToFollowNodes,
-                });                
+                });
 
                 if (node && node.observable) {
                   nodeInstance.observable = node.observable;
@@ -1035,7 +1034,6 @@ export class FlowEventRunner {
     autoStartNodes = false,
     keepOldFlowValues = false
   ) => {
-    
     this.touchedNodes = {};
     this.nodeInfoMap = {};
 
@@ -1172,7 +1170,7 @@ export class FlowEventRunner {
 
   public doFlowStep = () => {
     this.flowEventEmitter.stepToNextNode();
-  }
+  };
 
   public continueFlowrunner = () => {
     this.flowEventEmitter.resumeFlowrunner();

@@ -105,7 +105,7 @@ export class EmitOutput {
     if (
       nodePluginInfo.pluginInstance &&
       nodePluginInfo.pluginInstance.getPackageType() ===
-      FlowTaskPackageType.FUNCTION_OUTPUT_NODE
+        FlowTaskPackageType.FUNCTION_OUTPUT_NODE
     ) {
       // HANDLE FUNCTION OUTPUT/RESULT
 
@@ -210,7 +210,7 @@ export class EmitOutput {
     } else if (
       nodePluginInfo.pluginInstance &&
       nodePluginInfo.pluginInstance.getPackageType() ===
-      FlowTaskPackageType.FUNCTION_NODE
+        FlowTaskPackageType.FUNCTION_NODE
     ) {
       // CALL FUNCTION NODE
 
@@ -251,7 +251,7 @@ export class EmitOutput {
           if (
             nodePluginInfo.pluginInstance &&
             nodePluginInfo.pluginInstance.getPackageType() !==
-            FlowTaskPackageType.FORWARD_NODE
+              FlowTaskPackageType.FORWARD_NODE
           ) {
             currentNodeInstance.payload.followFlow = undefined;
             delete currentNodeInstance.payload.followFlow;
@@ -271,7 +271,7 @@ export class EmitOutput {
       if (
         nodePluginInfo.pluginInstance &&
         nodePluginInfo.pluginInstance.getPackageType() !==
-        FlowTaskPackageType.FORWARD_NODE
+          FlowTaskPackageType.FORWARD_NODE
       ) {
         currentNodeInstance.payload.followFlow = undefined;
       }
@@ -296,7 +296,7 @@ export class EmitOutput {
       if (
         nodePluginInfo.pluginInstance &&
         nodePluginInfo.pluginInstance.getPackageType() ===
-        FlowTaskPackageType.PARALLEL_RESOLVE_NODE
+          FlowTaskPackageType.PARALLEL_RESOLVE_NODE
       ) {
         const parallelSessionId =
           currentNodeInstance.payload._parallelSessionId;
