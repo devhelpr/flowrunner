@@ -13,6 +13,7 @@ export interface INodeInfo {
   pluginInstance: any;
   title: string;
   isAnnotation: boolean;
+  subscription?: any;
 }
 
 export class BuildNodeInfoHelper {

@@ -110,7 +110,7 @@ export class FlowEventRunner {
     nodeEmitter.on('error', this.errorListener);
 
     const nodePluginInfoMap: any = {};
-    const autostarters: any = [];
+    const autostarters: string[] = [];
 
     for (const pluginClassName in this.services.pluginClasses) {
       if (this.services.pluginClasses.hasOwnProperty(pluginClassName)) {
@@ -236,10 +236,10 @@ export class FlowEventRunner {
             });
 
             if (node.subtype === 'autostart') {
-              autostarters.push(node.id.toString());
+              autostarters.push(node.name.toString());
             } else if (pluginInstance.isStartingOnInitFlow !== undefined) {
               if (pluginInstance.isStartingOnInitFlow()) {
-                autostarters.push(node.id.toString());
+                autostarters.push(node.name.toString());
               }
             }
 
@@ -756,6 +756,7 @@ export class FlowEventRunner {
     if (!!autoStartNodes) {
       this.nodes.map((nodeInfo: any) => {
         if (
+          autostarters.indexOf(nodeInfo.name.toString()) < 0 ||
           !nodeInfo.pluginInstance ||
           (nodeInfo.pluginInstance &&
             nodeInfo.pluginInstance.getPackageType() !==
@@ -789,7 +790,7 @@ export class FlowEventRunner {
     }
 
     if (this.nodes) {
-      this.nodes.map((nodeInfo: any) => {
+      this.nodes.map((nodeInfo: INodeInfo) => {
         if (nodeInfo && nodeInfo.nodeId) {
           if (this.flowEventEmitter) {
             this.flowEventEmitter.removeListener(nodeInfo.nodeId);
@@ -804,7 +805,7 @@ export class FlowEventRunner {
           nodeInfo.pluginInstance &&
           nodeInfo.pluginInstance.kill
         ) {
-          nodeInfo.pluginInstance.kill();
+          nodeInfo.pluginInstance.kill(nodeInfo.name);
         }
         if (nodeInfo) {
           nodeInfo.pluginInstance = undefined;
