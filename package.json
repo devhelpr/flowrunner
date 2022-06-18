@@ -1,6 +1,6 @@
 {
   "name": "@devhelpr/flowrunner",
-  "version": "0.13.4",
+  "version": "0.13.5",
   "description": "Library which runs flows",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
