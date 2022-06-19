@@ -519,6 +519,18 @@ export class FlowEventRunner {
                     result instanceof Subject
                   ) {
                     if (pluginInstance.getObservable === undefined) {
+                      if (
+                        this.observables.filter(
+                          observedNode =>
+                            observedNode.name === nodeInstance.name
+                        ).length > 0
+                      ) {
+                        newCallStack = null;
+                        tempPayload = null;
+                        callstackInstance = null;
+                        return;
+                      }
+
                       this.observables.push({
                         name:
                           nodeInstance.name ||
@@ -756,11 +768,11 @@ export class FlowEventRunner {
     if (!!autoStartNodes) {
       this.nodes.map((nodeInfo: any) => {
         if (
-          autostarters.indexOf(nodeInfo.name.toString()) < 0 ||
-          !nodeInfo.pluginInstance ||
-          (nodeInfo.pluginInstance &&
-            nodeInfo.pluginInstance.getPackageType() !==
-              FlowTaskPackageType.FUNCTION_INPUT_NODE)
+          autostarters.indexOf(nodeInfo.name.toString()) < 0 &&
+          (!nodeInfo.pluginInstance ||
+            (nodeInfo.pluginInstance &&
+              nodeInfo.pluginInstance.getPackageType() !==
+                FlowTaskPackageType.FUNCTION_INPUT_NODE))
         ) {
           if (nodeInfo.inputs.length === 0 && !nodeInfo.dontAutostart) {
             nodeEmitter.emit(nodeInfo.nodeId.toString(), {}, {});
