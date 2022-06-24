@@ -616,6 +616,16 @@ export class FlowEventRunner {
                     }
 
                     node.subscription = result.subscribe(observer);
+
+                    if (!!callstackInstance['_executeNode']) {
+                      callstackInstance.outputs.forEach((outputNode : any) => {
+                        nodeEmitter.emit(
+                          outputNode.endshapeid.toString(),
+                          {},
+                          {}
+                        );
+                      });
+                    }
                   } else if (
                     typeof result === 'object' &&
                     typeof result.then === 'function'
