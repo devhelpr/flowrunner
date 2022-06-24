@@ -760,27 +760,31 @@ export class FlowEventRunner {
         return false;
       });
 
-    autostarters.map((nodeId: any) => {
-      nodeEmitter.emit(nodeId.toString(), {}, {});
-      return true;
-    });
+    let promises: Promise<any>[] = [];
 
-    if (!!autoStartNodes) {
-      this.nodes.map((nodeInfo: any) => {
-        if (
-          autostarters.indexOf(nodeInfo.name.toString()) < 0 &&
-          (!nodeInfo.pluginInstance ||
-            (nodeInfo.pluginInstance &&
-              nodeInfo.pluginInstance.getPackageType() !==
-                FlowTaskPackageType.FUNCTION_INPUT_NODE))
-        ) {
-          if (nodeInfo.inputs.length === 0 && !nodeInfo.dontAutostart) {
-            nodeEmitter.emit(nodeInfo.nodeId.toString(), {}, {});
+    autostarters.forEach((nodeId: any) => {
+      //nodeEmitter.emit(nodeId.toString(), {}, {});
+      promises.push(this.executeNode(nodeId,{},{}));
+    });
+    
+    Promise.all(promises).then(() => {
+      if (!!autoStartNodes) {
+        this.nodes.map((nodeInfo: any) => {
+          if (
+            autostarters.indexOf(nodeInfo.name.toString()) < 0 &&
+            (!nodeInfo.pluginInstance ||
+              (nodeInfo.pluginInstance &&
+                nodeInfo.pluginInstance.getPackageType() !==
+                  FlowTaskPackageType.FUNCTION_INPUT_NODE))
+          ) {
+            if (nodeInfo.inputs.length === 0 && !nodeInfo.dontAutostart) {
+              nodeEmitter.emit(nodeInfo.nodeId.toString(), {}, {});
+            }
           }
-        }
-        return true;
-      });
-    }
+          return true;
+        });
+      }
+    });
   };
 
   public destroyFlow = () => {
