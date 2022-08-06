@@ -280,6 +280,8 @@ export class FlowEventRunner {
           };
 
           if (node.events) {
+            // define eventhandlers for each event
+            //   and call emit to all attached outputs
             const flowEventRunner = this;
             node.events.map((event: any) => {
               nodeEmitter.on(
@@ -585,25 +587,39 @@ export class FlowEventRunner {
                         callstackInstance = null;
                       },
                       next: (incomingPayload: any) => {
-                        nodeInstance.payload = incomingPayload.payload
-                          ? incomingPayload.payload
-                          : incomingPayload;
-                        emitToOutputs(nodeInstance, newCallStack);
+                        if (incomingPayload && incomingPayload.isError) {
+                          emitToError(nodeInstance, newCallStack);
 
-                        FlowEventRunnerHelper.callMiddleware(
-                          this.middleware,
-                          incomingPayload &&
-                            incomingPayload.followFlow === 'isError'
-                            ? 'error'
-                            : 'ok',
-                          nodeInstance.id,
-                          nodeInstance.name,
-                          node.taskType,
-                          { ...incomingPayload },
-                          new Date(),
-                          this.nodeLastPayload[node.name]
-                        );
+                          FlowEventRunnerHelper.callMiddleware(
+                            this.middleware,
+                            'error',
+                            nodeInstance.id,
+                            nodeInstance.name,
+                            node.taskType,
+                            tempPayload,
+                            new Date(),
+                            this.nodeLastPayload[node.name]
+                          );  
+                        } else {
+                          nodeInstance.payload = incomingPayload.payload
+                            ? incomingPayload.payload
+                            : incomingPayload;
+                          emitToOutputs(nodeInstance, newCallStack);
 
+                          FlowEventRunnerHelper.callMiddleware(
+                            this.middleware,
+                            incomingPayload &&
+                              incomingPayload.followFlow === 'isError'
+                              ? 'error'
+                              : 'ok',
+                            nodeInstance.id,
+                            nodeInstance.name,
+                            node.taskType,
+                            { ...incomingPayload },
+                            new Date(),
+                            this.nodeLastPayload[node.name]
+                          );
+                        }
                         tempPayload = null;
                         callstackInstance = null;
                         newCallStack = null;
@@ -873,6 +889,12 @@ export class FlowEventRunner {
     eventName: string,
     payload: any
   ) => {
+
+    // TODO: call executeNode foreach connected output 
+    //    and wait for all to resolve.. 
+    //    to be able to do is the code for "define eventhandlers"
+    //   should be changed because there events are emitted
+    //   to all outputs as well, but these are not awaited
     return this.executeNode(nodeName, payload, undefined, eventName);
   };
 
