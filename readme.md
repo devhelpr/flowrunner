@@ -17,3 +17,9 @@ Currently the focus is on building the core set of packages and getting the righ
 
 The package won't be stable until v1... before that time don't use these packages in production code.
 
+## Publishing package
+
+- yarn test
+- yarn build
+- npm version ...(replace ... with new version number)
+- npm publish

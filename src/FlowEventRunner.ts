@@ -509,7 +509,7 @@ export class FlowEventRunner {
 
                   this.resetTouchedNodesPreExecute(nodeInfo, []);
                   this.touchedNodes[nodeInfo.nodeId] = true;
-
+                  
                   const result = pluginInstance.execute(
                     nodeInstance,
                     this.services,
@@ -897,6 +897,11 @@ export class FlowEventRunner {
     //   to all outputs as well, but these are not awaited
     return this.executeNode(nodeName, payload, undefined, eventName);
   };
+
+  public clearNodeState = (nodeName : string) => {
+    this.nodeLastPayload[nodeName] = {};
+    this.nodeValues[nodeName] = {};
+  }
 
   public retriggerNode = (nodeName: any) => {
     const payload = this.nodeLastPayload[nodeName] || {};
