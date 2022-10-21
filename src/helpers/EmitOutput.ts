@@ -152,7 +152,10 @@ export class EmitOutput {
       ) {
         followFlow = currentNodeInstance.payload.followFlow;
         if (followFlow === 'isError') {
-          if (currentCallStack && typeof currentCallStack.error !== 'undefined') {
+          if (
+            currentCallStack &&
+            typeof currentCallStack.error !== 'undefined'
+          ) {
             const upperCallStack = currentCallStack.callStack;
             currentCallStack.error.map((outputNode: any) => {
               flowEventRunner.touchedNodes[outputNode.name] = true;
@@ -382,7 +385,8 @@ export class EmitOutput {
       if (
         !nodeWasEmitted ||
         (nodeInfo.outputs.length === 0 &&
-          currentCallStack && typeof currentCallStack.outputs !== 'undefined')
+          currentCallStack &&
+          typeof currentCallStack.outputs !== 'undefined')
       ) {
         if (currentCallStack && currentCallStack.callStackType === 'FUNCTION') {
           // DONT call output node if in function... only fire function output node

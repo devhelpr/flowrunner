@@ -1,10 +1,67 @@
 //import * as moment from 'moment';
+import {
+  createExpressionTree,
+  executeExpressionTree,
+  extractValueParametersFromExpressionTree,
+} from '@devhelpr/expressionrunner';
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 import { conditionCheck } from './helpers/IfConditionHelpers';
 
 export class IfConditionTask extends FlowTask {
   public execute(node: any) {
+    if (node && node.mode === 'expression') {
+      const tree = createExpressionTree(node.expression);
+      if (!tree) {
+        return false;
+      }
+      const params = extractValueParametersFromExpressionTree(tree);
+      let valuesFoundInPayload = true;
+
+      params.forEach(param => {
+        if (!node.payload[param]) {
+          valuesFoundInPayload = false;
+        }
+      });
+      if (!valuesFoundInPayload) {
+        return false;
+      }
+
+      let payload: any = {};
+
+      // force string properties to number
+      if (node.forceNumeric === true) {
+        for (const property in node.payload) {
+          if (node.payload.hasOwnProperty(property)) {
+            if (typeof node.payload[property] == 'string') {
+              payload[property] = parseFloat(node.payload[property]) || 0;
+            } else {
+              payload[property] = node.payload[property];
+            }
+          }
+        }
+      } else {
+        payload = node.payload;
+      }
+
+      if (executeExpressionTree(tree, payload) === 1) {
+        return node.payload;
+      } else {
+        const errors = [];
+        errors.push({
+          error: 'Expression failed',
+          name: node.name,
+        });
+
+        const payload = Object.assign({}, node.payload, {
+          errors,
+          followFlow: 'isError',
+        });
+        // resolve(node.payload);
+        return payload;
+      }
+    }
+
     // return new Promise((resolve: any, reject: any) => {
     //const splitField1 = node.compareProperty.split('.');
     const splitField2 = node.withProperty.split('.');

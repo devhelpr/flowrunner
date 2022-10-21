@@ -509,7 +509,7 @@ export class FlowEventRunner {
 
                   this.resetTouchedNodesPreExecute(nodeInfo, []);
                   this.touchedNodes[nodeInfo.nodeId] = true;
-                  
+
                   const result = pluginInstance.execute(
                     nodeInstance,
                     this.services,
@@ -599,7 +599,7 @@ export class FlowEventRunner {
                             tempPayload,
                             new Date(),
                             this.nodeLastPayload[node.name]
-                          );  
+                          );
                         } else {
                           nodeInstance.payload = incomingPayload.payload
                             ? incomingPayload.payload
@@ -634,7 +634,7 @@ export class FlowEventRunner {
                     node.subscription = result.subscribe(observer);
 
                     if (!!callstackInstance['_executeNode']) {
-                      callstackInstance.outputs.forEach((outputNode : any) => {
+                      callstackInstance.outputs.forEach((outputNode: any) => {
                         nodeEmitter.emit(
                           outputNode.endshapeid.toString(),
                           {},
@@ -790,9 +790,9 @@ export class FlowEventRunner {
 
     autostarters.forEach((nodeId: any) => {
       //nodeEmitter.emit(nodeId.toString(), {}, {});
-      promises.push(this.executeNode(nodeId,{},{}));
+      promises.push(this.executeNode(nodeId, {}, {}));
     });
-    
+
     Promise.all(promises).then(() => {
       if (!!autoStartNodes) {
         this.nodes.map((nodeInfo: any) => {
@@ -889,19 +889,18 @@ export class FlowEventRunner {
     eventName: string,
     payload: any
   ) => {
-
-    // TODO: call executeNode foreach connected output 
-    //    and wait for all to resolve.. 
+    // TODO: call executeNode foreach connected output
+    //    and wait for all to resolve..
     //    to be able to do is the code for "define eventhandlers"
     //   should be changed because there events are emitted
     //   to all outputs as well, but these are not awaited
     return this.executeNode(nodeName, payload, undefined, eventName);
   };
 
-  public clearNodeState = (nodeName : string) => {
+  public clearNodeState = (nodeName: string) => {
     this.nodeLastPayload[nodeName] = {};
     this.nodeValues[nodeName] = {};
-  }
+  };
 
   public retriggerNode = (nodeName: any) => {
     const payload = this.nodeLastPayload[nodeName] || {};
