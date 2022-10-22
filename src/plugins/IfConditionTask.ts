@@ -2,6 +2,7 @@
 import {
   createExpressionTree,
   executeExpressionTree,
+  ExpressionNode,
   extractValueParametersFromExpressionTree,
 } from '@devhelpr/expressionrunner';
 import { FlowTask } from '../FlowTask';
@@ -9,12 +10,25 @@ import * as FlowTaskPackageType from '../FlowTaskPackageType';
 import { conditionCheck } from './helpers/IfConditionHelpers';
 
 export class IfConditionTask extends FlowTask {
+  expression?: string = undefined;
+  expressionTree?: ExpressionNode = undefined;
   public execute(node: any) {
     if (node && node.mode === 'expression') {
-      const tree = createExpressionTree(node.expression);
+      let tree: ExpressionNode | undefined = undefined;
+      if (
+        !this.expressionTree ||
+        this.expression === undefined ||
+        this.expression !== node.expression
+      ) {
+        tree = createExpressionTree(node.expression);
+      } else {
+        tree = this.expressionTree;
+      }
+
       if (!tree) {
         return false;
       }
+
       const params = extractValueParametersFromExpressionTree(tree);
       let valuesFoundInPayload = true;
 
@@ -43,8 +57,8 @@ export class IfConditionTask extends FlowTask {
       } else {
         payload = node.payload;
       }
-
-      if (executeExpressionTree(tree, payload) === 1) {
+      const result = executeExpressionTree(tree, payload);
+      if (result || (node.checkExpressionResultAsNumeric && result === 1)) {
         return node.payload;
       } else {
         const errors = [];
