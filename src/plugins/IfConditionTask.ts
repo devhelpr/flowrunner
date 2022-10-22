@@ -31,9 +31,12 @@ export class IfConditionTask extends FlowTask {
 
       const params = extractValueParametersFromExpressionTree(tree);
       let valuesFoundInPayload = true;
-      if (!node.shouldAllParamsBeInPayload) {
+      if (
+        node.shouldAllParamsBeInPayload === undefined ||
+        node.shouldAllParamsBeInPayload === true
+      ) {
         params.forEach(param => {
-          if (!node.payload[param]) {
+          if (node.payload[param] === undefined) {
             valuesFoundInPayload = false;
           }
         });
