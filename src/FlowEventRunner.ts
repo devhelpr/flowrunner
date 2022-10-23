@@ -75,10 +75,13 @@ export class FlowEventRunner {
   private touchedNodes: any = {};
   private nodeInfoMap: any = {};
 
+  private pluginTaskExtensions: any = {};
+
   constructor() {
     this.activationFunctions = [];
     this.services = {
       flowEventRunner: this,
+      pluginTaskExtensions: {},
       getActivationFunction: this.getActivationFunction,
       //logMessage: (...args) => {},
       logMessage: () => {},
@@ -1104,10 +1107,12 @@ export class FlowEventRunner {
         flowEventRunner: this,
         logMessage: (..._args) => {},
         pluginClasses: {},
+        pluginTaskExtensions: {},
         registerModel: (_modelName: string, _definition: any) => {},
       };
     }
 
+    this.services.pluginTaskExtensions = this.pluginTaskExtensions;
     this.services.getActivationFunction = this.getActivationFunction;
 
     if (
@@ -1244,6 +1249,25 @@ export class FlowEventRunner {
 
   public resumeFlowrunner = () => {
     this.flowEventEmitter.resumeFlowrunner();
+  };
+
+  public registerPluginTaskExtension = (
+    taskName: string,
+    propertyName: string,
+    optionName: string,
+    executionFunction: (node: any, services: any) => any
+  ) => {
+    this.pluginTaskExtensions[taskName] = {
+      ...this.pluginTaskExtensions[taskName],
+      [propertyName]: {
+        ...(this.pluginTaskExtensions[taskName] || {})[propertyName],
+        [optionName]: executionFunction,
+      },
+    };
+  };
+
+  public clearRegisterPluginTaskExtension = () => {
+    this.pluginTaskExtensions = {};
   };
 
   private errorListener = (err: any) => {

@@ -12,8 +12,19 @@ import { conditionCheck } from './helpers/IfConditionHelpers';
 export class IfConditionTask extends FlowTask {
   expression?: string = undefined;
   expressionTree?: ExpressionNode = undefined;
-  public execute(node: any) {
-    if (node && node.mode === 'expression') {
+  public execute(node: any, services: any) {
+    if (
+      services &&
+      services.pluginTaskExtensions &&
+      services.pluginTaskExtensions.IfConditionTask &&
+      services.pluginTaskExtensions.IfConditionTask.mode &&
+      services.pluginTaskExtensions.IfConditionTask.mode[node.mode]
+    ) {
+      return services.pluginTaskExtensions.IfConditionTask.mode[node.mode](
+        node,
+        services
+      );
+    } else if (node && node.mode === 'expression') {
       let tree: ExpressionNode | undefined = undefined;
       if (
         !this.expressionTree ||
