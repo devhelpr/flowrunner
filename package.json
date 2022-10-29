@@ -60,6 +60,6 @@
     "promise": "^8.0.2",
     "rxjs": "^6.4.0",
     "uuid": "^3.3.2",
-    "@devhelpr/expressionrunner": "^0.3.0"
+    "@devhelpr/expressionrunner": "^0.3.1"
   }
 }

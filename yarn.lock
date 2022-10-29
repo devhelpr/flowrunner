@@ -863,10 +863,10 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@devhelpr/expressionrunner@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.3.0.tgz#d2efb8d04027393000d64d918ab9333c79900960"
-  integrity sha512-Dh+fiByKmVA2brkNE5AE6xvTasvuhlHjkRUk8jGdTdFLam7AJsN25qk/v44Ilw8dStgNN9eSwirV8ibxeHfmcA==
+"@devhelpr/expressionrunner@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.3.1.tgz#3c05ea9583aee56b5808f0e83fed79fc12e2cc5e"
+  integrity sha512-s2ukD/NBRbyLv3UMntIV8hEDgoTyJ1Kc8tY3Opzd/+7qh6ZtvNpmZiE5qm0Lu6V1YM6bqsiIpgcEtgMKd0Nh9w==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"

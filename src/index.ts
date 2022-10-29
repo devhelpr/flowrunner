@@ -11,3 +11,5 @@ export {
   HumanFlowToMachineFlow,
   ObservableTask,
 };
+
+export { createErrorPayload } from './helpers/create-error-payload';
