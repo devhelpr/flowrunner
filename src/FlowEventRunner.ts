@@ -513,6 +513,17 @@ export class FlowEventRunner {
                   this.resetTouchedNodesPreExecute(nodeInfo, []);
                   this.touchedNodes[nodeInfo.nodeId] = true;
 
+                  FlowEventRunnerHelper.callMiddleware(
+                    this.middleware,
+                    'before',
+                    nodeInstance.id,
+                    nodeInstance.name,
+                    node.taskType,
+                    this.nodeLastPayload[node.name],
+                    new Date(),
+                    this.nodeLastPayload[node.name]
+                  );
+
                   const result = pluginInstance.execute(
                     nodeInstance,
                     this.services,
