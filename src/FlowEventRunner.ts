@@ -282,6 +282,10 @@ export class FlowEventRunner {
             throttleInterval: node.throttleInterval,
           };
 
+          if (!!node.isFunctionalConnection) {
+            options.isFunctionalConnection = true;
+          }
+
           if (node.events) {
             // define eventhandlers for each event
             //   and call emit to all attached outputs

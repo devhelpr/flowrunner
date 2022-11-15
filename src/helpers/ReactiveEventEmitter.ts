@@ -7,6 +7,7 @@ export interface IReactiveEventEmitterOptions {
   isSampling: boolean;
   sampleInterval?: number;
   throttleInterval?: number;
+  isFunctionalConnection?: boolean;
 }
 /*
 
@@ -28,6 +29,8 @@ export class ReactiveEventEmitter {
   private nodesListeners: any = {};
   private subjects: any = {};
   private subscriptions: any = {};
+
+  private functions: any = {};
 
   private nodesControllers: any = {};
 
@@ -61,7 +64,9 @@ export class ReactiveEventEmitter {
 
     this.nodesListeners[nodeName].push(listener);
 
-    if (typeof this.subjects[nodeName] !== 'object') {
+    if (options?.isFunctionalConnection) {
+      this.functions[nodeName] = listener;
+    } else if (typeof this.subjects[nodeName] !== 'object') {
       const subject: any = new Subject();
       this.subjects[nodeName] = subject;
 
@@ -130,10 +135,19 @@ export class ReactiveEventEmitter {
     // }
     this.nodesListeners[nodeName] = null;
     delete this.nodesListeners[nodeName];
+
+    this.functions[nodeName] = null;
+    delete this.functions[nodeName];
   };
 
   private emitToSubject = (nodeName: any, payload: any, callstack: any) => {
-    if (typeof this.subjects[nodeName] === 'object') {
+    if (this.functions[nodeName]) {
+      let payloadInstance = { ...payload };
+      let callstackInstance = { ...callstack };
+      this.functions[nodeName](payloadInstance, callstackInstance);
+      payloadInstance = null;
+      callstackInstance = null;
+    } else if (typeof this.subjects[nodeName] === 'object') {
       let subject$ = this.subjects[nodeName];
       let payloadInstance = { ...payload };
       let callstackInstance = { ...callstack };
