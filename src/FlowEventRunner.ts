@@ -325,6 +325,11 @@ export class FlowEventRunner {
                   eventNodeInfo.error = [];
 
                   nodeInstance.payload = Object.assign({}, payload);
+
+                  this.nodeLastPayload[node.name + '_' + event.eventName] = {
+                    ...payload,
+                  };
+
                   EmitOutput.emitToOutputs(
                     nodePluginInfo,
                     nodeEmitter,
@@ -333,6 +338,20 @@ export class FlowEventRunner {
                     callStack,
                     flowEventRunner,
                     event.eventName
+                  );
+
+                  FlowEventRunnerHelper.callMiddleware(
+                    this.middleware,
+                    nodeInstance.payload &&
+                      nodeInstance.payload.followFlow === 'isError'
+                      ? 'error'
+                      : 'ok',
+                    nodeInstance.id,
+                    nodeInstance.name,
+                    node.taskType,
+                    { ...nodeInstance.payload },
+                    new Date(),
+                    this.nodeLastPayload[node.name + '_' + event.eventName]
                   );
                 },
                 options
@@ -912,6 +931,27 @@ export class FlowEventRunner {
     //    to be able to do is the code for "define eventhandlers"
     //   should be changed because there events are emitted
     //   to all outputs as well, but these are not awaited
+
+    // this.touchedNodes .. hier zetten voor output event connectie
+
+    const nodeInfo = this.nodeInfoMap[nodeName];
+    if (nodeInfo) {
+      if (nodeInfo.events && nodeInfo.events.length > 0) {
+        nodeInfo.events.forEach((eventInfo: any) => {
+          if (
+            eventInfo &&
+            eventInfo.eventName === eventName &&
+            nodeInfo.outputs
+          ) {
+            nodeInfo.outputs.forEach((output: any) => {
+              if (output.event === eventName) {
+                this.touchedNodes[output.name] = true;
+              }
+            });
+          }
+        });
+      }
+    }
     return this.executeNode(nodeName, payload, undefined, eventName);
   };
 

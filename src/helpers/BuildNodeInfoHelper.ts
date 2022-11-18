@@ -14,6 +14,7 @@ export interface INodeInfo {
   title: string;
   isAnnotation: boolean;
   subscription?: any;
+  events?: any[];
 }
 
 export class BuildNodeInfoHelper {
@@ -38,6 +39,7 @@ export class BuildNodeInfoHelper {
         nodeList,
         nodePluginInfoMap
       ),
+      events: node.events || [],
       inputs: nodeList.filter(
         (o: any) =>
           o.endshapeid === node.id.toString() &&
