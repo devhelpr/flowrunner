@@ -255,7 +255,7 @@ export class ReactiveEventEmitter {
                 return true;
               });
               if (!!emitToNode) {
-                this.emit(node.id.toString(), sendPayload, callstackInstance);
+                this.emit(node.name.toString(), sendPayload, callstackInstance);
               }
             }
 

@@ -30,7 +30,7 @@ export class InjectionHelper {
             FlowEventRunnerHelper.callMiddleware(
               middleware,
               'injection',
-              nodeInstance.id,
+              nodeInstance.name,
               nodeInstance.name,
               node.taskType,
               payloadResult,
@@ -57,7 +57,7 @@ export class InjectionHelper {
         FlowEventRunnerHelper.callMiddleware(
           middleware,
           'injection',
-          nodeInstance.id,
+          nodeInstance.name,
           nodeInstance.name,
           node.taskType,
           payload,

@@ -224,7 +224,7 @@ export class EmitOutput {
         flowPath: currentNodeInstance.payload.flowPath,
         outputs: nodeInfo.outputs,
         payload: currentNodeInstance.payload,
-        returnNodeId: currentNodeInstance.id,
+        returnNodeId: currentNodeInstance.name,
         tag: currentNodeInstance.payload.tag,
       };
 

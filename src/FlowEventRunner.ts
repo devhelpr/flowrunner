@@ -169,8 +169,8 @@ export class FlowEventRunner {
     this.nodes = nodeList
       .filter((o: any) => o.taskType !== 'connection')
       .map((node: any) => {
-        if (!keepOldFlowValues || !this.nodeValues[node.id]) {
-          this.nodeValues[node.id] = node;
+        if (!keepOldFlowValues || !this.nodeValues[node.name]) {
+          this.nodeValues[node.name] = node;
         }
 
         // nodePluginInfo contains info about the the plugin such as the plugInstance, className and config metadata
@@ -179,7 +179,7 @@ export class FlowEventRunner {
         const pluginClass = this.services.pluginClasses[node.taskType];
 
         if (!pluginClass) {
-          this.services.logMessage('pluginClass not defined', node.id, node);
+          this.services.logMessage('pluginClass not defined', node.name, node);
           return false;
         }
 
@@ -212,9 +212,9 @@ export class FlowEventRunner {
         nodeInfo.isAnnotation = nodePluginInfo.isAnnotation;
         nodeInfo.pluginInstance = pluginInstance;
 
-        this.nodeInfoMap[node.id] = nodeInfo;
+        this.nodeInfoMap[node.name] = nodeInfo;
 
-        this.nodeNames[node.name] = node.id;
+        this.nodeNames[node.name] = node.name;
 
         if (pluginInstance !== undefined) {
           this.flowNodeTriggers.map((flowNodeTrigger: any) => {
@@ -222,7 +222,7 @@ export class FlowEventRunner {
               pluginInstance.getPackageType(),
               node,
               (payload: any, callStack: any) => {
-                nodeEmitter.emit(node.id.toString(), payload, callStack);
+                nodeEmitter.emit(node.name.toString(), payload, callStack);
               }
             );
             return true;
@@ -249,7 +249,7 @@ export class FlowEventRunner {
             if (pluginInstance.getObservable !== undefined) {
               this.observables.push({
                 name: node.name || node.title.replace(/ /g, ''),
-                nodeId: node.id,
+                nodeId: node.name,
                 observable: pluginInstance.getObservable(node),
               });
             }
@@ -258,7 +258,7 @@ export class FlowEventRunner {
               pluginInstance.getPackageType() ===
               FlowTaskPackageType.FUNCTION_INPUT_NODE
             ) {
-              this.functionNodes[node.name] = node.id.toString();
+              this.functionNodes[node.name] = node.name.toString();
               this.services.logMessage(this.functionNodes);
             }
 
@@ -292,12 +292,12 @@ export class FlowEventRunner {
             const flowEventRunner = this;
             node.events.map((event: any) => {
               nodeEmitter.on(
-                node.id.toString() + '_' + event.eventName,
+                node.name.toString() + '_' + event.eventName,
                 (payload: any, callStack: any) => {
                   const currentNode = Object.assign(
                     {},
                     node,
-                    this.nodeValues[node.id]
+                    this.nodeValues[node.name]
                   );
                   const nodeInstance = Object.assign({}, currentNode, {
                     followNodes: nodeInfo.manuallyToFollowNodes,
@@ -314,7 +314,7 @@ export class FlowEventRunner {
                   // only add the connections which are the actual event...
                   eventNodeInfo.outputs = nodeList.filter(
                     (o: any) =>
-                      o.startshapeid === node.id.toString() &&
+                      o.startshapeid === node.name.toString() &&
                       o.taskType === 'connection' &&
                       o.followflow !== 'onfailure' &&
                       o.followflow !== 'followManually' &&
@@ -346,7 +346,7 @@ export class FlowEventRunner {
                       nodeInstance.payload.followFlow === 'isError'
                       ? 'error'
                       : 'ok',
-                    nodeInstance.id,
+                    nodeInstance.name,
                     nodeInstance.name,
                     node.taskType,
                     { ...nodeInstance.payload },
@@ -361,12 +361,12 @@ export class FlowEventRunner {
           }
 
           nodeEmitter.on(
-            node.id.toString(),
+            node.name.toString(),
             (payload: any, callStack: any) => {
               const currentNode = Object.assign(
                 {},
                 node,
-                this.nodeValues[node.id]
+                this.nodeValues[node.name]
               );
               let payloadInstance = { ...payload };
 
@@ -454,7 +454,7 @@ export class FlowEventRunner {
                 this.services.logMessage(
                   'EVENT Received for node: ',
                   nodeInfo.name,
-                  node.id.toString()
+                  node.name.toString()
                 );
 
                 function emitToOutputs(
@@ -539,7 +539,7 @@ export class FlowEventRunner {
                   FlowEventRunnerHelper.callMiddleware(
                     this.middleware,
                     'before',
-                    nodeInstance.id,
+                    nodeInstance.name,
                     nodeInstance.name,
                     node.taskType,
                     this.nodeLastPayload[node.name],
@@ -574,7 +574,7 @@ export class FlowEventRunner {
                         name:
                           nodeInstance.name ||
                           nodeInstance.title.replace(/ /g, ''),
-                        nodeId: nodeInstance.id,
+                        nodeId: nodeInstance.name,
                         observable: result,
                       });
                     }
@@ -612,7 +612,7 @@ export class FlowEventRunner {
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
                           'error',
-                          nodeInstance.id,
+                          nodeInstance.name,
                           nodeInstance.name,
                           node.taskType,
                           tempPayload,
@@ -630,7 +630,7 @@ export class FlowEventRunner {
                           FlowEventRunnerHelper.callMiddleware(
                             this.middleware,
                             'error',
-                            nodeInstance.id,
+                            nodeInstance.name,
                             nodeInstance.name,
                             node.taskType,
                             tempPayload,
@@ -649,7 +649,7 @@ export class FlowEventRunner {
                               incomingPayload.followFlow === 'isError'
                               ? 'error'
                               : 'ok',
-                            nodeInstance.id,
+                            nodeInstance.name,
                             nodeInstance.name,
                             node.taskType,
                             { ...incomingPayload },
@@ -695,7 +695,7 @@ export class FlowEventRunner {
                             incomingPayload.followFlow === 'isError'
                             ? 'error'
                             : 'ok',
-                          nodeInstance.id,
+                          nodeInstance.name,
                           nodeInstance.name,
                           node.taskType,
                           { ...incomingPayload },
@@ -724,7 +724,7 @@ export class FlowEventRunner {
                         FlowEventRunnerHelper.callMiddleware(
                           this.middleware,
                           'error',
-                          nodeInstance.id,
+                          nodeInstance.name,
                           nodeInstance.name,
                           node.taskType,
                           nodeInstance.payload,
@@ -745,7 +745,7 @@ export class FlowEventRunner {
                       result && result.followFlow === 'isError'
                         ? 'error'
                         : 'ok',
-                      nodeInstance.id,
+                      nodeInstance.name,
                       nodeInstance.name,
                       node.taskType,
                       result,
@@ -762,7 +762,7 @@ export class FlowEventRunner {
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
                       'ok',
-                      nodeInstance.id,
+                      nodeInstance.name,
                       nodeInstance.name,
                       node.taskType,
                       nodeInstance.payload,
@@ -785,7 +785,7 @@ export class FlowEventRunner {
                     FlowEventRunnerHelper.callMiddleware(
                       this.middleware,
                       'error',
-                      nodeInstance.id,
+                      nodeInstance.name,
                       nodeInstance.name,
                       node.taskType,
                       nodeInstance.payload,
@@ -955,9 +955,14 @@ export class FlowEventRunner {
     return this.executeNode(nodeName, payload, undefined, eventName);
   };
 
-  public clearNodeState = (nodeName: string) => {
+  public clearNodeState = (nodeName: string, initialValues?: any) => {
     this.nodeLastPayload[nodeName] = {};
     this.nodeValues[nodeName] = {};
+
+    if (initialValues) {
+      this.nodeLastPayload[nodeName] = { ...initialValues };
+      this.nodeValues[nodeName] = { ...initialValues };
+    }
   };
 
   public retriggerNode = (nodeName: any) => {
@@ -1267,6 +1272,14 @@ export class FlowEventRunner {
     return undefined;
   };
 
+  public getPropertiesFromNode = (nodeName: string) => {
+    const nodeId: string = this.nodeNames[nodeName as any];
+    if (nodeId !== undefined && this.nodeValues[nodeId] !== undefined) {
+      return this.nodeValues[nodeId];
+    }
+    return undefined;
+  };
+
   public getNodeState(nodeName: string) {
     return this.nodeState[nodeName] || {};
   }
@@ -1374,12 +1387,15 @@ export class FlowEventRunner {
         return true;
       });
 
-      nodeInfo.outputs.map((outputNode: any) => {
+      nodeInfo.outputs.forEach((outputNode: any) => {
+        if (outputNode.isBackLoop === true) {
+          return;
+        }
         this.resetTouchedNodesPreExecute(
           this.nodeInfoMap[outputNode.endshapeid],
           updatedNodesList
         );
-        return true;
+        return;
       });
     }
 
@@ -1389,12 +1405,16 @@ export class FlowEventRunner {
         return true;
       });
 
-      nodeInfo.error.map((outputNode: any) => {
+      nodeInfo.error.forEach((outputNode: any) => {
+        if (outputNode.isBackLoop === true) {
+          return;
+        }
+
         this.resetTouchedNodesPreExecute(
           this.nodeInfoMap[outputNode.endshapeid],
           updatedNodesList
         );
-        return true;
+        return;
       });
     }
   };

@@ -41,7 +41,7 @@ export class FlowEventRunnerHelper {
     const nodeInjections: any = [];
     injections.map((nodeRelation: any) => {
       nodeList.map((node: any) => {
-        if (node.id === nodeRelation.startshapeid) {
+        if (node.name === nodeRelation.startshapeid) {
           nodeInjections.push(node);
         }
         return true;
@@ -59,7 +59,7 @@ export class FlowEventRunnerHelper {
     return nodeList.filter((node: any) => {
       return (
         typeof manuallyToFollowNodes.find(
-          (o: any) => o.endshapeid === node.id.toString()
+          (o: any) => o.endshapeid === node.name.toString()
         ) !== 'undefined'
       );
     });
@@ -81,7 +81,7 @@ export class FlowEventRunnerHelper {
 
     nodeInjections.map((nodeRelation: any) => {
       nodeList.map((node: any) => {
-        if (node.id === nodeRelation.startshapeid) {
+        if (node.name === nodeRelation.startshapeid) {
           const nodeType = nodeTypes[node.taskType];
           if (typeof nodeType !== 'undefined') {
             const nodeInstance = Object.assign({}, node);

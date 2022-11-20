@@ -6,7 +6,7 @@ export const HumanFlowToMachineFlow = {
     const flowPackage = Object.assign({}, humanFlowPackege);
 
     flowPackage.flow.map((flowNode: any) => {
-      flowNode.title = flowNode.title || flowNode.name || flowNode.id;
+      flowNode.title = flowNode.title || flowNode.name || flowNode.name;
       flowNode.name = flowNode.name || flowNode.title.replace(/ /g, '');
       flowNode.shapeType = 'Rect';
       flowNode.id = flowNode.name;
@@ -31,7 +31,7 @@ export const HumanFlowToMachineFlow = {
             '_to_' +
             outputNodeName +
             '_' +
-            connection.id;
+            connection.name;
           connection.startshapeid = flowNode.name;
           connection.endshapeid = outputNodeName;
           flowPackage.flow.push(connection);
@@ -52,8 +52,8 @@ export const HumanFlowToMachineFlow = {
             '_to_' +
             outputNodeName +
             '_' +
-            connection.id;
-          connection.startshapeid = flowNode.id;
+            connection.name;
+          connection.startshapeid = flowNode.name;
           connection.endshapeid = outputNodeName;
           connection.followflow = 'onfailure';
           flowPackage.flow.push(connection);
