@@ -1280,6 +1280,14 @@ export class FlowEventRunner {
     return undefined;
   };
 
+  public getLastPayloadFromNode = (nodeName: string) => {
+    const nodeId: string = this.nodeNames[nodeName as any];
+    if (nodeId !== undefined && this.nodeLastPayload[nodeId] !== undefined) {
+      return this.nodeLastPayload[nodeId];
+    }
+    return undefined;
+  };
+
   public getNodeState(nodeName: string) {
     return this.nodeState[nodeName] || {};
   }
