@@ -55,7 +55,7 @@
   "author": "Maikel van de Lisdonk",
   "license": "MIT",
   "dependencies": {
-    "@devhelpr/expression-compiler": "^0.0.10",
+    "@devhelpr/expression-compiler": "^0.0.12",
     "@devhelpr/expressionrunner": "^0.3.1",
     "@types/uuid": "^8.3.4",
     "moment": "^2.29.4",
