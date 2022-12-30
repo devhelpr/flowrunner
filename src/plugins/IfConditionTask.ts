@@ -1,4 +1,4 @@
-//import * as moment from 'moment';
+// @ts-nocheck
 import {
   createExpressionTree,
   executeExpressionTree,
@@ -8,10 +8,15 @@ import {
 import { FlowTask } from '../FlowTask';
 import * as FlowTaskPackageType from '../FlowTaskPackageType';
 import { conditionCheck } from './helpers/IfConditionHelpers';
+import {
+  compileExpression,
+  runExpression,
+} from '@devhelpr/expression-compiler';
 
 export class IfConditionTask extends FlowTask {
   expression?: string = undefined;
   expressionTree?: ExpressionNode = undefined;
+  compiledExpression?: any = undefined;
   public execute(node: any, services: any) {
     if (
       services &&
@@ -24,6 +29,47 @@ export class IfConditionTask extends FlowTask {
         node,
         services
       );
+    } else if (node && node.mode === 'compiled-expression') {
+      if (
+        !this.compiledExpression ||
+        this.expression === undefined ||
+        this.expression !== node.expression
+      ) {
+        this.compiledExpression = compileExpression(node.expression);
+      }
+
+      let payload: any = {};
+
+      // force string properties to number
+      if (node.forceNumeric === true) {
+        for (const property in node.payload) {
+          if (node.payload.hasOwnProperty(property)) {
+            if (typeof node.payload[property] == 'string') {
+              payload[property] = parseFloat(node.payload[property]) || 0;
+            } else {
+              payload[property] = node.payload[property];
+            }
+          }
+        }
+      } else {
+        payload = node.payload;
+      }
+      const result = runExpression(this.compiledExpression, payload);
+      if (result || (node.checkExpressionResultAsNumeric && result === 1)) {
+        return node.payload;
+      }
+      const errors = [];
+      errors.push({
+        error: 'Expression failed',
+        name: node.name,
+      });
+
+      payload = Object.assign({}, node.payload, {
+        errors,
+        followFlow: 'isError',
+      });
+      // resolve(node.payload);
+      return payload;
     } else if (node && node.mode === 'expression') {
       let tree: ExpressionNode | undefined = undefined;
       if (

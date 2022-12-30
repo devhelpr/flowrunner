@@ -863,6 +863,11 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@devhelpr/expression-compiler@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@devhelpr/expression-compiler/-/expression-compiler-0.0.10.tgz#19b21e35e1540dd3c53b37b0c5e6d2fc13dcb0d9"
+  integrity sha512-vZTO15QVgf1sjF5Vv3kNHMaFIAOIQ41/SeffqJmOAjJgWoA+XJfILo55H2ZoJb3vIsdcEDMW7nI2Ztgs2g3GvQ==
+
 "@devhelpr/expressionrunner@^0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@devhelpr/expressionrunner/-/expressionrunner-0.3.1.tgz#3c05ea9583aee56b5808f0e83fed79fc12e2cc5e"
